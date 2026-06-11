@@ -1,13 +1,19 @@
 import { create } from 'zustand'
-import type { ARTHAMState, PersonaType, CausalGraph, PresetShock } from '@/types'
-import { REASONING_PRESETS } from './mock-data'
+import type { ARTHAMState, PersonaType, CausalGraph, ChronosDisruption, ChronosStep } from '@/types'
+import { REASONING_PRESETS, CHRONOS_DISRUPTIONS } from './mock-data'
 
 interface ARTHAMStore extends ARTHAMState {
   activePersona: PersonaType
   searchQuery: string
-  activePresetShock: string | null // id of PresetShock
+  activePresetShock: string | null
   activeGraph: CausalGraph | null
   
+  // Chronos States
+  selectedChronosId: string | null
+  chronosPlaying: boolean
+  chronosCurrentDay: number
+  chronosLogTimeline: ChronosStep[]
+
   // Custom Simulator Sliders (0-100)
   oilShock: number
   portDisruption: number
@@ -25,6 +31,12 @@ interface ARTHAMStore extends ARTHAMState {
   resetShocks: () => void
   executeSearch: (query: string) => void
   driftIndex: () => void
+  
+  // Chronos Actions
+  selectChronosDisruption: (disruptionId: string | null) => void
+  setChronosPlaying: (playing: boolean) => void
+  resetChronos: () => void
+  advanceChronos: () => void
 }
 
 export const useARTHAMStore = create<ARTHAMStore>((set) => ({
@@ -42,6 +54,12 @@ export const useARTHAMStore = create<ARTHAMStore>((set) => ({
   searchQuery: '',
   activePresetShock: null,
   activeGraph: null,
+
+  // Chronos defaults
+  selectedChronosId: null,
+  chronosPlaying: false,
+  chronosCurrentDay: 0,
+  chronosLogTimeline: [],
 
   oilShock: 0,
   portDisruption: 0,
@@ -83,9 +101,8 @@ export const useARTHAMStore = create<ARTHAMStore>((set) => ({
   }),
 
   executeSearch: (query) => {
-    // Normalise query to match presets
     const lower = query.toLowerCase()
-    let matchedKey = 'index_drop' // default fallback
+    let matchedKey = 'index_drop'
     
     if (lower.includes('red sea') || lower.includes('fertilizer') || lower.includes('tomato')) {
       matchedKey = 'redsea'
@@ -106,7 +123,6 @@ export const useARTHAMStore = create<ARTHAMStore>((set) => ({
 
   driftIndex: () =>
     set((s) => {
-      const isPositive = Math.random() > 0.45
       const delta = parseFloat((Math.random() * 0.4 - 0.2).toFixed(1))
       const newIndex = Math.max(65, Math.min(95, parseFloat((s.arthamIndex + delta).toFixed(1))))
       const newChange = parseFloat((s.indexChange + delta).toFixed(1))
@@ -117,5 +133,58 @@ export const useARTHAMStore = create<ARTHAMStore>((set) => ({
         economicPulse: newIndex > 80 ? 'Expansion' : newIndex > 72 ? 'Steady' : 'Stressed',
         lastUpdate: new Date()
       }
-    })
+    }),
+
+  // Chronos actions implementation
+  selectChronosDisruption: (disruptionId) => {
+    if (disruptionId === null) {
+      set({
+        selectedChronosId: null,
+        chronosPlaying: false,
+        chronosCurrentDay: 0,
+        chronosLogTimeline: []
+      })
+    } else {
+      const d = CHRONOS_DISRUPTIONS.find(c => c.id === disruptionId)
+      set({
+        selectedChronosId: disruptionId,
+        chronosPlaying: false,
+        chronosCurrentDay: 1,
+        chronosLogTimeline: d ? [d.timeline[0]] : []
+      })
+    }
+  },
+
+  setChronosPlaying: (playing) => set({ chronosPlaying: playing }),
+  
+  resetChronos: () => set((s) => {
+    if (!s.selectedChronosId) return {}
+    const d = CHRONOS_DISRUPTIONS.find(c => c.id === s.selectedChronosId)
+    return {
+      chronosPlaying: false,
+      chronosCurrentDay: 1,
+      chronosLogTimeline: d ? [d.timeline[0]] : []
+    }
+  }),
+
+  advanceChronos: () => set((s) => {
+    if (!s.selectedChronosId) return {}
+    const d = CHRONOS_DISRUPTIONS.find(c => c.id === s.selectedChronosId)
+    if (!d) return {}
+    
+    const nextDay = s.chronosCurrentDay + 1
+    const matchingSteps = d.timeline.filter(t => t.day <= nextDay)
+    
+    if (nextDay > d.timeline[d.timeline.length - 1].day) {
+      // Replay completed, pause playback
+      return {
+        chronosPlaying: false
+      }
+    }
+    
+    return {
+      chronosCurrentDay: nextDay,
+      chronosLogTimeline: matchingSteps
+    }
+  })
 }))

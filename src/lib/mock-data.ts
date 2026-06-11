@@ -1,6 +1,7 @@
 import type {
   CommodityFreight, PortTelemetry, CorridorTelemetry, MandiHeatNode,
-  CausalGraph, PresetShock, DecisionAlert, AgentDetails, FreightDataPoint
+  CausalGraph, PresetShock, DecisionAlert, AgentDetails,
+  IndexMetricDetail, AutopilotMitigation, ChronosDisruption, EarthCargoFlow, FreightDataPoint
 } from '@/types'
 
 // ─── 10 Agent Mesh ──────────────────────────────────────────
@@ -12,7 +13,7 @@ export const AGENTS_LIST: AgentDetails[] = [
   { name: 'AgriAgent', role: 'Mandi Yields & Arbitrage', status: 'idle', description: 'Aggregates commodity price differentials and cold-chain routing.' },
   { name: 'InfrastructureAgent', role: 'Fixed Assets', status: 'idle', description: 'Assess status of ports, warehouses, and DFC networks.' },
   { name: 'MobilityAgent', role: 'Transit Operations', status: 'idle', description: 'Controls driver retention indexes, truck density, and fleet delays.' },
-  { name: 'ClimateAgent', role: 'Thermal & Thermal Stresses', status: 'idle', description: 'Applies rainfall deficit and heatwave variables to logistics corridors.' },
+  { name: 'ClimateAgent', role: 'Thermal & Weather Stresses', status: 'idle', description: 'Applies rainfall deficit and heatwave variables to logistics corridors.' },
   { name: 'MarketAgent', role: 'Commodity & Futures Hedging', status: 'idle', description: 'Prices rail delay contracts and tracks mandi derivative demand.' },
   { name: 'CapitalAgent', role: 'Land Valuation & REITs', status: 'idle', description: 'Evaluates railway land holdings and computes commercial yields.' }
 ]
@@ -141,70 +142,207 @@ export const REASONING_PRESETS: Record<string, CausalGraph> = {
 export const PRESET_SHOCKS: PresetShock[] = [
   {
     id: 's-oil',
-    name: 'Oil Shock (+35%)',
-    description: 'Brent Crude spikes to $115/bbl due to OPEC+ output cuts and shipping disruptions.',
-    oilShock: 35,
-    portDisruption: 10,
+    name: 'Oil Shock ($150)',
+    description: 'Brent Crude spikes to $150/bbl due to escalating geopolitical tensions in resource channels.',
+    oilShock: 75,
+    portDisruption: 15,
     monsoonDelay: 0,
     railStrike: 0,
     floodImpact: 0,
-    coalShortage: 15
+    coalShortage: 20
   },
   {
     id: 's-strike',
-    name: 'Port & Rail Strike',
-    description: 'National freight handlers call for a 7-day walkout affecting western transport hubs.',
+    name: 'Mumbai Port Shutdown',
+    description: 'JNPT and Mundra dock operations halt due to sudden localized labor walkouts.',
     oilShock: 0,
-    portDisruption: 80,
+    portDisruption: 90,
     monsoonDelay: 0,
-    railStrike: 70,
-    floodImpact: 15,
-    coalShortage: 30
+    railStrike: 50,
+    floodImpact: 10,
+    coalShortage: 15
   },
   {
     id: 's-monsoon',
-    name: 'Delayed Monsoon (-22%)',
-    description: 'El Nino weather patterns drop agricultural precipitation by 22% in breadbasket states.',
+    name: 'Monsoon Failure (-30%)',
+    description: 'Precipitation levels contract by 30% nationwide, cutting agricultural output buffers.',
     oilShock: 5,
     portDisruption: 0,
-    monsoonDelay: 85,
+    monsoonDelay: 95,
     railStrike: 0,
     floodImpact: 0,
     coalShortage: 10
   },
   {
-    id: 's-trade',
-    name: 'Trade War Surcharges',
-    description: 'Tariffs on imported raw steel and key electronics parts increase across bilateral segments.',
+    id: 's-corridor',
+    name: 'Western DFC Failure',
+    description: 'Track failures and signalling drops block cargo rakes across Gujarat junctions.',
     oilShock: 10,
-    portDisruption: 45,
+    portDisruption: 40,
     monsoonDelay: 0,
-    railStrike: 0,
-    floodImpact: 0,
-    coalShortage: 0
-  },
-  {
-    id: 's-flood',
-    name: 'Corridor Flooding',
-    description: 'Severe monsoon downpours submerge DFC nodes in Gujarat and Maharashtra routing.',
-    oilShock: 15,
-    portDisruption: 60,
-    monsoonDelay: 0,
-    railStrike: 25,
-    floodImpact: 90,
-    coalShortage: 20
-  },
-  {
-    id: 's-coal',
-    name: 'Coal Supply Crisis',
-    description: 'Mine flooding lowers domestic thermal coal output, forcing rolling power outages.',
-    oilShock: 20,
-    portDisruption: 20,
-    monsoonDelay: 10,
-    railStrike: 10,
-    floodImpact: 40,
-    coalShortage: 95
+    railStrike: 85,
+    floodImpact: 30,
+    coalShortage: 25
   }
+]
+
+// ─── Autopilot: Decision Recommendations ───────────────────
+export const AUTOPILOT_MITIGATIONS: AutopilotMitigation[] = [
+  {
+    id: 'auto-1',
+    title: 'Western DFC Corridor Congestion Override',
+    metric: 'Transit Speed Degradation: -18.4 km/h',
+    description: 'High-density container stack limits exceeded at Dadri. Secondary highway NH-48 toll flows show a +28% truck density surge.',
+    recommendation: 'Reroute 12% of container cargo to the bypass rail loops; prioritize active coal rakes; reallocate 45 flat wagons from central zones.',
+    costInr: 4200000,
+    co2SavedTonnes: 18.2,
+    timeSavedHours: 14.5,
+    gdpOffsetCr: 2.3,
+    confidence: 94,
+    riskLevel: 'MED'
+  },
+  {
+    id: 'auto-2',
+    title: 'Mundra Port Dwell Time Spikes Mitigation',
+    metric: 'Yard Dwell Latency: 32.8 Hrs (+78% deviation)',
+    description: 'Road-based custom clearance delays block inbound container grids, lowering the cargo turnaround ratios.',
+    recommendation: 'Shift road cargo arrivals to direct rail shuttles; bypass customs gate inspections via advance CEPA declarations; trigger Dharuhera buffer buffers.',
+    costInr: 8400000,
+    co2SavedTonnes: 32.4,
+    timeSavedHours: 28.6,
+    gdpOffsetCr: 4.8,
+    confidence: 91,
+    riskLevel: 'HIGH'
+  }
+]
+
+// ─── Chronos: Replay Timelines ──────────────────────────────
+export const CHRONOS_DISRUPTIONS: ChronosDisruption[] = [
+  {
+    id: 'c-suez',
+    name: 'Suez Canal Blockage',
+    description: 'In March 2021, the container ship Ever Given ran aground, halting 12% of global trade and freezing Indian westward shipping lanes.',
+    year: '2021',
+    timeline: [
+      { day: 1, log: 'Container ship Ever Given runs aground at Suez Canal km 151, blocking all transits.', action: 'Deploy standard tug arrays; notify Suez Canal Authority.', resolved: false },
+      { day: 3, log: 'European-bound cargo queues exceed 150 ships; JNPT port yard density rises by +45%.', action: 'Bypass Suez; query alternative routing options.', resolved: false },
+      { day: 5, log: 'Freight rates spike by +$1,800/FEU. Alternative shipping routes via Cape of Good Hope activated.', action: 'Initiate Cape of Good Hope route redirects (+14 days transit duration).', resolved: false },
+      { day: 7, log: 'Ever Given successfully refloated; Suez blockage cleared. Backlog queue of 360 vessels begins processing.', action: 'Secure priority docking codes at terminal ports to clear yard congestion.', resolved: true }
+    ]
+  },
+  {
+    id: 'c-redsea',
+    name: 'Red Sea Disruption',
+    description: 'Sovereign crisis in Bab-el-Mandeb Strait forcing global container cargo to bypass Suez routes in 2024.',
+    year: '2024',
+    timeline: [
+      { day: 1, log: 'Drone attacks on commercial ships reported near Yemen coast, raising threat status.', action: 'Apply war risk surcharges; monitor cargo pipelines.', resolved: false },
+      { day: 5, log: 'Major ocean carriers suspend Red Sea voyages, routing 18% of global cargo via South Africa.', action: 'Establish Cape route transit windows; procure cargo hedges.', resolved: false },
+      { day: 10, log: 'Indian imported Urea cargo shipments delayed by 21 days; raw fertilizer import prices rise +9.4%.', action: 'Unlock national contingency fertilizer reserve buffers in northern states.', resolved: false },
+      { day: 15, log: 'Agricultural input costs increase by +6.2% at regional mandis, pushing local food inflation.', action: 'Issue temporary mandi transportation fuel credit subsidies.', resolved: true }
+    ]
+  }
+]
+
+// ─── Artham Earth: Global Cargo Flows ──────────────────────
+export const EARTH_CARGO_FLOWS: EarthCargoFlow[] = [
+  { id: 'f-rotterdam', name: 'Rotterdam ↔ JNPT Route', from: 'Rotterdam Port', to: 'JNPT Port', cargoType: 'Industrial Mach', volumeKmt: 1400, status: 'stressed', routePath: 'M 30,100 C 60,180 90,280 140,440' },
+  { id: 'f-singapore', name: 'JNPT ↔ Singapore Route', from: 'JNPT Port', to: 'Singapore Term', cargoType: 'Refined Oil', volumeKmt: 2400, status: 'optimal', routePath: 'M 140,440 C 200,470 280,480 320,410' },
+  { id: 'f-shanghai', name: 'Mundra ↔ Shanghai Route', from: 'Mundra Port', to: 'Shanghai Port', cargoType: 'Iron Ore', volumeKmt: 3100, status: 'congested', routePath: 'M 42,240 C 120,280 220,280 330,220' }
+]
+
+// ─── Seven Proprietary Indices Details ──────────────────────
+export const PROPRIETARY_INDICES_DETAILS: IndexMetricDetail[] = [
+  {
+    id: 'idx-1',
+    name: 'FreightGDP™',
+    value: 73.4,
+    change: 2.1,
+    methodology: 'Measures industrial physical momentum by calculating the weighted moving average of raw commodity rail/road loads compared to sectoral inputs.',
+    formula: 'F_GDP = \\sum (V_{i,t} / V_{i,base} * \\omega_i * \\alpha_i)',
+    sources: 'Indian Railways FOIS, NHAI FASTag registers'
+  },
+  {
+    id: 'idx-2',
+    name: 'Economic Momentum Index™',
+    value: 82.6,
+    change: 1.8,
+    methodology: 'Composite metric tracking industrial speed shifts, cargo velocities, and trade input deltas.',
+    formula: 'EMI = \\gamma_1 \\Delta F_{GDP} + \\gamma_2 \\Delta TPI - \\gamma_3 CSI',
+    sources: 'ARTHAM Macro core calculation'
+  },
+  {
+    id: 'idx-3',
+    name: 'Corridor Stress Index™',
+    value: 12.4,
+    change: -4.2,
+    methodology: 'Measures speed and vehicle density degradation along primary Dedicated Freight Corridors and highways.',
+    formula: 'CSI = (1 - S_t/S_d)*w_s + (D_t/D_c)*w_d',
+    sources: 'NHAI FASTag registers, DFC signal sensors'
+  },
+  {
+    id: 'idx-4',
+    name: 'Supply Chain Health Score™',
+    value: 89.5,
+    change: 0.4,
+    methodology: 'Measures lead-time predictability by evaluating transit variance and port container yard dwell latencies.',
+    formula: 'SCHS = 100 * e^{-\\beta \\sigma_T^2} * (1 - D_{\\text{port}}/D_{\\text{base}})',
+    sources: 'Port PCS records, warehouse gate registers'
+  },
+  {
+    id: 'idx-5',
+    name: 'Trade Pulse Index™',
+    value: 71.2,
+    change: 3.4,
+    methodology: 'Clearance speed and export/import load scaling across primary coastal and air freight terminals.',
+    formula: 'TPI = (\\Phi_{\\text{exp}} + \\Phi_{\\text{imp}})/\\Phi_{\\text{base}} * (1 - \\bar{D}_{\\text{customs}})',
+    sources: 'CBIC manifests, port gate APIs'
+  },
+  {
+    id: 'idx-6',
+    name: 'Infrastructure Utilization Index™',
+    value: 64.8,
+    change: 1.2,
+    methodology: 'Rake loading, flat wagon deployment, and warehouse space occupancy index.',
+    formula: 'IUI = (\\sum \\text{Used Capacity} / \\sum \\text{Design Capacity}) * 100',
+    sources: 'Logistics operator datasets'
+  },
+  {
+    id: 'idx-7',
+    name: 'Commodity Velocity Score™',
+    value: 85.4,
+    change: 2.2,
+    methodology: 'Velocity score of critical resource commodities across rail networks weighted by current shortage priorities.',
+    formula: 'CVS_c = (\\text{Distance} / \\text{Transit Time}) * \\mu_c',
+    sources: 'FOIS wagon GPS tracking telemetry'
+  }
+]
+
+// ─── Pinned Command Center Data ────────────────────────────
+export const HISTORICAL_CHART_DATA: FreightDataPoint[] = [
+  { month: 'Jan 26', freightGDP: 71.4, rbiOfficial: 69.8 },
+  { month: 'Feb 26', freightGDP: 73.1, rbiOfficial: 71.2 },
+  { month: 'Mar 26', freightGDP: 75.8, rbiOfficial: 74.0 },
+  { month: 'Apr 26', freightGDP: 74.9, rbiOfficial: null },
+  { month: 'May 26', freightGDP: 76.5, rbiOfficial: null },
+  { month: 'Jun 26', freightGDP: 73.4, rbiOfficial: null }
+]
+
+export const WHAT_CHANGED_TODAY = [
+  { label: 'Port Dwell Congestion', value: '▲ 7.2%', trend: 'bad', desc: 'Vizag port bottlenecks strike-bound' },
+  { label: 'Core Rail Throughput', value: '▲ 3.1%', trend: 'good', desc: 'Coal rake load schedules complete' },
+  { label: 'Agri Mandi Price Gap', value: '▲ 14.8%', trend: 'neutral', desc: 'Nashik tomato supply constraints grow' },
+  { label: 'National Economic Pulse', value: '▲ 1.8%', trend: 'good', desc: 'Western DFC container speeds lift' }
+]
+
+// ─── Commodity Freight Loader for SENSE ─────────────────────
+export const COMMODITY_FREIGHT: CommodityFreight[] = [
+  { name: 'Coal & Coke', current: 92, baseline: 85, sector: 'Energy' },
+  { name: 'Cement & Clinker', current: 78, baseline: 80, sector: 'Construction' },
+  { name: 'Iron & Steel', current: 105, baseline: 90, sector: 'Manufacturing' },
+  { name: 'Foodgrains', current: 88, baseline: 85, sector: 'Agriculture' },
+  { name: 'Fertilizers', current: 67, baseline: 75, sector: 'Agriculture' },
+  { name: 'Petroleum & Oil', current: 102, baseline: 95, sector: 'Energy' }
 ]
 
 // ─── Decision Center: Institutional Persona Alerts ─────────
@@ -298,30 +436,3 @@ export const DECISION_ALERTS: Record<string, DecisionAlert[]> = {
     }
   ]
 }
-
-// ─── Pinned Command Center Data ────────────────────────────
-export const HISTORICAL_CHART_DATA: FreightDataPoint[] = [
-  { month: 'Jan 26', freightGDP: 71.4, rbiOfficial: 69.8 },
-  { month: 'Feb 26', freightGDP: 73.1, rbiOfficial: 71.2 },
-  { month: 'Mar 26', freightGDP: 75.8, rbiOfficial: 74.0 },
-  { month: 'Apr 26', freightGDP: 74.9, rbiOfficial: null },
-  { month: 'May 26', freightGDP: 76.5, rbiOfficial: null },
-  { month: 'Jun 26', freightGDP: 74.3, rbiOfficial: null }
-]
-
-export const WHAT_CHANGED_TODAY = [
-  { label: 'Port Dwell Congestion', value: '▲ 7.2%', trend: 'bad', desc: 'Vizag port bottlenecks strike-bound' },
-  { label: 'Core Rail Throughput', value: '▲ 3.1%', trend: 'good', desc: 'Coal rake load schedules complete' },
-  { label: 'Agri Mandi Price Gap', value: '▲ 14.8%', trend: 'neutral', desc: 'Nashik tomato supply constraints grow' },
-  { label: 'National Economic Pulse', value: '▲ 1.8%', trend: 'good', desc: 'Western DFC container speeds lift' }
-]
-
-// ─── Commodity Freight Loader for SENSE ─────────────────────
-export const COMMODITY_FREIGHT: CommodityFreight[] = [
-  { name: 'Coal & Coke', current: 92, baseline: 85, sector: 'Energy' },
-  { name: 'Cement & Clinker', current: 78, baseline: 80, sector: 'Construction' },
-  { name: 'Iron & Steel', current: 105, baseline: 90, sector: 'Manufacturing' },
-  { name: 'Foodgrains', current: 88, baseline: 85, sector: 'Agriculture' },
-  { name: 'Fertilizers', current: 67, baseline: 75, sector: 'Agriculture' },
-  { name: 'Petroleum & Oil', current: 102, baseline: 95, sector: 'Energy' }
-]

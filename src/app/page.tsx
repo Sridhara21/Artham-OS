@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import {
   TrendingUp, MapPin, Search, Shield, Activity, FileText, Sparkles,
-  Bot, AlertTriangle, ShieldCheck, Zap, Coins, Globe, Landmark, Clock, ArrowRight, RefreshCw, Send, CheckCircle2
+  Bot, AlertTriangle, ShieldCheck, Zap, Coins, Globe, Landmark, Clock, ArrowRight, RefreshCw, Send, CheckCircle2, History, Cpu
 } from 'lucide-react'
 
 import { useARTHAMStore } from '@/lib/store'
@@ -15,23 +15,27 @@ import { MetricCard } from '@/components/ui/MetricCard'
 import ObserveLayer from '@/components/ObserveLayer'
 import ReasonLayer from '@/components/ReasonLayer'
 import PredictLayer from '@/components/PredictLayer'
-import ActLayer from '@/components/ActLayer'
+import AutopilotLayer from '@/components/AutopilotLayer'
+import ChronosLayer from '@/components/ChronosLayer'
+import EarthLayer from '@/components/EarthLayer'
+import FinanceMonetizeLayer from '@/components/FinanceMonetizeLayer'
 
-import { HISTORICAL_CHART_DATA, WHAT_CHANGED_TODAY, AGENTS_LIST } from '@/lib/mock-data'
+import { HISTORICAL_CHART_DATA, WHAT_CHANGED_TODAY, AGENTS_LIST, PROPRIETARY_INDICES_DETAILS } from '@/lib/mock-data'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import toast, { Toaster } from 'react-hot-toast'
 
 export default function Home() {
   const {
     activeTab, setActiveTab, arthamIndex, indexChange, economicPulse,
-    agentsActive, signalsToday, carbonCreditsToday, totalArbitrageCr,
-    activeGraph, executeSearch, driftIndex, searchQuery
+    signalsToday, carbonCreditsToday, activeGraph, executeSearch, driftIndex,
+    selectedChronosId, chronosPlaying, advanceChronos
   } = useARTHAMStore()
 
   const [currentTime, setCurrentTime] = useState('')
   const [currentDate, setCurrentDate] = useState('')
   const [askInput, setAskInput] = useState('')
   const [loadingSearch, setLoadingSearch] = useState(false)
+  const [hoveredIndexId, setHoveredIndexId] = useState<string | null>(null)
 
   // Clock ticking
   useEffect(() => {
@@ -58,7 +62,7 @@ export default function Home() {
     if (!askInput.trim()) return
 
     setLoadingSearch(true)
-    toast.success('ARTHAM PRIME activated: Compiling causal variables.', { icon: '🧠', duration: 3000 })
+    toast.success('ARTHAM PRIME: Formulating Directed Acyclic Causal Graph...', { icon: '🧠', duration: 3000 })
     
     setTimeout(() => {
       executeSearch(askInput)
@@ -69,46 +73,57 @@ export default function Home() {
 
   const triggerPresetSearch = (query: string) => {
     setLoadingSearch(true)
-    toast.success('Ingesting preset query brief...', { icon: '⚡', duration: 2000 })
+    toast.success('Ingesting natural query into core neural engines...', { icon: '⚡', duration: 2000 })
     setTimeout(() => {
       executeSearch(query)
       setLoadingSearch(false)
     }, 1200)
   }
 
-  // Active agents derived from current causal step or general searching states
+  // Active agents mapping derived from current tab
   const highlightedAgents = useMemo(() => {
     if (loadingSearch) {
-      return AGENTS_LIST.map(a => a.name) // light up all during searching
+      return AGENTS_LIST.map(a => a.name)
     }
     if (activeTab === 'prime' && activeGraph) {
-      // Find agents cited in the active reasoning nodes
       const agents = new Set<string>()
       activeGraph.nodes.forEach(node => {
         node.agents.forEach(agent => agents.add(agent))
       })
       return Array.from(agents)
     }
-    return ['MacroAgent', 'FlowAgent', 'RiskAgent'] // default highlighted indicators
+    if (activeTab === 'autopilot') {
+      return ['FlowAgent', 'RiskAgent', 'InfrastructureAgent', 'MacroAgent']
+    }
+    if (activeTab === 'chronos') {
+      return ['RiskAgent', 'TradeAgent', 'MacroAgent', 'ClimateAgent']
+    }
+    if (activeTab === 'earth') {
+      return ['TradeAgent', 'FlowAgent', 'InfrastructureAgent', 'CapitalAgent']
+    }
+    if (activeTab === 'monetize') {
+      return ['MarketAgent', 'AgriAgent', 'CapitalAgent', 'TradeAgent']
+    }
+    return ['MacroAgent', 'FlowAgent', 'RiskAgent']
   }, [loadingSearch, activeTab, activeGraph])
 
   return (
     <div className="bg-grid scanline vignette min-h-screen flex flex-col font-sans select-none relative z-10 text-text-1">
       <Toaster position="bottom-right" />
 
-      {/* TOP HEADER */}
+      {/* TOP NAVBAR */}
       <nav className="h-16 border-b border-border bg-bg-base/90 backdrop-blur-xl px-6 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <div>
             <span className="text-xl font-extrabold tracking-wider bg-gradient-to-r from-text-1 via-accent-purple to-accent-mint bg-clip-text text-transparent">
-              ARTHAM OS
+              ARTHAM OS X
             </span>
             <div className="text-[9px] font-mono text-text-3 tracking-widest leading-none mt-0.5 uppercase">
-              अर्थम् · India&apos;s Sovereign Physical Economy Digital Twin
+              अर्थम् · Civilizational Operating System for the Physical Economy
             </div>
           </div>
           <div className="w-px h-8 bg-border ml-2" />
-          <Badge variant="cyan" dot>Command Room</Badge>
+          <Badge variant="live" dot>GLOBAL OBSERVATORY</Badge>
         </div>
 
         {/* Real-time index value panel */}
@@ -120,7 +135,7 @@ export default function Home() {
             <div className="flex items-center gap-1.5">
               <span className="text-base font-bold font-mono text-accent-purple leading-none">{arthamIndex}</span>
               <span className={`text-[10px] font-mono font-bold ${indexChange >= 0 ? 'text-accent-green' : 'text-accent-red'}`}>
-                {indexChange >= 0 ? '+' : ''}{indexChange}
+                {indexChange >= 0 ? '▲' : '▼'} {Math.abs(indexChange)}
               </span>
             </div>
           </div>
@@ -128,7 +143,7 @@ export default function Home() {
           <div className="text-right">
             <div className="flex items-center gap-2 justify-end mb-0.5">
               <span className="font-mono text-sm font-semibold tracking-wider text-text-1">{currentTime}</span>
-              <Badge variant="purple">GEMINI 2.0</Badge>
+              <Badge variant="cyan">SOVEREIGN V.2</Badge>
             </div>
             <div className="text-[10px] text-text-3 font-mono leading-none">{currentDate}</div>
           </div>
@@ -143,7 +158,10 @@ export default function Home() {
             { id: 'twin', label: '🗺️ TWIN' },
             { id: 'prime', label: '🧠 PRIME' },
             { id: 'scenario_lab', label: '🧪 SCENARIO LAB' },
-            { id: 'decision_center', label: '🏛️ DECISION CENTER' },
+            { id: 'autopilot', label: '🤖 AUTOPILOT' },
+            { id: 'chronos', label: '⏳ CHRONOS' },
+            { id: 'earth', label: '🌐 EARTH' },
+            { id: 'monetize', label: '💎 MONETIZE' },
           ].map(tab => (
             <button
               key={tab.id}
@@ -160,26 +178,26 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-3 font-mono text-[10px] text-text-3">
-          <span>Signals Processed: {signalsToday}</span>
+          <span>Signals: {signalsToday}</span>
           <span className="w-1.5 h-1.5 rounded-full bg-border-bright" />
-          <span>Carbon Minted: {carbonCreditsToday} t</span>
+          <span>Credits: {carbonCreditsToday} t</span>
         </div>
       </div>
 
-      {/* MAIN LAYOUT */}
+      {/* MAIN VIEW AREA */}
       <main className="flex-1 p-6 overflow-y-auto bg-bg-base/30">
         <div className="max-w-7xl mx-auto flex flex-col gap-6">
 
-          {/* INDEX TAB (COMMAND CENTER) */}
+          {/* INDEX TAB (COMMAND CENTER WINDOW) */}
           {activeTab === 'index' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
-              {/* Header Greeting Row - 12 cols */}
+              {/* Greeting row - 12 cols */}
               <div className="lg:col-span-12 flex flex-col gap-1.5">
                 <span className="text-text-3 font-mono text-xs uppercase tracking-widest leading-none">SYSTEM TELEMETRY SUMMARY</span>
                 <h1 className="text-2xl font-extrabold text-text-1">Good Morning.</h1>
               </div>
 
-              {/* Sovereign Telemetry Metric Widgets - 12 cols */}
+              {/* Main Metric Cards - 12 cols */}
               <div className="lg:col-span-12 grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <Card className="border-l-[3px] border-l-accent-purple">
                   <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
@@ -234,7 +252,7 @@ export default function Home() {
                 </Card>
               </div>
 
-              {/* Ask Artham Command Box - 8 cols */}
+              {/* Ask Artham Search & Proprietary Indices - 8 cols */}
               <div className="lg:col-span-8 flex flex-col gap-6">
                 <Card className="border-l-[3px] border-l-accent-purple shadow-glow-purple">
                   <CardHeader>
@@ -281,54 +299,88 @@ export default function Home() {
                   </CardBody>
                 </Card>
 
-                {/* Artham Index Historical Pulse Line Chart */}
+                {/* Seven Proprietary Indices Grid */}
                 <Card>
                   <CardHeader>
-                    <div>
-                      <h3 className="text-xs font-bold text-text-1 font-mono uppercase">ARTHAM INDEX™ — S&amp;P 500 equivalent of Physical Economy</h3>
-                      <p className="text-[10px] text-text-3 font-mono mt-0.5">High-frequency composite rating tracking cement, coal, agricultural yields, and ports</p>
-                    </div>
+                    <h3 className="text-xs font-bold text-text-1 font-mono uppercase">Proprietary Economic Indices HUD</h3>
                   </CardHeader>
-                  <CardBody>
-                    <div className="h-48 w-full bg-black/10 rounded border border-border/20 p-2">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={HISTORICAL_CHART_DATA}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="month" stroke="rgba(255,255,255,0.2)" />
-                          <YAxis domain={[65, 80]} stroke="rgba(255,255,255,0.2)" />
-                          <Tooltip contentStyle={{ backgroundColor: '#03001C', borderColor: 'rgba(175,169,236,0.3)' }} />
-                          <Line type="monotone" dataKey="freightGDP" stroke="#AFA9EC" strokeWidth={2.5} name="ARTHAM Index" dot={{ r: 3 }} activeDot={{ r: 5 }} />
-                          <Line type="monotone" dataKey="rbiOfficial" stroke="#9FD8C5" strokeWidth={2} strokeDasharray="5 5" name="Lagged Official Benchmark" dot={{ r: 3 }} />
-                        </LineChart>
-                      </ResponsiveContainer>
+                  <CardBody className="p-4 relative">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                      {PROPRIETARY_INDICES_DETAILS.map(indexItem => {
+                        const isHovered = hoveredIndexId === indexItem.id
+                        return (
+                          <div
+                            key={indexItem.id}
+                            onMouseEnter={() => setHoveredIndexId(indexItem.id)}
+                            onMouseLeave={() => setHoveredIndexId(null)}
+                            className="p-3 bg-black/20 border border-border/25 rounded hover:border-accent-purple cursor-help transition-all relative font-mono text-[10px] flex flex-col justify-between h-20"
+                          >
+                            <span className="font-semibold text-text-2 truncate">{indexItem.name.replace('™', '')}</span>
+                            <div className="flex justify-between items-baseline mt-2 leading-none">
+                              <span className="text-base font-extrabold text-text-1">{indexItem.value}</span>
+                              <span className={`text-[9px] font-bold ${indexItem.change >= 0 ? 'text-accent-green' : 'text-accent-red'}`}>
+                                {indexItem.change >= 0 ? '+' : ''}{indexItem.change}%
+                              </span>
+                            </div>
+
+                            {/* Live Tooltip Popup */}
+                            {isHovered && (
+                              <div className="absolute bottom-full left-0 z-50 w-64 p-3 bg-bg-overlay border border-accent-purple/40 rounded shadow-glow-purple text-text-2 leading-relaxed animate-fade-rise select-none mb-1 font-mono text-[9px]">
+                                <span className="font-bold text-text-1 block mb-1 uppercase text-[10px]">{indexItem.name}</span>
+                                <div className="mb-1.5">{indexItem.methodology}</div>
+                                <div className="bg-black/40 p-1.5 rounded border border-border/10 text-accent-purple mb-1.5 font-bold">
+                                  Formula: {indexItem.formula}
+                                </div>
+                                <div className="text-text-3 font-semibold text-[8px]">Sources: {indexItem.sources}</div>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
                   </CardBody>
                 </Card>
               </div>
 
-              {/* What Changed Today Sidebar - 4 cols */}
-              <div className="lg:col-span-4 flex flex-col gap-5">
-                <Card className="flex-1">
+              {/* Sidebar: What Changed Today - 4 cols */}
+              <div className="lg:col-span-4 flex flex-col gap-6">
+                {/* What Changed Today */}
+                <Card className="h-fit">
                   <CardHeader>
                     <h3 className="text-xs font-bold text-text-2 font-mono uppercase tracking-wider">What Changed Today</h3>
                   </CardHeader>
-                  <CardBody className="flex flex-col gap-4 font-mono text-[11px] h-full justify-between pb-6">
-                    <div className="flex flex-col gap-3">
-                      {WHAT_CHANGED_TODAY.map((item, idx) => (
-                        <div key={idx} className="p-3 bg-black/10 rounded border border-border/20 hover:border-border-bright transition-all">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-semibold text-text-1">{item.label}</span>
-                            <span className={`font-bold ${item.trend === 'good' ? 'text-accent-green' : item.trend === 'bad' ? 'text-accent-red' : 'text-accent-amber'}`}>
-                              {item.value}
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-text-3 leading-none">{item.desc}</p>
+                  <CardBody className="flex flex-col gap-3.5 font-mono text-[11px] pb-5">
+                    {WHAT_CHANGED_TODAY.map((item, idx) => (
+                      <div key={idx} className="p-3 bg-black/10 rounded border border-border/20 hover:border-border-bright transition-all">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-semibold text-text-1">{item.label}</span>
+                          <span className={`font-bold ${item.trend === 'good' ? 'text-accent-green' : item.trend === 'bad' ? 'text-accent-red' : 'text-accent-amber'}`}>
+                            {item.value}
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <p className="text-[10px] text-text-3 leading-none">{item.desc}</p>
+                      </div>
+                    ))}
+                  </CardBody>
+                </Card>
 
-                    <div className="border-t border-border/10 pt-3 text-[10px] text-text-3 leading-relaxed">
-                      Sovereign alerts recalculate daily at 00:00 IST using automated railway FOIS logs.
+                {/* Artham Index Historical Line Chart */}
+                <Card className="flex-1 min-h-[200px] flex flex-col">
+                  <CardHeader className="pb-2">
+                    <span className="text-[9px] font-mono text-text-3 uppercase block leading-none">Macro Historical Trend</span>
+                    <span className="text-xs font-bold font-mono text-text-2 block mt-1 uppercase">ARTHAM Index (6-Month Scale)</span>
+                  </CardHeader>
+                  <CardBody className="p-3 flex-1 flex flex-col justify-center">
+                    <div className="h-32 w-full bg-black/10 rounded border border-border/10 p-1.5">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={HISTORICAL_CHART_DATA}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" stroke="rgba(255,255,255,0.15)" />
+                          <YAxis domain={[65, 80]} stroke="rgba(255,255,255,0.15)" />
+                          <Tooltip contentStyle={{ backgroundColor: '#03001C', borderColor: 'rgba(175,169,236,0.3)' }} />
+                          <Line type="monotone" dataKey="freightGDP" stroke="#AFA9EC" strokeWidth={2} name="ARTHAM Index" dot={{ r: 2 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
                     </div>
                   </CardBody>
                 </Card>
@@ -336,22 +388,24 @@ export default function Home() {
             </div>
           )}
 
-          {/* ACTIVE LAYER VIEWS */}
+          {/* ACTIVE LAYER MOUNTING OVERLAYS */}
           {activeTab === 'twin' && <ObserveLayer />}
           {activeTab === 'prime' && <ReasonLayer />}
           {activeTab === 'scenario_lab' && <PredictLayer />}
-          {activeTab === 'decision_center' && <ActLayer />}
+          {activeTab === 'autopilot' && <AutopilotLayer />}
+          {activeTab === 'chronos' && <ChronosLayer />}
+          {activeTab === 'earth' && <EarthLayer />}
+          {activeTab === 'monetize' && <FinanceMonetizeLayer />}
 
         </div>
       </main>
 
-      {/* BOTTOM PANEL: Agent Collaboration Visualizer (Economic Neural Network) */}
+      {/* BOTTOM AGENT NETWORK COLLABORATION VISUALIZER */}
       <footer className="h-28 border-t border-border bg-bg-base/90 backdrop-blur-xl px-6 py-3.5 flex flex-col justify-between flex-shrink-0 relative z-20 overflow-hidden select-none">
-        {/* Glowing Neural Network lines */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
           <svg className="w-full h-full">
-            <line x1="5%" y1="50%" x2="95%" y2="50%" stroke="rgba(175,169,236,0.3)" strokeWidth="1" strokeDasharray={loadingSearch ? "5 5" : "none"} />
-            {loadingSearch && (
+            <line x1="5%" y1="50%" x2="95%" y2="50%" stroke="rgba(175,169,236,0.3)" strokeWidth="1" strokeDasharray={loadingSearch || chronosPlaying ? "5 5" : "none"} />
+            {(loadingSearch || chronosPlaying) && (
               <circle r="4" fill="#AFA9EC">
                 <animateMotion path="M 100,50 L 1000,50" dur="2s" repeatCount="indefinite" />
               </circle>
@@ -362,10 +416,10 @@ export default function Home() {
         <div className="flex items-center justify-between z-10 relative">
           <div className="flex items-center gap-1.5">
             <Bot size={13} className="text-accent-purple" />
-            <span className="text-[10px] font-mono text-text-3 uppercase tracking-wider">Economic Neural Network — Collaborating Agents</span>
+            <span className="text-[10px] font-mono text-text-3 uppercase tracking-wider">Economic Neural Network — Council of Agents</span>
           </div>
-          {loadingSearch && (
-            <span className="text-[9px] font-mono text-accent-purple uppercase tracking-widest animate-pulse font-bold">Agents Exchanging Signals...</span>
+          {(loadingSearch || chronosPlaying) && (
+            <span className="text-[9px] font-mono text-accent-purple uppercase tracking-widest animate-pulse font-bold">Agents Negotiating Telemetry...</span>
           )}
         </div>
 

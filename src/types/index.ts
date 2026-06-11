@@ -115,9 +115,63 @@ export interface DecisionAlert {
   expectedOutcome: string
 }
 
+// ─── ECONOMIC AUTOPILOT ────────────────────────────────────
+export interface AutopilotMitigation {
+  id: string
+  title: string
+  metric: string
+  description: string
+  recommendation: string
+  costInr: number            // In Rupees
+  co2SavedTonnes: number
+  timeSavedHours: number
+  gdpOffsetCr: number        // In Crores
+  confidence: number
+  riskLevel: 'HIGH' | 'MED' | 'LOW'
+}
+
+// ─── CHRONOS (Economic Replay Engine) ──────────────────────
+export interface ChronosStep {
+  day: number
+  log: string
+  action: string
+  resolved: boolean
+}
+
+export interface ChronosDisruption {
+  id: string
+  name: string
+  description: string
+  year: string
+  timeline: ChronosStep[]
+}
+
+// ─── ARTHAM EARTH (Global Observatory) ─────────────────────
+export interface EarthCargoFlow {
+  id: string
+  name: string
+  from: string
+  to: string
+  cargoType: string
+  volumeKmt: number          // Kilo Metric Tonnes
+  status: 'optimal' | 'stressed' | 'congested'
+  routePath: string          // SVG curved path coordinates
+}
+
+// ─── SEVEN PROPRIETARY INDICES ─────────────────────────────
+export interface IndexMetricDetail {
+  id: string
+  name: string
+  value: number
+  change: number
+  methodology: string
+  formula: string
+  sources: string
+}
+
 // ─── App State ────────────────────────────────────────────
 export interface ARTHAMState {
-  activeTab: string // index, twin, prime, scenario_lab, decision_center
+  activeTab: string // index, twin, prime, scenario_lab, autopilot, chronos, earth
   arthamIndex: number
   indexChange: number
   economicPulse: 'Expansion' | 'Steady' | 'Contraction' | 'Stressed'
