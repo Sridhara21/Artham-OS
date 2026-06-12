@@ -116,7 +116,7 @@ function handleFallback(layer: string, message: string, persona?: string) {
   }
 
   if (layer === 'decision_center') {
-    const personaKey = (persona || 'rbi').toLowerCase()
+    const personaKey = (persona || 'rbi').toLowerCase() as keyof typeof DECISION_ALERTS
     return NextResponse.json({ alerts: DECISION_ALERTS[personaKey] || DECISION_ALERTS.rbi, cached: true })
   }
 

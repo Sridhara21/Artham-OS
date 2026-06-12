@@ -9,147 +9,172 @@ function erf(x: number): number {
   return sign * y
 }
 
-function normalCDF(z: number): number {
+function _normalCDF(z: number): number {
   return 0.5 * (1 + erf(z / Math.SQRT2))
 }
 
-function logNormalCDF(x: number, mu: number, sigma: number): number {
-  if (x <= 0) return 0
-  return normalCDF((Math.log(x) - mu) / sigma)
+// ─── Confidence Engine ──────────────────────────────────────
+
+export interface ConfidenceMetrics {
+  freshness: number     // 0-100%
+  volume: number        // 0-100%
+  agreement: number     // 0-100%
+  accuracy: number      // 0-100%
+  overall: number       // calculated
 }
 
-// ─── Delay Futures Pricing ─────────────────────────────────
-
-export interface DelayPricingResult {
-  pTrigger: number
-  pTriggerPct: string
-  premium: number
-  expectedPayout: number
-  maxPayout: number
-  distribution: string
+export function calculateConfidence(
+  signalCount: number,
+  shocksActiveCount: number
+): ConfidenceMetrics {
+  // Freshness drops slightly as more shocks disrupt data streams
+  const freshness = Math.max(78, Math.min(99, Math.round(98 - shocksActiveCount * 3.5)))
+  
+  // Volume increases as more signals are ingested, but active shocks can saturate sensors
+  const volume = Math.max(70, Math.min(99, Math.round(85 + Math.min(14, signalCount / 100) - shocksActiveCount * 2)))
+  
+  // Agreement drops when active shocks cause conflicting indicators between agents
+  const agreement = Math.max(65, Math.min(98, Math.round(95 - shocksActiveCount * 6)))
+  
+  // Historical accuracy reflects the baseline validation model, dropping during unprecedented shocks
+  const accuracy = Math.max(72, Math.min(97, Math.round(92 - shocksActiveCount * 2.5)))
+  
+  // Weighted overall calculation: 30% Freshness, 25% Volume, 25% Agreement, 20% Accuracy
+  const overall = Math.round(
+    freshness * 0.30 +
+    volume * 0.25 +
+    agreement * 0.25 +
+    accuracy * 0.20
+  )
+  
+  return { freshness, volume, agreement, accuracy, overall }
 }
 
-export function priceDelayContract(
-  mu: number, sigma: number, thresholdMin: number,
-  payoutPerMin = 100, payoutMultiplier = 1
-): DelayPricingResult {
-  const pTrigger = 1 - logNormalCDF(thresholdMin, mu, sigma)
-  const maxPayout = thresholdMin * payoutPerMin * payoutMultiplier
-  const expectedPayout = pTrigger * maxPayout
-  const premium = expectedPayout * 1.20
-  return {
-    pTrigger: parseFloat(pTrigger.toFixed(4)),
-    pTriggerPct: (pTrigger * 100).toFixed(1),
-    premium: Math.round(premium),
-    expectedPayout: Math.round(expectedPayout),
-    maxPayout,
-    distribution: `Log-Normal (μ=${mu}, σ=${sigma})`,
-  }
+// ─── Dynamic 2D Risk Radar Vectors ─────────────────────────
+
+export interface RiskRadarBubble {
+  id: string
+  name: string
+  x: number // -100 to 100 coordinate
+  y: number // -100 to 100 coordinate
+  severity: 'high' | 'medium' | 'low'
+  description: string
+  category: 'Inflation' | 'Supply Chain' | 'Trade' | 'Energy' | 'Agriculture' | 'Logistics' | 'Manufacturing'
 }
 
-// ─── Arbitrage Calculator ──────────────────────────────────
+export function calculateRiskRadar(
+  oilShock: number,
+  portDisruption: number,
+  monsoonDelay: number,
+  railStrike: number,
+  floodImpact: number,
+  coalShortage: number
+): RiskRadarBubble[] {
+  // Baseline points mapping
+  const baseInflation = { x: 10, y: 15 }
+  const baseSupply = { x: -25, y: 20 }
+  const baseTrade = { x: -30, y: -25 }
+  const baseEnergy = { x: 25, y: -30 }
+  const baseAgri = { x: 35, y: 10 }
+  const baseLogistics = { x: -15, y: -10 }
+  const baseMfg = { x: -40, y: 35 }
 
-export interface ArbitrageResult {
-  logisticsCost: number
-  netProfit: number
-  roi: number
-  isPerishable: boolean
-  profitable: boolean
-}
+  // Vector shifts based on slider shocks
+  const inflationX = baseInflation.x + (monsoonDelay * 0.6) + (oilShock * 0.3)
+  const inflationY = baseInflation.y + (oilShock * 0.7)
+  const infScore = Math.max(oilShock, monsoonDelay)
 
-const PERISHABLES = ['tomato','onion','alphonso','banana','mango','potato','grapes']
+  const supplyX = baseSupply.x - (railStrike * 0.5) - (floodImpact * 0.3)
+  const supplyY = baseSupply.y + (portDisruption * 0.6)
+  const supplyScore = Math.max(railStrike, portDisruption, floodImpact)
 
-export function calculateArbitrage(
-  buyPrice: number, sellPrice: number, distKm: number, commodityName: string
-): ArbitrageResult {
-  const isPerishable = PERISHABLES.some(p => commodityName.toLowerCase().includes(p))
-  const logisticsCost = (2.5 * distKm / 100) + 0.5 + (isPerishable ? 0.8 : 0)
-  const netProfit = sellPrice - buyPrice - logisticsCost
-  return {
-    logisticsCost: parseFloat(logisticsCost.toFixed(2)),
-    netProfit: parseFloat(netProfit.toFixed(2)),
-    roi: parseFloat((netProfit / buyPrice * 100).toFixed(1)),
-    isPerishable,
-    profitable: netProfit > 0,
-  }
-}
+  const tradeX = baseTrade.x - (portDisruption * 0.7)
+  const tradeY = baseTrade.y - (oilShock * 0.5)
+  const tradeScore = Math.max(portDisruption, oilShock * 0.6)
 
-// ─── Carbon Credits (IPCC Tier 2) ─────────────────────────
+  const energyX = baseEnergy.x + (coalShortage * 0.7)
+  const energyY = baseEnergy.y - (oilShock * 0.5)
+  const energyScore = Math.max(coalShortage, oilShock)
 
-export interface CarbonResult {
-  totalPkm: number
-  savedKg: number
-  savedTonnes: number
-  credits: number
-  revenueInr: number
-  revenueFmt: string
-}
+  const agriX = baseAgri.x + (monsoonDelay * 0.5)
+  const agriY = baseAgri.y + (floodImpact * 0.4)
+  const agriScore = Math.max(monsoonDelay, floodImpact)
 
-export function calculateCarbonCredits(passengers: number, distanceKm: number): CarbonResult {
-  const RAIL_FACTOR = 0.041
-  const ROAD_FACTOR = 0.171
-  const PRICE_PER_CREDIT = 1247
-  const totalPkm = passengers * distanceKm
-  const savedKg = totalPkm * (ROAD_FACTOR - RAIL_FACTOR)
-  const savedTonnes = savedKg / 1000
-  const credits = Math.floor(savedTonnes)
-  const revenueInr = credits * PRICE_PER_CREDIT
-  return {
-    totalPkm,
-    savedKg: Math.round(savedKg),
-    savedTonnes: parseFloat(savedTonnes.toFixed(2)),
-    credits,
-    revenueInr,
-    revenueFmt: `₹${revenueInr.toLocaleString('en-IN')}`,
-  }
-}
+  const logisticsX = baseLogistics.x - (railStrike * 0.6)
+  const logisticsY = baseLogistics.y - (portDisruption * 0.5)
+  const logScore = Math.max(railStrike, portDisruption)
 
-// ─── Hedonic Pricing (Railway Land) ───────────────────────
+  const mfgX = baseMfg.x - (coalShortage * 0.4) - (railStrike * 0.3)
+  const mfgY = baseMfg.y - (floodImpact * 0.5)
+  const mfgScore = Math.max(coalShortage, floodImpact)
 
-export interface HedonicResult {
-  valueCr: number
-  reitGrade: 'AAA' | 'AA+' | 'AA' | 'A+'
-  yieldPct: number
-  twentyYrRevCr: number
-  stationPremiumPct: number
-  metroPremiumPct: number
-}
+  const clamp = (val: number) => Math.max(-90, Math.min(90, Math.round(val)))
 
-export function applyHedonicPricing(
-  areaHa: number, ratePerSqft: number,
-  stationProxKm: number, metroConnected: boolean, zoneType: string
-): HedonicResult {
-  const areaSqft = areaHa * 10763.9
-  const stationPremium = stationProxKm < 0.2 ? 1.38 : stationProxKm < 0.5 ? 1.22 : 1.10
-  const metroPremium = metroConnected ? 1.15 : 1.0
-  const zonePremium = zoneType === 'commercial' ? 1.10 : 1.0
-  const valueCr = Math.round(areaSqft * ratePerSqft * stationPremium * metroPremium * zonePremium / 10000000)
-  const reitGrade = valueCr > 500 ? 'AAA' : valueCr > 350 ? 'AA+' : valueCr > 200 ? 'AA' : 'A+'
-  const yieldPct = reitGrade === 'AAA' ? 8.2 : reitGrade === 'AA+' ? 7.8 : 7.4
-  return {
-    valueCr,
-    reitGrade,
-    yieldPct,
-    twentyYrRevCr: Math.round(valueCr * yieldPct / 100 * 20),
-    stationPremiumPct: Math.round((stationPremium - 1) * 100),
-    metroPremiumPct: metroConnected ? 15 : 0,
-  }
-}
-
-// ─── Warehouse Demand Score ────────────────────────────────
-
-export function computeWareHeatScore(signals: {
-  industrial: { active: boolean; count: number }
-  highway: { active: boolean }
-  gstn: { active: boolean; growthPct: number }
-  ecomm: { active: boolean }
-}): number {
-  let score = 0
-  if (signals.industrial.active) score += 25 + Math.min(signals.industrial.count / 50 * 10, 10)
-  if (signals.highway.active) score += 20
-  if (signals.gstn.active) score += 25 + Math.min(signals.gstn.growthPct / 400 * 10, 10)
-  if (signals.ecomm.active) score += 20
-  return Math.min(Math.round(score), 100)
+  return [
+    {
+      id: 'r-inf',
+      name: 'Consumer Inflation Risk',
+      x: clamp(inflationX),
+      y: clamp(inflationY),
+      severity: infScore > 65 ? 'high' : infScore > 25 ? 'medium' : 'low',
+      description: `Driven by fuel shocks and monsoon agricultural lags. Current delta: +${(infScore/10).toFixed(1)}%`,
+      category: 'Inflation'
+    },
+    {
+      id: 'r-sup',
+      name: 'Internal Supply Bottlenecks',
+      x: clamp(supplyX),
+      y: clamp(supplyY),
+      severity: supplyScore > 65 ? 'high' : supplyScore > 25 ? 'medium' : 'low',
+      description: `Yard delay warnings at major terminals. Speed down ${Math.round(supplyScore * 0.4)}%`,
+      category: 'Supply Chain'
+    },
+    {
+      id: 'r-trd',
+      name: 'Sovereign Trade Balance',
+      x: clamp(tradeX),
+      y: clamp(tradeY),
+      severity: tradeScore > 65 ? 'high' : tradeScore > 25 ? 'medium' : 'low',
+      description: `Westbound container route deviations. Delay: +${Math.round(tradeScore * 0.15)} days`,
+      category: 'Trade'
+    },
+    {
+      id: 'r-eng',
+      name: 'Energy Grid Reserves',
+      x: clamp(energyX),
+      y: clamp(energyY),
+      severity: energyScore > 65 ? 'high' : energyScore > 25 ? 'medium' : 'low',
+      description: `Coal inventories below threshold at generation hubs. Reserve drop: ${Math.round(energyScore * 0.8)}%`,
+      category: 'Energy'
+    },
+    {
+      id: 'r-agr',
+      name: 'Agricultural Market Imbalances',
+      x: clamp(agriX),
+      y: clamp(agriY),
+      severity: agriScore > 60 ? 'high' : agriScore > 20 ? 'medium' : 'low',
+      description: `Arrival volumes dipping across top-tier regional mandis. Deviation: +${Math.round(agriScore * 0.4)}% price anomaly`,
+      category: 'Agriculture'
+    },
+    {
+      id: 'r-log',
+      name: 'Intermodal Freight Logistics',
+      x: clamp(logisticsX),
+      y: clamp(logisticsY),
+      severity: logScore > 60 ? 'high' : logScore > 20 ? 'medium' : 'low',
+      description: `Rake turnaround delays at Dadri and JNPT terminals. Lead time: +${(logScore*0.12).toFixed(1)} hrs`,
+      category: 'Logistics'
+    },
+    {
+      id: 'r-mfg',
+      name: 'Manufacturing Capacity Outflow',
+      x: clamp(mfgX),
+      y: clamp(mfgY),
+      severity: mfgScore > 65 ? 'high' : mfgScore > 25 ? 'medium' : 'low',
+      description: `Industrial output affected by grid outages and rail bottlenecks. Productivity: -${(mfgScore*0.2).toFixed(1)}%`,
+      category: 'Manufacturing'
+    }
+  ]
 }
 
 // ─── Scenario Shock Simulator ──────────────────────────────
@@ -169,14 +194,13 @@ export interface ShockSimulationResult {
 }
 
 export function simulateEconomicShock(
-  oilShock: number, // % 0-100
-  portDisruption: number, // % 0-100
-  monsoonDelay: number, // % 0-100
-  railStrike: number, // % 0-100
-  floodImpact: number, // % 0-100
-  coalShortage: number // % 0-100
+  oilShock: number,
+  portDisruption: number,
+  monsoonDelay: number,
+  railStrike: number,
+  floodImpact: number,
+  coalShortage: number
 ): ShockSimulationResult {
-  // Economic coefficients mapped to macro indicators
   const oilInf = (oilShock / 100) * 1.5
   const oilGdp = -(oilShock / 100) * 0.8
   const oilFreight = -(oilShock / 100) * 1.2
@@ -206,7 +230,6 @@ export function simulateEconomicShock(
   const freightVolumeChangePct = parseFloat((oilFreight + portFreight + monsoonFreight + railFreight + floodFreight + coalFreight).toFixed(2))
 
   const baselineIndex = 74.3
-  // Compute composite score shift
   const indexShift = gdpImpactPct * 1.5 + freightVolumeChangePct * 0.4
   const overallIndex = Math.max(30, Math.min(95, parseFloat((baselineIndex + indexShift).toFixed(1))))
 

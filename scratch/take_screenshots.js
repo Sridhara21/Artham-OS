@@ -1,5 +1,4 @@
 const { chromium } = require('playwright');
-const { PDFDocument } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
 
@@ -61,8 +60,6 @@ async function run() {
     { name: 'INTELLIGENCE FEED', buttonText: 'ALERT FEED', screenshotName: 'remote_feed_tab.png' }
   ];
 
-  const imagesPaths = [];
-
   for (const tab of tabs) {
     console.log(`Processing Tab: ${tab.name}...`);
     try {
@@ -75,7 +72,6 @@ async function run() {
       }
       const screenshotPath = path.join(outputDir, tab.screenshotName);
       await page.screenshot({ path: screenshotPath });
-      imagesPaths.push(screenshotPath);
       console.log(`Successfully captured ${tab.screenshotName}`);
     } catch (e) {
       console.error(`Failed to capture tab ${tab.name}:`, e.message);
@@ -83,39 +79,7 @@ async function run() {
   }
 
   await browser.close();
-  console.log('All screenshots captured successfully. Commencing PDF compilation...');
-
-  try {
-    const pdfDoc = await PDFDocument.create();
-    const width = 612; // letter size width
-    const height = 792; // letter size height
-    const img_w = width - 20;
-    const img_h = img_w / 1.6; // 1440x900 aspect ratio = 1.6
-
-    for (const imgPath of imagesPaths) {
-      if (fs.existsSync(imgPath)) {
-        console.log(`Embedding ${path.basename(imgPath)} into PDF...`);
-        const imageBytes = fs.readFileSync(imgPath);
-        const pngImage = await pdfDoc.embedPng(imageBytes);
-        const pageNode = pdfDoc.addPage([width, height]);
-        pageNode.drawImage(pngImage, {
-          x: 10,
-          y: (height - img_h) / 2,
-          width: img_w,
-          height: img_h
-        });
-      } else {
-        console.warn(`Warning: Image not found at ${imgPath}`);
-      }
-    }
-
-    const pdfBytes = await pdfDoc.save();
-    const pdfOutputPath = path.join(outputDir, 'artham_os_screenshots.pdf');
-    fs.writeFileSync(pdfOutputPath, pdfBytes);
-    console.log(`Success: Unified PDF compiled successfully at ${pdfOutputPath}`);
-  } catch (pdfError) {
-    console.error('Failed to compile PDF:', pdfError.message);
-  }
+  console.log('Screenshots captured successfully.');
 }
 
 run().catch(console.error);

@@ -1,21 +1,21 @@
 import type {
   CommodityFreight, PortTelemetry, CorridorTelemetry, MandiHeatNode,
-  CausalGraph, PresetShock, DecisionAlert, AgentDetails,
-  IndexMetricDetail, AutopilotMitigation, ChronosDisruption, EarthCargoFlow, FreightDataPoint
+  CausalGraph, PresetShock, RecommendedAction, AgentDetails,
+  IndexMetricDetail, ReplayEvent, SovereignKPI, ForecastMilestone, IntelligenceAlert, FreightDataPoint
 } from '@/types'
 
 // ─── 10 Agent Mesh ──────────────────────────────────────────
 export const AGENTS_LIST: AgentDetails[] = [
-  { name: 'FlowAgent', role: 'Velocity & Capacity', status: 'idle', description: 'Tracks rail, port, and road throughput and velocity bottlenecks.' },
-  { name: 'TradeAgent', role: 'Customs & Tariffs', status: 'idle', description: 'Monitors import/export tariff codes and customs speed logs.' },
-  { name: 'RiskAgent', role: 'Disruption & Variance', status: 'idle', description: 'Evaluates geopolitical hazards and localized strike impacts.' },
-  { name: 'MacroAgent', role: 'Sovereign GDP & CPI', status: 'idle', description: 'Calculates high-frequency physical-to-financial indicator offsets.' },
-  { name: 'AgriAgent', role: 'Mandi Yields & Arbitrage', status: 'idle', description: 'Aggregates commodity price differentials and cold-chain routing.' },
-  { name: 'InfrastructureAgent', role: 'Fixed Assets', status: 'idle', description: 'Assess status of ports, warehouses, and DFC networks.' },
-  { name: 'MobilityAgent', role: 'Transit Operations', status: 'idle', description: 'Controls driver retention indexes, truck density, and fleet delays.' },
-  { name: 'ClimateAgent', role: 'Thermal & Weather Stresses', status: 'idle', description: 'Applies rainfall deficit and heatwave variables to logistics corridors.' },
-  { name: 'MarketAgent', role: 'Commodity & Futures Hedging', status: 'idle', description: 'Prices rail delay contracts and tracks mandi derivative demand.' },
-  { name: 'CapitalAgent', role: 'Land Valuation & REITs', status: 'idle', description: 'Evaluates railway land holdings and computes commercial yields.' }
+  { name: 'FlowAgent', role: 'Velocity & Capacity', status: 'idle', description: 'Tracks rail, port, and road throughput and velocity bottlenecks.', signalsProcessed: 1478, lastAction: 'Computed W-DFC capacity delta', reasoningSummary: 'W-DFC utilization is at 84%. Speed drop detected at Dadri junction.', confidence: 94 },
+  { name: 'TradeAgent', role: 'Customs & Tariffs', status: 'idle', description: 'Monitors import/export tariff codes and customs speed logs.', signalsProcessed: 984, lastAction: 'Matched CEPA tariff manifest', reasoningSummary: 'HSCode audits completed for 12 incoming steel shipments.', confidence: 91 },
+  { name: 'RiskAgent', role: 'Disruption & Variance', status: 'idle', description: 'Evaluates geopolitical hazards and localized strike impacts.', signalsProcessed: 1832, lastAction: 'Flagged Bab-el-Mandeb transit status', reasoningSummary: 'Maritime reroutes via Cape of Good Hope adding 14 days to westward transits.', confidence: 98 },
+  { name: 'MacroAgent', role: 'Sovereign GDP & CPI', status: 'idle', description: 'Calculates high-frequency physical-to-financial indicator offsets.', signalsProcessed: 1245, lastAction: 'Updated real-time CPI food weight', reasoningSummary: 'High-frequency vegetable spikes projected to add 24 bps to CPI.', confidence: 92 },
+  { name: 'AgriAgent', role: 'Mandi Yields & Arbitrage', status: 'idle', description: 'Aggregates commodity price differentials and cold-chain routing.', signalsProcessed: 1560, lastAction: 'Analyzed Nashik tomato inflows', reasoningSummary: 'Price anomaly at Lasalgaon onion yard touches +24.8%. Sowing lag confirmed.', confidence: 89 },
+  { name: 'InfrastructureAgent', role: 'Fixed Assets', status: 'idle', description: 'Assess status of ports, warehouses, and DFC networks.', signalsProcessed: 789, lastAction: 'Audited Mundra container stacks', reasoningSummary: 'Dwell capacity at Mundra is stressed at 32.8 hours.', confidence: 95 },
+  { name: 'MobilityAgent', role: 'Transit Operations', status: 'idle', description: 'Controls driver retention indexes, truck density, and fleet delays.', signalsProcessed: 612, lastAction: 'FASTag traffic density computation', reasoningSummary: 'Bypass traffic along NH-48 has expanded vehicle turnaround times.', confidence: 88 },
+  { name: 'ClimateAgent', role: 'Thermal & Weather Stresses', status: 'idle', description: 'Applies rainfall deficit and heatwave variables to logistics corridors.', signalsProcessed: 894, lastAction: 'Measured Central India rain deficit', reasoningSummary: 'Precipitation deficit stands at -18%, delaying kharif sowing.', confidence: 90 },
+  { name: 'MarketAgent', role: 'Commodity & Futures Hedging', status: 'idle', description: 'Prices rail delay contracts and tracks mandi derivative demand.', signalsProcessed: 1042, lastAction: 'Priced delay derivative premium', reasoningSummary: 'Log-Normal probability curves calculate a 34% strike premium.', confidence: 93 },
+  { name: 'CapitalAgent', role: 'Land Valuation & REITs', status: 'idle', description: 'Evaluates railway land holdings and computes commercial yields.', signalsProcessed: 435, lastAction: 'Revalued Bandra Station leasehold', reasoningSummary: 'Hedonic pricing estimates Bandra plot value at ₹847 Cr with 8.2% yield.', confidence: 91 }
 ]
 
 // ─── Observe: Port Telemetry ───────────────────────────────
@@ -74,45 +74,41 @@ export const MANDI_NODES: MandiHeatNode[] = [
 export const REASONING_PRESETS: Record<string, CausalGraph> = {
   redsea: {
     nodes: [
-      { id: 'n1', label: 'Red Sea Disruption', change: 'Maritime route deviation via Cape of Good Hope (+14 days)', confidence: 98, evidence: 'Bab-el-Mandeb transit capacity down 68%', agents: ['RiskAgent', 'TradeAgent'], status: 'done' },
-      { id: 'n2', label: 'Ocean Freight Rate', change: '+14% container costs', confidence: 94, evidence: 'Drewry index for West-East corridors spikes to $4,200', agents: ['FlowAgent', 'TradeAgent'], status: 'done' },
-      { id: 'n3', label: 'Fertilizer Imports', change: '+9.4% CIF India rate', confidence: 89, evidence: 'Imported Di-Ammonium Phosphate cargo delayed by 21 days at Vizag', agents: ['TradeAgent', 'AgriAgent'], status: 'done' },
-      { id: 'n4', label: 'Domestic Agri Input', change: '+6.2% retail input cost', confidence: 85, evidence: 'Cooperative urea distributions run 12% below baseline in northern states', agents: ['AgriAgent', 'MarketAgent'], status: 'done' },
-      { id: 'n5', label: 'Tomato & Veg Prices', change: '+4.8% inflation surge', confidence: 91, evidence: 'Nashik winter crop output cost premium expands; transport surcharges applied', agents: ['AgriAgent', 'MacroAgent'], status: 'done' },
-      { id: 'n6', label: 'Macro Food CPI', change: '+1.2% food index shift', confidence: 82, evidence: 'Tomato, Onion, and Potato index volatility adds 24 bps to headline inflation', agents: ['MacroAgent', 'CapitalAgent'], status: 'done' }
+      { id: 'n1', label: 'Red Sea Disruption', change: 'Cape Reroute (+14d)', confidence: 98, evidence: 'Bab-el-Mandeb transit capacity drops 68%', agents: ['RiskAgent', 'TradeAgent'], status: 'done', phase: 'Cause' },
+      { id: 'n2', label: 'Ocean Freight Rate Spike', change: '+14% container costs', confidence: 94, evidence: 'Drewry index for East-West routes spikes past $4,200/FEU', agents: ['FlowAgent', 'TradeAgent'], status: 'done', phase: 'Transmission' },
+      { id: 'n3', label: 'Fertilizer Import Shortage', change: '+9.4% CIF India cost', confidence: 89, evidence: 'Imported Di-Ammonium Phosphate delayed 21 days at Vizag Port', agents: ['TradeAgent', 'AgriAgent'], status: 'done', phase: 'Sector' },
+      { id: 'n4', label: 'Domestic Agri Input Rise', change: '+6.2% retail input cost', confidence: 85, evidence: 'Urea distribution levels down 12% below normal in northern states', agents: ['AgriAgent', 'MarketAgent'], status: 'done', phase: 'Macro' },
+      { id: 'n5', label: 'Tomato & Veg Price Spikes', change: '+4.8% inflation surge', confidence: 91, evidence: 'Transport surcharges applied to regional mandi dispatches', agents: ['AgriAgent', 'MacroAgent'], status: 'done', phase: 'Policy' }
     ],
     connections: [
       { from: 'n1', to: 'n2' },
       { from: 'n2', to: 'n3' },
       { from: 'n3', to: 'n4' },
-      { from: 'n4', to: 'n5' },
-      { from: 'n5', to: 'n6' }
+      { from: 'n4', to: 'n5' }
     ]
   },
   monsoon: {
     nodes: [
-      { id: 'm1', label: 'El Nino / Monsoon Delay', change: 'Precipitation deficit -18% in central India', confidence: 95, evidence: 'IMD regional logs report below-normal monsoon advancement', agents: ['ClimateAgent', 'RiskAgent'], status: 'done' },
-      { id: 'm2', label: 'Kharif Crop Sowing Area', change: '-12.4% land cultivated', confidence: 92, evidence: 'Pulses and oilseeds sowing drops in Madhya Pradesh and Maharashtra', agents: ['AgriAgent', 'ClimateAgent'], status: 'done' },
-      { id: 'm3', label: 'Mandi Arrival Deficit', change: '-15% vegetable arrivals', confidence: 89, evidence: 'Mandi telemetry reports volume contraction in Nashik and Agra yards', agents: ['FlowAgent', 'AgriAgent'], status: 'done' },
-      { id: 'm4', label: 'Agri Wholesale Index', change: '+32.4% wholesale prices', confidence: 94, evidence: 'Tomato and Onion mandi indices touch seasonal highs', agents: ['AgriAgent', 'MarketAgent'], status: 'done' },
-      { id: 'm5', label: 'CPI Food Basket', change: '+3.4% retail CPI shift', confidence: 91, evidence: 'Food inflation contributes 62% of CPI core deviation', agents: ['MacroAgent', 'MarketAgent'], status: 'done' },
-      { id: 'm6', label: 'RBI Repo Rate Hold', change: 'Repo rate held at 6.5%', confidence: 85, evidence: 'MPC stance stays withdrawal of accommodation; yields climb 5 bps', agents: ['MacroAgent', 'CapitalAgent'], status: 'done' }
+      { id: 'm1', label: 'Monsoon Sowing Deficit', change: '-18% rain drop', confidence: 95, evidence: 'IMD regional logs confirm below-average precipitation levels', agents: ['ClimateAgent', 'RiskAgent'], status: 'done', phase: 'Cause' },
+      { id: 'm2', label: 'Kharif Cultivation Contraction', change: '-12.4% sowing area', confidence: 92, evidence: 'Sowing drop in Madhya Pradesh pulses and Maharashtra oilseed zones', agents: ['AgriAgent', 'ClimateAgent'], status: 'done', phase: 'Transmission' },
+      { id: 'm3', label: 'Mandi Arrival Deficit', change: '-15% arrival volume', confidence: 89, evidence: 'Arrival volumes slide at Nashik and Lasalgaon mandi yards', agents: ['FlowAgent', 'AgriAgent'], status: 'done', phase: 'Sector' },
+      { id: 'm4', label: 'Agricultural Price Volatility', change: '+32.4% wholesale index', confidence: 94, evidence: 'Onion and tomato daily index models touch seasonal highs', agents: ['AgriAgent', 'MarketAgent'], status: 'done', phase: 'Macro' },
+      { id: 'm5', label: 'RBI Monetary Stance Hold', change: 'Repo rate held at 6.50%', confidence: 85, evidence: 'MPC issues rate hold to prevent agricultural cost pass-through', agents: ['MacroAgent', 'CapitalAgent'], status: 'done', phase: 'Policy' }
     ],
     connections: [
       { from: 'm1', to: 'm2' },
       { from: 'm2', to: 'm3' },
       { from: 'm3', to: 'm4' },
-      { from: 'm4', to: 'm5' },
-      { from: 'm5', to: 'm6' }
+      { from: 'm4', to: 'm5' }
     ]
   },
   bottleneck: {
     nodes: [
-      { id: 'b1', label: 'JNPT Port Container Spillover', change: '+22% yard dwell time', confidence: 96, evidence: 'Container stack height touches critical 4.2 limit; road turnarounds delay', agents: ['FlowAgent', 'InfrastructureAgent'], status: 'done' },
-      { id: 'b2', label: 'Flat Wagon Shortage', change: '-14% wagon availability', confidence: 91, evidence: 'CONCOR empty rake positioning delays by 48 hours at Navi Mumbai yards', agents: ['FlowAgent', 'MobilityAgent'], status: 'done' },
-      { id: 'b3', label: 'NH-48 Diverted Traffic', change: '+18.5% truck density', confidence: 88, evidence: 'NHAI FASTag logs confirm 14,000 extra multi-axle truck transits on road bypasses', agents: ['MobilityAgent', 'InfrastructureAgent'], status: 'done' },
-      { id: 'b4', label: 'Mumbai-Delhi Transit Lag', change: '+8.2 hours delay', confidence: 93, evidence: 'Avg logistics velocity falls to 24 km/h across Vadodara corridor', agents: ['MobilityAgent', 'RiskAgent'], status: 'done' },
-      { id: 'b5', label: 'Manufacturing Lead Times', change: '+3 days automotive parts hold-up', confidence: 89, evidence: 'Gurugram-Manesar cluster logs supply buffer depletion; inventory costs up', agents: ['TradeAgent', 'CapitalAgent'], status: 'done' }
+      { id: 'b1', label: 'JNPT Terminal Congestion', change: '+22% yard dwell time', confidence: 96, evidence: 'Yard container stacks touch critical 4.2 limit; road queue delay spikes', agents: ['FlowAgent', 'InfrastructureAgent'], status: 'done', phase: 'Cause' },
+      { id: 'b2', label: 'Flat Wagon Reallocation Delay', change: '-14% wagon availability', confidence: 91, evidence: 'Empty rake placements delay 48 hours at Mundra terminals', agents: ['FlowAgent', 'MobilityAgent'], status: 'done', phase: 'Transmission' },
+      { id: 'b3', label: 'NH-48 Diverted Road Traffic', change: '+18.5% FASTag volume', confidence: 88, evidence: 'Highway sensors report 14,000 extra multi-axle truck transits', agents: ['MobilityAgent', 'InfrastructureAgent'], status: 'done', phase: 'Sector' },
+      { id: 'b4', label: 'Automotive Cluster Hold-ups', change: '+8.2 hrs lead time', confidence: 93, evidence: 'Gurugram automotive suppliers report buffer stock depletion', agents: ['MobilityAgent', 'RiskAgent'], status: 'done', phase: 'Macro' },
+      { id: 'b5', label: 'Industrial Output Drag', change: '-1.4% manufacturing index', confidence: 89, evidence: 'Capacity utilization drops slightly due to logistics friction', agents: ['TradeAgent', 'CapitalAgent'], status: 'done', phase: 'Policy' }
     ],
     connections: [
       { from: 'b1', to: 'b2' },
@@ -123,11 +119,11 @@ export const REASONING_PRESETS: Record<string, CausalGraph> = {
   },
   index_drop: {
     nodes: [
-      { id: 'i1', label: 'Vizag Port Dwell Spike', change: '+240% container dwell time', confidence: 98, evidence: 'Visakhapatnam operations bottlenecked by local cargo handlers strike', agents: ['RiskAgent', 'InfrastructureAgent'], status: 'done' },
-      { id: 'i2', label: 'Rail Coal Loading Drop', change: '-8.5% daily coal loading', confidence: 93, evidence: 'Avg thermal plant fuel reserves contract to critical 4-day threshold', agents: ['FlowAgent', 'MacroAgent'], status: 'done' },
-      { id: 'i3', label: 'Agri Mandi Supply Outage', change: '-11% agricultural load', confidence: 89, evidence: 'Extreme weather and localized highway closures disrupt vegetable transits', agents: ['ClimateAgent', 'AgriAgent'], status: 'done' },
-      { id: 'i4', label: 'Physical Cargo Velocity', change: '-4.8% nationwide cargo speed', confidence: 94, evidence: 'Indian Railway freight logs report avg speed decline to 41 km/h', agents: ['MobilityAgent', 'FlowAgent'], status: 'done' },
-      { id: 'i5', label: 'ARTHAM Index Adjustment', change: 'Index contracts to 73.4 (-2.1 pts)', confidence: 99, evidence: 'Composite macroeconomic tracking falls beneath 10-day moving average', agents: ['MacroAgent', 'CapitalAgent'], status: 'done' }
+      { id: 'i1', label: 'Visakhapatnam Operations Stop', change: '+240% dwell hours', confidence: 98, evidence: 'Sovereign port activity delayed by local handler wage disputes', agents: ['RiskAgent', 'InfrastructureAgent'], status: 'done', phase: 'Cause' },
+      { id: 'i2', label: 'Thermal Coal Logistics Lag', change: '-8.5% rake loading', confidence: 93, evidence: 'Power plants average coal reserves drop to critical 4-day limit', agents: ['FlowAgent', 'MacroAgent'], status: 'done', phase: 'Transmission' },
+      { id: 'i3', label: 'Mandi Supply Contraction', change: '-11% agricultural load', confidence: 89, evidence: 'Extreme weather and local landslips disrupt arterial transport routes', agents: ['ClimateAgent', 'AgriAgent'], status: 'done', phase: 'Sector' },
+      { id: 'i4', label: 'National Cargo Velocity Drop', change: '-4.8% average speed', confidence: 94, evidence: 'Freight train speed falls to 41 km/h average across main tracks', agents: ['MobilityAgent', 'FlowAgent'], status: 'done', phase: 'Macro' },
+      { id: 'i5', label: 'ARTHAM Index Adjustments', change: 'Index falls to 73.4 (-2.1 pts)', confidence: 99, evidence: 'Composite macroeconomic tracking slides below 10-day moving average', agents: ['MacroAgent', 'CapitalAgent'], status: 'done', phase: 'Policy' }
     ],
     connections: [
       { from: 'i1', to: 'i4' },
@@ -140,60 +136,34 @@ export const REASONING_PRESETS: Record<string, CausalGraph> = {
 
 // ─── Scenario Lab: Preset Shocks ───────────────────────────
 export const PRESET_SHOCKS: PresetShock[] = [
-  {
-    id: 's-oil',
-    name: 'Oil Shock ($150)',
-    description: 'Brent Crude spikes to $150/bbl due to escalating geopolitical tensions in resource channels.',
-    oilShock: 75,
-    portDisruption: 15,
-    monsoonDelay: 0,
-    railStrike: 0,
-    floodImpact: 0,
-    coalShortage: 20
-  },
-  {
-    id: 's-strike',
-    name: 'Mumbai Port Shutdown',
-    description: 'JNPT and Mundra dock operations halt due to sudden localized labor walkouts.',
-    oilShock: 0,
-    portDisruption: 90,
-    monsoonDelay: 0,
-    railStrike: 50,
-    floodImpact: 10,
-    coalShortage: 15
-  },
-  {
-    id: 's-monsoon',
-    name: 'Monsoon Failure (-30%)',
-    description: 'Precipitation levels contract by 30% nationwide, cutting agricultural output buffers.',
-    oilShock: 5,
-    portDisruption: 0,
-    monsoonDelay: 95,
-    railStrike: 0,
-    floodImpact: 0,
-    coalShortage: 10
-  },
-  {
-    id: 's-corridor',
-    name: 'Western DFC Failure',
-    description: 'Track failures and signalling drops block cargo rakes across Gujarat junctions.',
-    oilShock: 10,
-    portDisruption: 40,
-    monsoonDelay: 0,
-    railStrike: 85,
-    floodImpact: 30,
-    coalShortage: 25
-  }
+  { id: 's-oil', name: 'Oil Shock ($150)', description: 'Brent Crude spikes to $150/bbl due to escalating geopolitical tensions in Middle East channels.', oilShock: 75, portDisruption: 15, monsoonDelay: 0, railStrike: 0, floodImpact: 0, coalShortage: 20 },
+  { id: 's-hormuz', name: 'Hormuz Closure', description: 'Strait of Hormuz transit lanes blocked; oil container shipping routes suspended.', oilShock: 85, portDisruption: 60, monsoonDelay: 0, railStrike: 0, floodImpact: 0, coalShortage: 10 },
+  { id: 's-monsoon', name: 'Monsoon Failure', description: 'Precipitation levels contract by 30% nationwide, cutting agricultural output buffers.', oilShock: 5, portDisruption: 0, monsoonDelay: 75, railStrike: 0, floodImpact: 15, coalShortage: 0 },
+  { id: 's-strike', name: 'Port yard Strike', description: 'JNPT and Mundra dock operations halt due to sudden localized labor walkouts.', oilShock: 0, portDisruption: 90, monsoonDelay: 0, railStrike: 50, floodImpact: 0, coalShortage: 15 },
+  { id: 's-coal', name: 'Coal Shortage', description: 'Domestic thermal coal loading declines by 8.5%, prompting commercial power companies to plan imports.', oilShock: 10, portDisruption: 0, monsoonDelay: 0, railStrike: 15, floodImpact: 0, coalShortage: 85 },
+  { id: 's-semi', name: 'Semiconductor Shock', description: 'Fab supply constraints delay tech component customs clearance by 35 days.', oilShock: 0, portDisruption: 50, monsoonDelay: 0, railStrike: 0, floodImpact: 0, coalShortage: 0 },
+  { id: 's-rail', name: 'Railway Capacity Drop', description: 'Track signalling failures block cargo rakes across Gujarat junctions.', oilShock: 10, portDisruption: 40, monsoonDelay: 0, railStrike: 85, floodImpact: 30, coalShortage: 25 },
+  { id: 's-boom', name: 'Export Cargo Boom', description: 'Spike in westward manufactured cargo bookings triggers container yard deficits.', oilShock: 15, portDisruption: 40, monsoonDelay: 0, railStrike: 25, floodImpact: 0, coalShortage: 0 },
+  { id: 's-energy', name: 'Power Grid Crisis', description: 'Critical power outages force rationing across manufacturing clusters.', oilShock: 90, portDisruption: 10, monsoonDelay: 0, railStrike: 0, floodImpact: 0, coalShortage: 70 },
+  { id: 's-recession', name: 'Global Recession', description: 'Westward buyer demand contractions drop export load manifests.', oilShock: -40, portDisruption: -30, monsoonDelay: 0, railStrike: -10, floodImpact: 0, coalShortage: 0 }
 ]
 
-// ─── Autopilot: Decision Recommendations ───────────────────
-export const AUTOPILOT_MITIGATIONS: AutopilotMitigation[] = [
+// ─── Situation Room: Scorecard Metrics ─────────────────────
+export const SOVEREIGN_KPIS: SovereignKPI[] = [
+  { id: 'kpi-1', name: 'Economic Resilience', value: '86.4%', change: 1.2, description: 'Measures national physical supply redundancy and buffer storage capacity against trade corridor shocks.', status: 'optimal' },
+  { id: 'kpi-2', name: 'Supply Chain Stability', value: '78.2%', change: -2.4, description: 'Tracks intermodal reliability, port container clearance speeds, and DFC velocity parameters.', status: 'stressed' },
+  { id: 'kpi-3', name: 'Trade Momentum Index', value: '82.5%', change: 1.8, description: 'Aggregates export loading ratios, custom processing manifest times, and net shipping balance.', status: 'stable' },
+  { id: 'kpi-4', name: 'Inflationary Cost Pressure', value: '42.1%', change: 4.8, description: 'Downstream price transmission from fuel transport adjustments and agricultural mandi gaps.', status: 'stressed' },
+  { id: 'kpi-5', name: 'Infrastructure Util.', value: '64.8%', change: 1.2, description: 'Wagon occupancy, flat wagon distribution, and terminal yard clearance rates.', status: 'stable' },
+  { id: 'kpi-6', name: 'Export Competitiveness', value: '85.4%', change: 2.2, description: 'Clearing efficiency of coastal gateways compared to international standard baselines.', status: 'stable' }
+]
+
+// ─── Situation Room: Recommended Actions ───────────────────
+export const SOVEREIGN_RECOMMENDATIONS: RecommendedAction[] = [
   {
-    id: 'auto-1',
-    title: 'Western DFC Corridor Congestion Override',
-    metric: 'Transit Speed Degradation: -18.4 km/h',
-    description: 'High-density container stack limits exceeded at Dadri. Secondary highway NH-48 toll flows show a +28% truck density surge.',
-    recommendation: 'Reroute 12% of container cargo to the bypass rail loops; prioritize active coal rakes; reallocate 45 flat wagons from central zones.',
+    id: 'rec-1',
+    risk: 'Red Sea Cargo Bottlenecks',
+    recommendation: 'Divert 12% of container traffic to DFC bypass loops; reallocate 45 empty rail flat wagons from central zones; bypass customs gate delays via advance CEPA filings.',
     costInr: 4200000,
     co2SavedTonnes: 18.2,
     timeSavedHours: 14.5,
@@ -202,22 +172,71 @@ export const AUTOPILOT_MITIGATIONS: AutopilotMitigation[] = [
     riskLevel: 'MED'
   },
   {
-    id: 'auto-2',
-    title: 'Mundra Port Dwell Time Spikes Mitigation',
-    metric: 'Yard Dwell Latency: 32.8 Hrs (+78% deviation)',
-    description: 'Road-based custom clearance delays block inbound container grids, lowering the cargo turnaround ratios.',
-    recommendation: 'Shift road cargo arrivals to direct rail shuttles; bypass customs gate inspections via advance CEPA declarations; trigger Dharuhera buffer buffers.',
+    id: 'rec-2',
+    risk: 'Mundra Container Yard Congestion',
+    recommendation: 'Shift road cargo arrivals to direct rail shuttles; trigger Dharuhera buffer yard logistics releases; deploy emergency customs staff.',
     costInr: 8400000,
     co2SavedTonnes: 32.4,
     timeSavedHours: 28.6,
     gdpOffsetCr: 4.8,
     confidence: 91,
     riskLevel: 'HIGH'
+  },
+  {
+    id: 'rec-3',
+    risk: 'Mandi Crop Sowing Lags (Monsoon)',
+    recommendation: 'Expand local fertilizer buffer reserves by 15%; establish emergency agricultural credit structures; prioritize fertilizer rake dispatches.',
+    costInr: 1500000,
+    co2SavedTonnes: 0,
+    timeSavedHours: 0,
+    gdpOffsetCr: 1.7,
+    confidence: 89,
+    riskLevel: 'MED'
   }
 ]
 
-// ─── Chronos: Replay Timelines ──────────────────────────────
-export const CHRONOS_DISRUPTIONS: ChronosDisruption[] = [
+// ─── Forecast Outlook Timelines ────────────────────────────
+export const FORECAST_DATA: ForecastMilestone[] = [
+  {
+    period: '7 Days',
+    inflation: '+0.12% CPI delta',
+    congestion: 'Stressed Mundra container yards (+6h dwell time)',
+    delay: '+1.2 days on Western DFC rakes',
+    price: 'Onions: +4% wholesale index',
+    provenance: ['Drewry container index +4%', 'Nashik highway bypass diversion active', 'W-DFC capacity utilization reaches 84%'],
+    confidence: 94
+  },
+  {
+    period: '30 Days',
+    inflation: '+0.28% CPI delta',
+    congestion: 'Spillover container stacks at Dadri terminal',
+    delay: '+3.4 days average transit duration',
+    price: 'Tomatoes: +12% wholesale mandi price',
+    provenance: ['Vizag imported Urea shipments delayed 21 days', 'NAFED cold storage reserves drop 12%', 'FASTag road vehicle density up 18.5%'],
+    confidence: 89
+  },
+  {
+    period: '90 Days',
+    inflation: '+0.54% CPI delta',
+    congestion: 'Optimal flows restored to coastal port terminals',
+    delay: '+1.8 days average transit duration',
+    price: 'Agri price correction across major yards',
+    provenance: ['Alternative rail corridors fully operational', 'New commercial warehouse parks commissioned', 'MPC repo rate held at 6.50%'],
+    confidence: 91
+  },
+  {
+    period: '180 Days',
+    inflation: '+0.14% CPI delta',
+    congestion: 'Optimal logistics flow parameters achieved',
+    delay: 'Standard velocity indicators (+72 km/h avg)',
+    price: 'Food price basket stabilizes completely',
+    provenance: ['New flat wagon rolling stock deployed on DFC', 'Kharif sowing levels complete (+3% YoY)', 'Suez shipping backlogs cleared'],
+    confidence: 95
+  }
+]
+
+// ─── Historical Replay Events ─────────────────────────────
+export const REPLAY_EVENTS: ReplayEvent[] = [
   {
     id: 'c-suez',
     name: 'Suez Canal Blockage',
@@ -238,20 +257,48 @@ export const CHRONOS_DISRUPTIONS: ChronosDisruption[] = [
     timeline: [
       { day: 1, log: 'Drone attacks on commercial ships reported near Yemen coast, raising threat status.', action: 'Apply war risk surcharges; monitor cargo pipelines.', resolved: false },
       { day: 5, log: 'Major ocean carriers suspend Red Sea voyages, routing 18% of global cargo via South Africa.', action: 'Establish Cape route transit windows; procure cargo hedges.', resolved: false },
-      { day: 10, log: 'Indian imported Urea cargo shipments delayed by 21 days; raw fertilizer import prices rise +9.4%.', action: 'Unlock national contingency fertilizer reserve buffers in northern states.', resolved: false },
+      { day: 10, log: 'Indian imported Urea cargo shipments delayed by 21 days; raw fertilizer import prices rise +9.4%.', action: 'Unlock national fertilizer reserves in northern states.', resolved: false },
       { day: 15, log: 'Agricultural input costs increase by +6.2% at regional mandis, pushing local food inflation.', action: 'Issue temporary mandi transportation fuel credit subsidies.', resolved: true }
     ]
   }
 ]
 
-// ─── Artham Earth: Global Cargo Flows ──────────────────────
-export const EARTH_CARGO_FLOWS: EarthCargoFlow[] = [
-  { id: 'f-rotterdam', name: 'Rotterdam ↔ JNPT Route', from: 'Rotterdam Port', to: 'JNPT Port', cargoType: 'Industrial Mach', volumeKmt: 1400, status: 'stressed', routePath: 'M 30,100 C 60,180 90,280 140,440' },
-  { id: 'f-singapore', name: 'JNPT ↔ Singapore Route', from: 'JNPT Port', to: 'Singapore Term', cargoType: 'Refined Oil', volumeKmt: 2400, status: 'optimal', routePath: 'M 140,440 C 200,470 280,480 320,410' },
-  { id: 'f-shanghai', name: 'Mundra ↔ Shanghai Route', from: 'Mundra Port', to: 'Shanghai Port', cargoType: 'Iron Ore', volumeKmt: 3100, status: 'congested', routePath: 'M 42,240 C 120,280 220,280 330,220' }
+// ─── Intelligence Feed alerts ─────────────────────────────
+export const INTELLIGENCE_FEED_SEEDS: IntelligenceAlert[] = [
+  { id: 'a-1', timestamp: '09:14', severity: 'warning', text: 'Western DFC: Utilization 84% — Dadri terminal stacking thresholds stressed.', confidence: 94, region: 'Gujarat-Haryana', sector: 'Logistics' },
+  { id: 'a-2', timestamp: '09:07', severity: 'info', text: 'Lasalgaon Mandi: Onion volume arrivals contract 12% — price anomaly detected.', confidence: 89, region: 'Maharashtra', sector: 'Agriculture' },
+  { id: 'a-3', timestamp: '08:47', severity: 'warning', text: 'Mundra Terminal: Container yard dwell time rises to 32.8 hours.', confidence: 91, region: 'Gujarat Gateway', sector: 'Infrastructure' },
+  { id: 'a-4', timestamp: '08:23', severity: 'critical', text: 'Bab-el-Mandeb: Three westbound container vessels reroute via Cape of Good Hope.', confidence: 98, region: 'Indian Ocean shipping lanes', sector: 'Trade' },
+  { id: 'a-5', timestamp: '07:55', severity: 'warning', text: 'Visakhapatnam Port: Imported DAP fertilizer dispatch delayed due to rail scheduling.', confidence: 93, region: 'Andhra Pradesh', sector: 'Agriculture' },
+  { id: 'a-6', timestamp: '07:31', severity: 'info', text: 'Nashik Mandi: Tomato price differential reaches ₹34/kg vs Lucknow terminal.', confidence: 94, region: 'MH-UP Corridor', sector: 'Market' }
 ]
 
-// ─── Seven Proprietary Indices Details ──────────────────────
+// ─── Pinned Command Center Data ────────────────────────────
+export const HISTORICAL_CHART_DATA: FreightDataPoint[] = [
+  { month: 'Jan 26', freightGDP: 71.4, rbiOfficial: 69.8 },
+  { month: 'Feb 26', freightGDP: 73.1, rbiOfficial: 71.2 },
+  { month: 'Mar 26', freightGDP: 75.8, rbiOfficial: 74.0 },
+  { month: 'Apr 26', freightGDP: 74.9, rbiOfficial: null },
+  { month: 'May 26', freightGDP: 76.5, rbiOfficial: null },
+  { month: 'Jun 26', freightGDP: 73.4, rbiOfficial: null }
+]
+
+export const WHAT_CHANGED_TODAY = [
+  { label: 'Port Dwell Congestion', value: '▲ 7.2%', trend: 'bad', desc: 'Vizag port bottlenecks strike-bound' },
+  { label: 'Core Rail Throughput', value: '▲ 3.1%', trend: 'good', desc: 'Coal rake load schedules complete' },
+  { label: 'Agri Mandi Price Gap', value: '▲ 14.8%', trend: 'neutral', desc: 'Nashik tomato supply constraints grow' },
+  { label: 'National Economic Pulse', value: '▲ 1.8%', trend: 'good', desc: 'Western DFC container speeds lift' }
+]
+
+export const COMMODITY_FREIGHT: CommodityFreight[] = [
+  { name: 'Coal & Coke', current: 92, baseline: 85, sector: 'Energy' },
+  { name: 'Cement & Clinker', current: 78, baseline: 80, sector: 'Construction' },
+  { name: 'Iron & Steel', current: 105, baseline: 90, sector: 'Manufacturing' },
+  { name: 'Foodgrains', current: 88, baseline: 85, sector: 'Agriculture' },
+  { name: 'Fertilizers', current: 67, baseline: 75, sector: 'Agriculture' },
+  { name: 'Petroleum & Oil', current: 102, baseline: 95, sector: 'Energy' }
+]
+
 export const PROPRIETARY_INDICES_DETAILS: IndexMetricDetail[] = [
   {
     id: 'idx-1',
@@ -318,55 +365,17 @@ export const PROPRIETARY_INDICES_DETAILS: IndexMetricDetail[] = [
   }
 ]
 
-// ─── Pinned Command Center Data ────────────────────────────
-export const HISTORICAL_CHART_DATA: FreightDataPoint[] = [
-  { month: 'Jan 26', freightGDP: 71.4, rbiOfficial: 69.8 },
-  { month: 'Feb 26', freightGDP: 73.1, rbiOfficial: 71.2 },
-  { month: 'Mar 26', freightGDP: 75.8, rbiOfficial: 74.0 },
-  { month: 'Apr 26', freightGDP: 74.9, rbiOfficial: null },
-  { month: 'May 26', freightGDP: 76.5, rbiOfficial: null },
-  { month: 'Jun 26', freightGDP: 73.4, rbiOfficial: null }
-]
-
-export const WHAT_CHANGED_TODAY = [
-  { label: 'Port Dwell Congestion', value: '▲ 7.2%', trend: 'bad', desc: 'Vizag port bottlenecks strike-bound' },
-  { label: 'Core Rail Throughput', value: '▲ 3.1%', trend: 'good', desc: 'Coal rake load schedules complete' },
-  { label: 'Agri Mandi Price Gap', value: '▲ 14.8%', trend: 'neutral', desc: 'Nashik tomato supply constraints grow' },
-  { label: 'National Economic Pulse', value: '▲ 1.8%', trend: 'good', desc: 'Western DFC container speeds lift' }
-]
-
-// ─── Commodity Freight Loader for SENSE ─────────────────────
-export const COMMODITY_FREIGHT: CommodityFreight[] = [
-  { name: 'Coal & Coke', current: 92, baseline: 85, sector: 'Energy' },
-  { name: 'Cement & Clinker', current: 78, baseline: 80, sector: 'Construction' },
-  { name: 'Iron & Steel', current: 105, baseline: 90, sector: 'Manufacturing' },
-  { name: 'Foodgrains', current: 88, baseline: 85, sector: 'Agriculture' },
-  { name: 'Fertilizers', current: 67, baseline: 75, sector: 'Agriculture' },
-  { name: 'Petroleum & Oil', current: 102, baseline: 95, sector: 'Energy' }
-]
-
-// ─── Decision Center: Institutional Persona Alerts ─────────
-export const DECISION_ALERTS: Record<string, DecisionAlert[]> = {
+export const DECISION_ALERTS = {
   rbi: [
     {
       id: 'rbi-1',
       title: 'Food CPI Alert: Tomato Spikes Threaten Target Band',
       metric: 'Food Inflation Forecast: +4.8% CPI Offset',
       description: 'Nashik mandi price anomalies have breached the +40% deviation threshold, expanding cargo transport surcharges to downstream nodes.',
-      recommendation: 'Maintained withdrawal of repo rate accommodation (6.5%); monitor primary mandi arrivals before agricultural credit updates.',
+      recommendation: 'Maintained withdrawal of repo rate accommodation (6.5%); monitor primary mandi arrivals.',
       confidence: 91,
       impact: 'HIGH',
-      expectedOutcome: 'Cool agricultural price volatility within 45 days, anchoring secondary inflation indexes.'
-    },
-    {
-      id: 'rbi-2',
-      title: 'Western DFC Congestion Adding Transit Cost Premiums',
-      metric: 'Logistics Surcharge Deviation: +₹1.8/km/tonne',
-      description: 'Congestion at Mundra container yards has triggered secondary highway route diversions, swelling FASTag highway volumes.',
-      recommendation: 'Review asset credit facilities for commercial haulers; adjust trade transport liquidity allocations.',
-      confidence: 88,
-      impact: 'MED',
-      expectedOutcome: 'Stabilizes supply-chain liquidity and prevents transport cost indexing from leaking into core CPI.'
+      expectedOutcome: 'Cool agricultural price volatility within 45 days.'
     }
   ],
   railway: [
@@ -378,39 +387,19 @@ export const DECISION_ALERTS: Record<string, DecisionAlert[]> = {
       recommendation: 'Re-prioritize empty flat wagon positions from central zone hubs; activate DFC speed-bypass rules.',
       confidence: 96,
       impact: 'HIGH',
-      expectedOutcome: 'Clear the container gridlock, reducing yard dwell hours to a baseline of 18 hours in 5 days.'
-    },
-    {
-      id: 'rail-2',
-      title: 'Station Prox REIT Land Parcel Valuation Upgrade',
-      metric: 'REIT Grade AAA Asset: Bandra parcel ₹847 Cr value',
-      description: 'Bandra Station proximity premium has risen (+38% <200m) with the completion of the line connection corridor.',
-      recommendation: 'Bundle the land parcel under the AAA Grade REIT package; execute a 20-year lease structure at 8.2% projected yield.',
-      confidence: 93,
-      impact: 'HIGH',
-      expectedOutcome: 'Unlock liquid capital yields from idle spatial assets, providing immediate revenue flow.'
+      expectedOutcome: 'Clear the container gridlock, reducing yard dwell hours.'
     }
   ],
   agriculture: [
     {
       id: 'agri-1',
       title: 'Nashik-Lucknow Tomato Price Gap Profitable Arbitrage',
-      metric: 'Arbitrage ROI: 310% (P&L ₹14.4 Lakh / wagon)',
+      metric: 'Arbitrage ROI: 310%',
       description: 'Nashik tomato buy price (₹8/kg) vs Lucknow sell price (₹42/kg) creates massive arbitrage after factoring cold chain logistics.',
-      recommendation: 'Authorize immediate dispatch of 3 empty refrigerated wagons from neighboring zones; secure mandi buy volumes.',
+      recommendation: 'Authorize immediate dispatch of refrigerated wagons.',
       confidence: 94,
       impact: 'HIGH',
-      expectedOutcome: 'Arbitrage captures ₹847 crore daily uncaptured profit, cooling Lucknow retail price index by 18%.'
-    },
-    {
-      id: 'agri-2',
-      title: 'Delayed Monsoon Crop Sowing Squeeze',
-      metric: 'MP pulses and oilseeds area: -12.4% sowing',
-      description: 'Precipitation deficit of 18% in central India limits reservoir irrigation, halting primary sowing operations.',
-      recommendation: 'Increase fertilizer warehouse buffer levels locally by 15%; extend emergency agricultural credit support.',
-      confidence: 89,
-      impact: 'MED',
-      expectedOutcome: 'Prevents structural crop yield failures, stabilizing wholesale mandi prices.'
+      expectedOutcome: 'Arbitrage captures ₹847 crore daily, cooling Lucknow prices.'
     }
   ],
   investor: [
@@ -418,21 +407,12 @@ export const DECISION_ALERTS: Record<string, DecisionAlert[]> = {
       id: 'inv-1',
       title: 'Coal Supply Crisis Hedging Strategy',
       metric: 'Average Plant Stock: Critical 4-Day Level',
-      description: 'Domestic thermal coal loading declines by 8.5%, prompting commercial power companies to plan imports.',
-      recommendation: 'Shift logistics portfolio holdings toward dry bulk shipping entities; hedge logistics exposure with delay derivatives.',
+      description: 'Domestic thermal coal loading declines by 8.5%, prompting power company imports.',
+      recommendation: 'Shift logistics portfolio holdings toward dry bulk shipping entities.',
       confidence: 93,
       impact: 'HIGH',
-      expectedOutcome: 'Mitigate supply-chain energy disruption costs, capturing alpha from ocean transport stocks.'
-    },
-    {
-      id: 'inv-2',
-      title: 'Dharuhera Warehouse Demand Peak Validation',
-      metric: 'Dharuhera WareHeat Score: 91/100',
-      description: 'Industrial approvals (₹8,400 Cr), NH-48 widening, and new GST registrations confirm demand peak for Q3 2027.',
-      recommendation: 'Deploy capital into Grade-A logistics parks in Dharuhera; target 4.2M sqft logistics capacity.',
-      confidence: 91,
-      impact: 'HIGH',
-      expectedOutcome: 'Captures early warehouse rental yields ahead of retail distribution surges, achieving a 14.8% IRR.'
+      expectedOutcome: 'Mitigate supply-chain energy disruption costs.'
     }
   ]
 }
+

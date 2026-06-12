@@ -16,6 +16,10 @@ export interface AgentDetails {
   role: string
   status: 'idle' | 'active' | 'done'
   description: string
+  signalsProcessed: number
+  lastAction: string
+  reasoningSummary: string
+  confidence: number
 }
 
 // ─── SENSE / TWIN Telemetry ───────────────────────────────
@@ -73,6 +77,7 @@ export interface ReasoningNode {
   evidence: string
   agents: AgentName[]
   status: 'pending' | 'active' | 'done'
+  phase: 'Cause' | 'Transmission' | 'Sector' | 'Macro' | 'Policy'
 }
 
 export interface CausalGraph {
@@ -101,26 +106,28 @@ export interface SimulatedImpactPoint {
   worstCase: number
 }
 
-// ─── DECISION CENTER ───────────────────────────────────────
-export type PersonaType = 'rbi' | 'railway' | 'agriculture' | 'investor'
-
-export interface DecisionAlert {
+// ─── SITUATION ROOM & RECOMMENDATIONS ──────────────────────
+export interface SovereignKPI {
   id: string
-  title: string
-  metric: string
+  name: string
+  value: string
+  change: number
   description: string
-  recommendation: string
-  confidence: number
-  impact: 'HIGH' | 'MED' | 'LOW'
-  expectedOutcome: string
+  status: 'optimal' | 'stable' | 'stressed' | 'critical'
 }
 
-// ─── ECONOMIC AUTOPILOT ────────────────────────────────────
-export interface AutopilotMitigation {
+export interface RiskRadarPoint {
   id: string
-  title: string
-  metric: string
+  name: string
+  x: number // -100 to 100 on grid
+  y: number // -100 to 100 on grid
+  severity: 'high' | 'medium' | 'low'
   description: string
+}
+
+export interface RecommendedAction {
+  id: string
+  risk: string
   recommendation: string
   costInr: number            // In Rupees
   co2SavedTonnes: number
@@ -130,32 +137,42 @@ export interface AutopilotMitigation {
   riskLevel: 'HIGH' | 'MED' | 'LOW'
 }
 
-// ─── CHRONOS (Economic Replay Engine) ──────────────────────
-export interface ChronosStep {
+// ─── FORECAST (Chronos Outlook) ───────────────────────────
+export interface ForecastMilestone {
+  period: string // "7 Days" | "30 Days" | "90 Days" | "180 Days"
+  inflation: string
+  congestion: string
+  delay: string
+  price: string
+  provenance: string[] // List of signals e.g. ["Freight costs +18%", ...]
+  confidence: number
+}
+
+// ─── REPLAY (Historical Intelligence) ──────────────────────
+export interface ReplayStep {
   day: number
   log: string
   action: string
   resolved: boolean
 }
 
-export interface ChronosDisruption {
+export interface ReplayEvent {
   id: string
   name: string
   description: string
   year: string
-  timeline: ChronosStep[]
+  timeline: ReplayStep[]
 }
 
-// ─── ARTHAM EARTH (Global Observatory) ─────────────────────
-export interface EarthCargoFlow {
+// ─── INTELLIGENCE FEED ─────────────────────────────────────
+export interface IntelligenceAlert {
   id: string
-  name: string
-  from: string
-  to: string
-  cargoType: string
-  volumeKmt: number          // Kilo Metric Tonnes
-  status: 'optimal' | 'stressed' | 'congested'
-  routePath: string          // SVG curved path coordinates
+  timestamp: string
+  severity: 'critical' | 'warning' | 'info'
+  text: string
+  confidence: number
+  region: string
+  sector: string
 }
 
 // ─── SEVEN PROPRIETARY INDICES ─────────────────────────────
@@ -171,7 +188,7 @@ export interface IndexMetricDetail {
 
 // ─── App State ────────────────────────────────────────────
 export interface ARTHAMState {
-  activeTab: string // index, twin, prime, scenario_lab, autopilot, chronos, earth
+  activeTab: string // index, twin, prime, scenario_lab, forecast, replay, situation_room, intelligence_feed
   arthamIndex: number
   indexChange: number
   economicPulse: 'Expansion' | 'Steady' | 'Contraction' | 'Stressed'
@@ -180,4 +197,5 @@ export interface ARTHAMState {
   carbonCreditsToday: number
   totalArbitrageCr: number
   lastUpdate: Date
+  overallConfidence: number
 }

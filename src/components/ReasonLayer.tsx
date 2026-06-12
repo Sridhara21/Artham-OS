@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useARTHAMStore } from '@/lib/store'
 import type { ReasoningNode } from '@/types'
-import { Brain, ArrowDown, ShieldAlert, CheckCircle2, ChevronRight, Activity, Terminal } from 'lucide-react'
+import { Brain, ShieldAlert, CheckCircle2, ChevronRight, Activity, Command } from 'lucide-react'
 import { Card, CardHeader, CardBody } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -14,7 +14,7 @@ export default function ReasonLayer() {
   const [loading, setLoading] = useState(false)
   const [visibleNodes, setVisibleNodes] = useState<number>(0)
 
-  // Reset selected node and trigger typing reveal animation when graph changes
+  // Trigger sequential propagation lights when activeGraph loads
   useEffect(() => {
     if (activeGraph) {
       setSelectedNode(activeGraph.nodes[0])
@@ -28,7 +28,7 @@ export default function ReasonLayer() {
             return prev
           }
         })
-      }, 500)
+      }, 750)
       return () => clearInterval(interval)
     }
   }, [activeGraph])
@@ -38,7 +38,7 @@ export default function ReasonLayer() {
     setTimeout(() => {
       executeSearch(query)
       setLoading(false)
-    }, 1200) // Delay to simulate thinking and show neural network activations
+    }, 1200)
   }
 
   const handleCustomSearch = (e: React.FormEvent) => {
@@ -52,7 +52,7 @@ export default function ReasonLayer() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
       {/* Left panel: Prompt & Context Console - 4 cols */}
       <div className="lg:col-span-4 flex flex-col gap-5">
         <Card>
@@ -107,7 +107,7 @@ export default function ReasonLayer() {
         </Card>
       </div>
 
-      {/* Right panel: Active Causal Graph Display - 8 cols */}
+      {/* Right panel: Custom Causal Graph DAG - 8 cols */}
       <Card className="lg:col-span-8 flex flex-col justify-between min-h-[520px]">
         <CardHeader className="border-b border-border/20 pb-3">
           <div className="flex items-center justify-between w-full">
@@ -138,54 +138,94 @@ export default function ReasonLayer() {
             </div>
           ) : activeGraph ? (
             <>
-              {/* Directed Graph Pipeline - 7 cols */}
-              <div className="flex-1 flex flex-col items-center gap-4 py-2 select-none overflow-y-auto max-h-[440px] pr-2">
-                {activeGraph.nodes.map((node, index) => {
-                  if (index >= visibleNodes) return null
-                  const isSelected = selectedNode?.id === node.id
-                  return (
-                    <div key={node.id} className="w-full flex flex-col items-center animate-fade-rise">
+              {/* Directed Graph Pipeline (Left) - 7 cols */}
+              <div className="flex-1 flex flex-col items-center gap-2 select-none justify-center relative p-4 bg-black/10 rounded border border-border/10">
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+                  <defs>
+                    <linearGradient id="glowing-line" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#AFA9EC" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="#67E8F9" stopOpacity={0.8} />
+                    </linearGradient>
+                  </defs>
+                  {/* Causal lines sweep connection */}
+                  {activeGraph.nodes.map((node, index) => {
+                    if (index >= visibleNodes - 1 || index >= activeGraph.nodes.length - 1) return null
+                    const fromY = 40 + index * 68
+                    const toY = 40 + (index + 1) * 68
+                    return (
+                      <g key={`line-${index}`}>
+                        <line
+                          x1="50%"
+                          y1={fromY + 16}
+                          x2="50%"
+                          y2={toY - 16}
+                          stroke="url(#glowing-line)"
+                          strokeWidth="2"
+                          strokeDasharray="4 4"
+                        >
+                          <animate
+                            attributeName="stroke-dashoffset"
+                            values="40;0"
+                            dur="2s"
+                            repeatCount="indefinite"
+                          />
+                        </line>
+                      </g>
+                    )
+                  })}
+                </svg>
+
+                <div className="relative z-10 w-full flex flex-col gap-5 items-center">
+                  {activeGraph.nodes.map((node, index) => {
+                    if (index >= visibleNodes) return null
+                    const isSelected = selectedNode?.id === node.id
+                    
+                    return (
                       <div
+                        key={node.id}
                         onClick={() => setSelectedNode(node)}
-                        className={`w-full p-3.5 bg-black/25 border rounded cursor-pointer transition-all ${
+                        className={`w-[260px] p-2.5 bg-bg-base/90 border rounded cursor-pointer transition-all flex items-center justify-between shadow-card animate-fade-rise ${
                           isSelected
-                            ? 'border-accent-purple bg-accent-purple/5 shadow-glow-purple'
-                            : 'border-border/40 hover:border-border-bright'
+                            ? 'border-accent-purple bg-accent-purple/5 shadow-glow-purple scale-[1.02]'
+                            : 'border-border/30 hover:border-border-bright'
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-text-1 font-mono tracking-wide">{node.label}</span>
-                          <Badge variant={node.confidence > 90 ? 'green' : 'amber'}>
-                            {node.confidence}% Conf
-                          </Badge>
+                        <div className="flex flex-col gap-0.5 font-mono text-left">
+                          <span className="text-[7px] text-accent-cyan font-bold tracking-widest uppercase">
+                            {node.phase}
+                          </span>
+                          <span className="text-[10px] font-bold text-text-1 truncate max-w-[170px]">
+                            {node.label}
+                          </span>
+                          <span className="text-[9px] text-accent-purple font-medium truncate max-w-[170px]">
+                            {node.change}
+                          </span>
                         </div>
-                        <p className="text-[11px] text-accent-purple font-semibold font-mono leading-none">{node.change}</p>
+                        <Badge variant={node.confidence > 90 ? 'green' : 'amber'} className="text-[8px] h-5 px-1 bg-black/40">
+                          {node.confidence}%
+                        </Badge>
                       </div>
-
-                      {index < activeGraph.nodes.length - 1 && index < visibleNodes - 1 && (
-                        <ArrowDown size={16} className="text-border-bright my-1.5 animate-pulse" />
-                      )}
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
 
-              {/* Selected Node Inspector Details - 5 cols */}
+              {/* Selected Node Inspector Details (Right) - 5 cols */}
               <div className="w-full lg:w-64 bg-black/25 rounded border border-border/30 p-4 flex flex-col gap-4 font-mono text-[11px] h-fit">
                 {selectedNode ? (
                   <div className="animate-fade-rise flex flex-col gap-3">
                     <div className="border-b border-border/20 pb-2">
-                      <span className="text-[10px] text-text-3 block uppercase">Selected Step</span>
-                      <span className="text-xs font-extrabold text-text-1 leading-tight">{selectedNode.label}</span>
+                      <span className="text-[9px] text-text-3 block uppercase">Causal State Node</span>
+                      <span className="text-xs font-extrabold text-text-1 leading-tight block mt-0.5">{selectedNode.label}</span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-text-3 block uppercase mb-0.5">Modeled Value</span>
+                      <span className="text-[9px] text-text-3 block uppercase mb-0.5">Telemetry Impact</span>
                       <span className="text-xs font-bold text-accent-purple">{selectedNode.change}</span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-text-3 block uppercase mb-1">Active Core Agents</span>
+                      <span className="text-[9px] text-text-3 block uppercase mb-1">Attributed Core Agents</span>
                       <div className="flex flex-wrap gap-1">
                         {selectedNode.agents.map((agent) => (
                           <Badge key={agent} variant="purple">
@@ -196,16 +236,16 @@ export default function ReasonLayer() {
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-text-3 block uppercase mb-1">Empirical Evidence</span>
-                      <p className="text-text-2 leading-relaxed bg-black/40 p-2.5 rounded border border-border/10">
+                      <span className="text-[9px] text-text-3 block uppercase mb-1">Empirical Evidence log</span>
+                      <p className="text-text-2 leading-relaxed bg-black/40 p-2.5 rounded border border-border/10 text-[10px]">
                         {selectedNode.evidence}
                       </p>
                     </div>
 
                     <div className="border-t border-border/20 pt-2 flex items-center justify-between">
-                      <span className="text-[10px] text-text-3 uppercase">Causal Integrity</span>
+                      <span className="text-[9px] text-text-3 uppercase">Causal Integrity</span>
                       <span className="font-bold text-accent-green flex items-center gap-1">
-                        <CheckCircle2 size={12} /> verified
+                        <CheckCircle2 size={12} /> VERIFIED
                       </span>
                     </div>
                   </div>
@@ -221,7 +261,7 @@ export default function ReasonLayer() {
               <Brain size={32} className="text-border-bright animate-pulse" />
               <span>Causal Reasoning Engine Idle.</span>
               <p className="text-[11px] text-center max-w-sm leading-relaxed">
-                Choose an example query from the left or type your own question to activate the reasoning pipeline.
+                Choose an example preset or trigger a custom search in the Command Box to activate the reasoning pipeline.
               </p>
             </div>
           )}

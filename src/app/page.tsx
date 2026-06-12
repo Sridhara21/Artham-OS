@@ -2,23 +2,22 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import {
-  TrendingUp, MapPin, Search, Shield, Activity, FileText, Sparkles,
-  Bot, AlertTriangle, ShieldCheck, Zap, Coins, Globe, Landmark, Clock, ArrowRight, RefreshCw, Send, CheckCircle2, History, Cpu
+  TrendingUp, Search, Activity, Sparkles, Bot, AlertTriangle, Cpu, Command, Play, Square, Award
 } from 'lucide-react'
 
 import { useARTHAMStore } from '@/lib/store'
 import { Card, CardHeader, CardBody } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { MetricCard } from '@/components/ui/MetricCard'
+import CommandBar from '@/components/ui/CommandBar'
 
 import ObserveLayer from '@/components/ObserveLayer'
 import ReasonLayer from '@/components/ReasonLayer'
 import PredictLayer from '@/components/PredictLayer'
-import AutopilotLayer from '@/components/AutopilotLayer'
-import ChronosLayer from '@/components/ChronosLayer'
-import EarthLayer from '@/components/EarthLayer'
-import FinanceMonetizeLayer from '@/components/FinanceMonetizeLayer'
+import ForecastLayer from '@/components/ForecastLayer'
+import ReplayLayer from '@/components/ReplayLayer'
+import SituationRoomLayer from '@/components/SituationRoomLayer'
+import IntelligenceFeedLayer from '@/components/IntelligenceFeedLayer'
 
 import { HISTORICAL_CHART_DATA, WHAT_CHANGED_TODAY, AGENTS_LIST, PROPRIETARY_INDICES_DETAILS } from '@/lib/mock-data'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -28,7 +27,9 @@ export default function Home() {
   const {
     activeTab, setActiveTab, arthamIndex, indexChange, economicPulse,
     signalsToday, carbonCreditsToday, activeGraph, executeSearch, driftIndex,
-    selectedChronosId, chronosPlaying, advanceChronos
+    overallConfidence, cmdKOpen, setCmdKOpen,
+    demoActive, demoStage, demoProgress, startDemo, stopDemo,
+    oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage
   } = useARTHAMStore()
 
   const [currentTime, setCurrentTime] = useState('')
@@ -37,7 +38,7 @@ export default function Home() {
   const [loadingSearch, setLoadingSearch] = useState(false)
   const [hoveredIndexId, setHoveredIndexId] = useState<string | null>(null)
 
-  // Clock ticking
+  // Clock ticks
   useEffect(() => {
     const updateTime = () => {
       const now = new Date()
@@ -49,13 +50,25 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [])
 
-  // Live index value drift simulation
+  // Live index random walk drift
   useEffect(() => {
     const driftInterval = setInterval(() => {
-      driftIndex()
+      if (!demoActive) driftIndex()
     }, 5000)
     return () => clearInterval(driftInterval)
-  }, [driftIndex])
+  }, [driftIndex, demoActive])
+
+  // Bind CMD+K and CTRL+K keyboard listeners
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setCmdKOpen(!cmdKOpen)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [cmdKOpen, setCmdKOpen])
 
   const handleAskSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,17 +105,17 @@ export default function Home() {
       })
       return Array.from(agents)
     }
-    if (activeTab === 'autopilot') {
-      return ['FlowAgent', 'RiskAgent', 'InfrastructureAgent', 'MacroAgent']
+    if (activeTab === 'situation_room') {
+      return ['RiskAgent', 'MacroAgent', 'CapitalAgent']
     }
-    if (activeTab === 'chronos') {
-      return ['RiskAgent', 'TradeAgent', 'MacroAgent', 'ClimateAgent']
+    if (activeTab === 'forecast') {
+      return ['MacroAgent', 'AgriAgent', 'ClimateAgent']
     }
-    if (activeTab === 'earth') {
-      return ['TradeAgent', 'FlowAgent', 'InfrastructureAgent', 'CapitalAgent']
+    if (activeTab === 'replay') {
+      return ['RiskAgent', 'TradeAgent', 'MacroAgent']
     }
-    if (activeTab === 'monetize') {
-      return ['MarketAgent', 'AgriAgent', 'CapitalAgent', 'TradeAgent']
+    if (activeTab === 'intelligence_feed') {
+      return AGENTS_LIST.map(a => a.name)
     }
     return ['MacroAgent', 'FlowAgent', 'RiskAgent']
   }, [loadingSearch, activeTab, activeGraph])
@@ -110,6 +123,7 @@ export default function Home() {
   return (
     <div className="bg-grid scanline vignette min-h-screen flex flex-col font-sans select-none relative z-10 text-text-1">
       <Toaster position="bottom-right" />
+      <CommandBar />
 
       {/* TOP NAVBAR */}
       <nav className="h-16 border-b border-border bg-bg-base/90 backdrop-blur-xl px-6 flex items-center justify-between flex-shrink-0">
@@ -126,9 +140,37 @@ export default function Home() {
           <Badge variant="live" dot>GLOBAL OBSERVATORY</Badge>
         </div>
 
-        {/* Real-time index value panel */}
-        <div className="flex items-center gap-6">
-          <div className="bg-accent-purple/5 border border-accent-purple/20 rounded-md py-1 px-4 flex flex-col items-center shadow-inner">
+        {/* Demo Controller HUD Panel */}
+        <div className="flex items-center gap-4">
+          {demoActive ? (
+            <div className="bg-accent-amber/10 border border-accent-amber/35 rounded py-1 px-3.5 flex items-center gap-2.5 font-mono text-[10px] shadow-glow-amber">
+              <span className="w-2 h-2 rounded-full bg-accent-amber animate-pulse" />
+              <span>
+                DEMO IN PROGRESS: Stage {demoStage}/5 (
+                {demoStage === 1 ? 'Red Sea Disruption' : 
+                 demoStage === 2 ? 'Twin Telemetry' : 
+                 demoStage === 3 ? 'Causal Logic' : 
+                 demoStage === 4 ? 'Forecast Milestones' : 'Executive Brief'}
+                )
+              </span>
+              <div className="w-16 h-1.5 bg-black/45 rounded overflow-hidden">
+                <div className="h-full bg-accent-amber transition-all duration-200" style={{ width: `${demoProgress}%` }} />
+              </div>
+              <button onClick={stopDemo} className="text-accent-red hover:scale-105 transition-transform">
+                <Square size={12} fill="#FF6B6B" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={startDemo}
+              className="py-1 px-3 bg-accent-purple/10 border border-accent-purple/40 hover:border-accent-purple rounded text-[10px] font-mono text-accent-purple hover:text-text-1 shadow-inner hover:shadow-glow-purple flex items-center gap-1.5 transition-all"
+            >
+              <Play size={10} fill="#AFA9EC" />
+              <span>ACTIVATE DEMO</span>
+            </button>
+          )}
+
+          <div className="bg-accent-purple/5 border border-accent-purple/20 rounded py-1 px-4 flex flex-col items-center shadow-inner">
             <span className="text-[9px] font-mono text-text-3 flex items-center gap-1 leading-none mb-0.5 uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" /> Live ARTHAM Index
             </span>
@@ -158,10 +200,10 @@ export default function Home() {
             { id: 'twin', label: '🗺️ TWIN' },
             { id: 'prime', label: '🧠 PRIME' },
             { id: 'scenario_lab', label: '🧪 SCENARIO LAB' },
-            { id: 'autopilot', label: '🤖 AUTOPILOT' },
-            { id: 'chronos', label: '⏳ CHRONOS' },
-            { id: 'earth', label: '🌐 EARTH' },
-            { id: 'monetize', label: '💎 MONETIZE' },
+            { id: 'forecast', label: '📅 FORECAST' },
+            { id: 'replay', label: '⏳ HISTORICAL INTEL' },
+            { id: 'situation_room', label: '🛡️ SITUATION ROOM' },
+            { id: 'intelligence_feed', label: '📰 ALERT FEED' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -177,10 +219,13 @@ export default function Home() {
           ))}
         </div>
 
+        {/* Dynamic Telemetry tags */}
         <div className="flex items-center gap-3 font-mono text-[10px] text-text-3">
           <span>Signals: {signalsToday}</span>
           <span className="w-1.5 h-1.5 rounded-full bg-border-bright" />
           <span>Credits: {carbonCreditsToday} t</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-border-bright" />
+          <span>Confidence: <span className="text-accent-purple font-bold">{overallConfidence}%</span></span>
         </div>
       </div>
 
@@ -188,20 +233,19 @@ export default function Home() {
       <main className="flex-1 p-6 overflow-y-auto bg-bg-base/30">
         <div className="max-w-7xl mx-auto flex flex-col gap-6">
 
-          {/* INDEX TAB (COMMAND CENTER WINDOW) */}
+          {/* INDEX VIEW */}
           {activeTab === 'index' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
-              {/* Greeting row - 12 cols */}
               <div className="lg:col-span-12 flex flex-col gap-1.5">
                 <span className="text-text-3 font-mono text-xs uppercase tracking-widest leading-none">SYSTEM TELEMETRY SUMMARY</span>
-                <h1 className="text-2xl font-extrabold text-text-1">Good Morning.</h1>
+                <h1 className="text-2xl font-extrabold text-text-1">Sovereign Command Console</h1>
               </div>
 
-              {/* Main Metric Cards - 12 cols */}
+              {/* KPI Cards Grid */}
               <div className="lg:col-span-12 grid grid-cols-2 lg:grid-cols-5 gap-3">
-                <Card className="border-l-[3px] border-l-accent-purple">
+                <Card className="border-l-[3px] border-l-accent-purple shadow-glow-purple">
                   <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                    <span className="text-[9px] text-text-3 uppercase block leading-none">ARTHAM Index™</span>
+                    <span className="text-[9px] text-text-3 uppercase block leading-none">Live Index</span>
                     <div>
                       <span className="text-2xl font-extrabold text-accent-purple leading-none">{arthamIndex}</span>
                       <span className={`text-[10px] block font-semibold ${indexChange >= 0 ? 'text-accent-green' : 'text-accent-red'} mt-1`}>
@@ -223,9 +267,9 @@ export default function Home() {
 
                 <Card>
                   <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                    <span className="text-[9px] text-text-3 uppercase block leading-none">National Confidence</span>
+                    <span className="text-[9px] text-text-3 uppercase block leading-none">Confidence Level</span>
                     <div>
-                      <span className="text-2xl font-extrabold text-accent-mint leading-none">82%</span>
+                      <span className="text-2xl font-extrabold text-accent-mint leading-none">{overallConfidence}%</span>
                       <span className="text-[9px] text-text-3 block mt-1">Sovereign stress check optimal</span>
                     </div>
                   </CardBody>
@@ -233,32 +277,40 @@ export default function Home() {
 
                 <Card>
                   <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                    <span className="text-[9px] text-text-3 uppercase block leading-none">Risks Detected</span>
+                    <span className="text-[9px] text-text-3 uppercase block leading-none">Stresses Logged</span>
                     <div>
-                      <span className="text-2xl font-extrabold text-accent-red leading-none">3</span>
-                      <span className="text-[9px] text-accent-red block mt-1 font-semibold uppercase">Mitigations recommended</span>
+                      <span className="text-2xl font-extrabold text-accent-red leading-none">
+                        {[oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage].filter(v => v > 20).length}
+                      </span>
+                      <span className="text-[9px] text-accent-red block mt-1 font-semibold uppercase">Risk nodes active</span>
                     </div>
                   </CardBody>
                 </Card>
 
                 <Card>
                   <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                    <span className="text-[9px] text-text-3 uppercase block leading-none">Opportunities</span>
+                    <span className="text-[9px] text-text-3 uppercase block leading-none">Action Recommendations</span>
                     <div>
-                      <span className="text-2xl font-extrabold text-accent-green leading-none">5</span>
-                      <span className="text-[9px] text-accent-green block mt-1 font-semibold uppercase">Arbitrage active</span>
+                      <span className="text-2xl font-extrabold text-accent-green leading-none">3</span>
+                      <span className="text-[9px] text-accent-green block mt-1 font-semibold uppercase">Mitigations compiled</span>
                     </div>
                   </CardBody>
                 </Card>
               </div>
 
-              {/* Ask Artham Search & Proprietary Indices - 8 cols */}
+              {/* Ask Artham & Proprietary Indices */}
               <div className="lg:col-span-8 flex flex-col gap-6">
-                <Card className="border-l-[3px] border-l-accent-purple shadow-glow-purple">
+                <Card className="border-l-[3px] border-l-accent-purple relative">
                   <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="text-accent-purple" size={14} />
-                      <h2 className="text-xs font-bold text-text-1 font-mono uppercase tracking-wider">Ask ARTHAM OS — Economic Copilot</h2>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="text-accent-purple" size={14} />
+                        <h2 className="text-xs font-bold text-text-1 font-mono uppercase tracking-wider">Ask ARTHAM OS — Copilot</h2>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[8px] text-text-3 font-mono border border-border/10 py-0.5 px-1 bg-black/20">
+                        <Command size={10} />
+                        <span>+ K</span>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardBody>
@@ -274,7 +326,7 @@ export default function Home() {
                         />
                       </div>
                       <Button type="submit" variant="primary" size="sm" disabled={loadingSearch} className="px-5 font-mono text-xs">
-                        {loadingSearch ? 'Querying Mesh...' : 'Query'}
+                        {loadingSearch ? 'Querying...' : 'Query'}
                       </Button>
                     </form>
 
@@ -299,7 +351,7 @@ export default function Home() {
                   </CardBody>
                 </Card>
 
-                {/* Seven Proprietary Indices Grid */}
+                {/* Seven Proprietary Indices HUD */}
                 <Card>
                   <CardHeader>
                     <h3 className="text-xs font-bold text-text-1 font-mono uppercase">Proprietary Economic Indices HUD</h3>
@@ -342,9 +394,8 @@ export default function Home() {
                 </Card>
               </div>
 
-              {/* Sidebar: What Changed Today - 4 cols */}
+              {/* Sidebar: What Changed Today & Line Chart - 4 cols */}
               <div className="lg:col-span-4 flex flex-col gap-6">
-                {/* What Changed Today */}
                 <Card className="h-fit">
                   <CardHeader>
                     <h3 className="text-xs font-bold text-text-2 font-mono uppercase tracking-wider">What Changed Today</h3>
@@ -364,7 +415,7 @@ export default function Home() {
                   </CardBody>
                 </Card>
 
-                {/* Artham Index Historical Line Chart */}
+                {/* Line Chart */}
                 <Card className="flex-1 min-h-[200px] flex flex-col">
                   <CardHeader className="pb-2">
                     <span className="text-[9px] font-mono text-text-3 uppercase block leading-none">Macro Historical Trend</span>
@@ -392,10 +443,10 @@ export default function Home() {
           {activeTab === 'twin' && <ObserveLayer />}
           {activeTab === 'prime' && <ReasonLayer />}
           {activeTab === 'scenario_lab' && <PredictLayer />}
-          {activeTab === 'autopilot' && <AutopilotLayer />}
-          {activeTab === 'chronos' && <ChronosLayer />}
-          {activeTab === 'earth' && <EarthLayer />}
-          {activeTab === 'monetize' && <FinanceMonetizeLayer />}
+          {activeTab === 'forecast' && <ForecastLayer />}
+          {activeTab === 'replay' && <ReplayLayer />}
+          {activeTab === 'situation_room' && <SituationRoomLayer />}
+          {activeTab === 'intelligence_feed' && <IntelligenceFeedLayer />}
 
         </div>
       </main>
@@ -404,8 +455,8 @@ export default function Home() {
       <footer className="h-28 border-t border-border bg-bg-base/90 backdrop-blur-xl px-6 py-3.5 flex flex-col justify-between flex-shrink-0 relative z-20 overflow-hidden select-none">
         <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
           <svg className="w-full h-full">
-            <line x1="5%" y1="50%" x2="95%" y2="50%" stroke="rgba(175,169,236,0.3)" strokeWidth="1" strokeDasharray={loadingSearch || chronosPlaying ? "5 5" : "none"} />
-            {(loadingSearch || chronosPlaying) && (
+            <line x1="5%" y1="50%" x2="95%" y2="50%" stroke="rgba(175,169,236,0.3)" strokeWidth="1" strokeDasharray={loadingSearch ? "5 5" : "none"} />
+            {loadingSearch && (
               <circle r="4" fill="#AFA9EC">
                 <animateMotion path="M 100,50 L 1000,50" dur="2s" repeatCount="indefinite" />
               </circle>
@@ -418,7 +469,7 @@ export default function Home() {
             <Bot size={13} className="text-accent-purple" />
             <span className="text-[10px] font-mono text-text-3 uppercase tracking-wider">Economic Neural Network — Council of Agents</span>
           </div>
-          {(loadingSearch || chronosPlaying) && (
+          {loadingSearch && (
             <span className="text-[9px] font-mono text-accent-purple uppercase tracking-widest animate-pulse font-bold">Agents Negotiating Telemetry...</span>
           )}
         </div>

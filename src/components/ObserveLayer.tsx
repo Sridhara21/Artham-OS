@@ -1,16 +1,49 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PORT_DATA, CORRIDOR_DATA, MANDI_NODES } from '@/lib/mock-data'
-import { Anchor, Activity, TrendingUp, AlertOctagon, HelpCircle } from 'lucide-react'
+import { Anchor, Activity, TrendingUp, AlertTriangle, HelpCircle } from 'lucide-react'
 import { Card, CardHeader, CardBody } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { useARTHAMStore } from '@/lib/store'
 
 export default function ObserveLayer() {
+  const { oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage } = useARTHAMStore()
   const [activeLayer, setActiveLayer] = useState<'corridors' | 'ports' | 'mandis'>('corridors')
   const [selectedNode, setSelectedNode] = useState<{ type: string; name: string; details: any } | null>(null)
 
+  // Recalculate utilization based on slider changes
+  const dynamicCorridors = CORRIDOR_DATA.map(c => {
+    let utilization = c.utilizationPct
+    if (c.id === 'W-DFC') {
+      utilization = Math.min(99, c.utilizationPct + Math.round(portDisruption * 0.2 + railStrike * 0.15))
+    } else if (c.id === 'E-DFC') {
+      utilization = Math.min(99, c.utilizationPct + Math.round(coalShortage * 0.15 + floodImpact * 0.1))
+    }
+    const status = utilization > 80 ? 'CONGESTED' : utilization > 60 ? 'DELAYED' : 'OPTIMAL'
+    return { ...c, utilizationPct: utilization, status }
+  })
+
+  const dynamicPorts = PORT_DATA.map(p => {
+    let congestion = p.congestionPct
+    if (p.id === 'Mundra' || p.id === 'JNPT') {
+      congestion = Math.min(99, p.congestionPct + Math.round(portDisruption * 0.2))
+    } else if (p.id === 'Vizag') {
+      congestion = Math.min(99, p.congestionPct + Math.round(railStrike * 0.1))
+    }
+    const status = congestion > 80 ? 'CRITICAL' : congestion > 50 ? 'STRESSED' : 'OPTIMAL'
+    return { ...p, congestionPct: congestion, status }
+  })
+
+  const dynamicMandis = MANDI_NODES.map(m => {
+    let priceAnomaly = m.priceAnomalyPct
+    if (m.crop === 'Tomato' || m.crop === 'Onion') {
+      priceAnomaly = parseFloat((m.priceAnomalyPct + monsoonDelay * 0.3).toFixed(1))
+    }
+    return { ...m, priceAnomalyPct: priceAnomaly }
+  })
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
       {/* Left controls and telemetry metrics - 4 cols */}
       <div className="lg:col-span-4 flex flex-col gap-5">
         <Card>
@@ -60,7 +93,7 @@ export default function ObserveLayer() {
               </button>
             </div>
 
-            <p className="text-[11px] text-text-3 leading-relaxed border-t border-border/20 pt-3">
+            <p className="text-[11px] text-text-3 leading-relaxed border-t border-border/20 pt-3 font-mono">
               Abstractions highlight logistical stress points, pipeline velocity, and localized supply margins rather than cartographic street coordinates.
             </p>
           </CardBody>
@@ -94,7 +127,7 @@ export default function ObserveLayer() {
                       <div className="text-base font-bold text-accent-cyan">{selectedNode.details.dwellHours} hrs</div>
                     </div>
                     <div className="col-span-2 bg-black/20 p-2.5 rounded border border-border/20 flex items-center gap-2">
-                      <AlertOctagon size={14} className={selectedNode.details.status === 'CRITICAL' ? 'text-accent-red' : 'text-accent-amber'} />
+                      <AlertTriangle size={14} className={selectedNode.details.status === 'CRITICAL' ? 'text-accent-red animate-pulse' : 'text-accent-amber'} />
                       <span className="text-[10px] text-text-2 font-semibold">Status flagged as: {selectedNode.details.status}</span>
                     </div>
                   </div>
@@ -152,13 +185,13 @@ export default function ObserveLayer() {
             <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
             <span>GRID TELEMETRY: SYNCED</span>
           </div>
-          <div>PROJECTION: Abstract Cylindrical Twin</div>
+          <div>PROJECTION: Abstract Cylindrical Twin Map</div>
         </div>
 
         {/* The Map Canvas */}
         <svg
           viewBox="0 0 350 500"
-          className="w-full max-w-[420px] aspect-[7/10] relative z-10 transition-all"
+          className="w-full max-w-[420px] aspect-[7/10] relative z-10 transition-all select-none"
         >
           {/* India Stylized Polygon Base */}
           <path
@@ -172,7 +205,7 @@ export default function ObserveLayer() {
           {/* DFC Corridors Layer */}
           {activeLayer === 'corridors' && (
             <g className="animate-fade-rise">
-              {CORRIDOR_DATA.map((c) => (
+              {dynamicCorridors.map((c) => (
                 <g key={c.id} className="cursor-pointer" onClick={() => setSelectedNode({ type: 'CORRIDOR', name: c.name, details: c })}>
                   {/* Glowing backing line */}
                   <path
@@ -195,7 +228,7 @@ export default function ObserveLayer() {
                     <animate
                       attributeName="stroke-dashoffset"
                       values="100;0"
-                      dur="8s"
+                      dur={c.status === 'CONGESTED' ? '12s' : '6s'}
                       repeatCount="indefinite"
                     />
                   </path>
@@ -207,54 +240,60 @@ export default function ObserveLayer() {
           {/* Ports Layer */}
           {activeLayer === 'ports' && (
             <g className="animate-fade-rise">
-              {PORT_DATA.map((p) => (
-                <g
-                  key={p.id}
-                  className="cursor-pointer group"
-                  onClick={() => setSelectedNode({ type: 'PORT', name: p.name, details: p })}
-                >
-                  <circle
-                    cx={p.x}
-                    cy={p.y}
-                    r={p.congestionPct > 70 ? '10' : '6'}
-                    className={p.congestionPct > 70 ? 'fill-accent-red/20 stroke-accent-red animate-pulse' : 'fill-accent-cyan/25 stroke-accent-cyan'}
-                    strokeWidth="1.5"
-                  />
-                  <circle
-                    cx={p.x}
-                    cy={p.y}
-                    r="3"
-                    className={p.congestionPct > 70 ? 'fill-accent-red' : 'fill-accent-cyan'}
-                  />
-                </g>
-              ))}
+              {dynamicPorts.map((p) => {
+                const isCritical = p.congestionPct > 70
+                return (
+                  <g
+                    key={p.id}
+                    className="cursor-pointer group"
+                    onClick={() => setSelectedNode({ type: 'PORT', name: p.name, details: p })}
+                  >
+                    <circle
+                      cx={p.x}
+                      cy={p.y}
+                      r={isCritical ? '10' : '6'}
+                      className={isCritical ? 'fill-accent-red/20 stroke-accent-red animate-pulse' : 'fill-accent-cyan/25 stroke-accent-cyan'}
+                      strokeWidth="1.5"
+                    />
+                    <circle
+                      cx={p.x}
+                      cy={p.y}
+                      r="3"
+                      className={isCritical ? 'fill-accent-red animate-pulse' : 'fill-accent-cyan'}
+                    />
+                  </g>
+                )
+              })}
             </g>
           )}
 
           {/* Agri Mandis Layer */}
           {activeLayer === 'mandis' && (
             <g className="animate-fade-rise">
-              {MANDI_NODES.map((m) => (
-                <g
-                  key={m.id}
-                  className="cursor-pointer"
-                  onClick={() => setSelectedNode({ type: 'MANDI', name: m.name, details: m })}
-                >
-                  <circle
-                    cx={m.x}
-                    cy={m.y}
-                    r="5"
-                    className={m.priceAnomalyPct > 20 ? 'fill-accent-red/30 stroke-accent-red animate-pulse' : 'fill-accent-green/30 stroke-accent-green'}
-                    strokeWidth="1"
-                  />
-                  <circle
-                    cx={m.x}
-                    cy={m.y}
-                    r="2"
-                    className={m.priceAnomalyPct > 20 ? 'fill-accent-red' : 'fill-accent-green'}
-                  />
-                </g>
-              ))}
+              {dynamicMandis.map((m) => {
+                const isStressed = m.priceAnomalyPct > 30
+                return (
+                  <g
+                    key={m.id}
+                    className="cursor-pointer"
+                    onClick={() => setSelectedNode({ type: 'MANDI', name: m.name, details: m })}
+                  >
+                    <circle
+                      cx={m.x}
+                      cy={m.y}
+                      r={isStressed ? '9' : '5'}
+                      className={isStressed ? 'fill-accent-red/30 stroke-accent-red animate-pulse' : 'fill-accent-green/30 stroke-accent-green'}
+                      strokeWidth="1"
+                    />
+                    <circle
+                      cx={m.x}
+                      cy={m.y}
+                      r="2"
+                      className={isStressed ? 'fill-accent-red animate-pulse' : 'fill-accent-green'}
+                    />
+                  </g>
+                )
+              })}
             </g>
           )}
         </svg>

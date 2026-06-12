@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { useARTHAMStore } from '@/lib/store'
 import { PRESET_SHOCKS } from '@/lib/mock-data'
 import { simulateEconomicShock } from '@/lib/economic-models'
-import { Sliders, RefreshCw, AlertTriangle, AreaChart as ChartIcon, Check } from 'lucide-react'
+import { Sliders, RefreshCw, AlertTriangle, Check } from 'lucide-react'
 import { Card, CardHeader, CardBody } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -24,23 +24,23 @@ export default function PredictLayer() {
     const shock = PRESET_SHOCKS.find(s => s.id === shockId)
     if (shock) {
       setActivePresetShock(shockId)
-      // Apply preset slider variables directly to state store
+      // Apply preset values
       setCustomShockValue('oilShock', shock.oilShock)
       setCustomShockValue('portDisruption', shock.portDisruption)
       setCustomShockValue('monsoonDelay', shock.monsoonDelay)
       setCustomShockValue('railStrike', shock.railStrike)
       setCustomShockValue('floodImpact', shock.floodImpact)
       setCustomShockValue('coalShortage', shock.coalShortage)
-      // Re-trigger the active preset marker because setCustomShockValue sets it to null by default
+      // Re-assert active preset shock since setCustomShockValue resets it to null
       useARTHAMStore.setState({ activePresetShock: shockId })
     }
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
       {/* Left panel: Shock Presets & Sliders - 5 cols */}
       <div className="lg:col-span-5 flex flex-col gap-5">
-        {/* Preset Shocks */}
+        {/* Preset Shocks Grid */}
         <Card>
           <CardHeader>
             <div>
@@ -55,7 +55,7 @@ export default function PredictLayer() {
                 <button
                   key={shock.id}
                   onClick={() => handlePresetClick(shock.id)}
-                  className={`py-2 px-3 border rounded text-left text-[11px] font-semibold font-mono transition-all flex items-center justify-between ${
+                  className={`py-2 px-3 border rounded text-left text-[10px] font-semibold font-mono transition-all flex items-center justify-between ${
                     activePresetShock === shock.id
                       ? 'bg-accent-amber/10 border-accent-amber text-accent-amber font-bold shadow-glow-amber'
                       : 'bg-black/20 border-border/40 text-text-3 hover:text-text-2 hover:border-border'
@@ -86,7 +86,7 @@ export default function PredictLayer() {
                 <span className="text-accent-amber font-bold">+{oilShock}%</span>
               </div>
               <input
-                type="range" min="0" max="100" step="5"
+                type="range" min="-50" max="100" step="5"
                 value={oilShock}
                 onChange={(e) => setCustomShockValue('oilShock', parseInt(e.target.value))}
                 className="w-full h-1 bg-black/40 rounded-lg appearance-none cursor-pointer accent-accent-amber"
@@ -196,7 +196,7 @@ export default function PredictLayer() {
           </Card>
         </div>
 
-        {/* Recharts Projections area */}
+        {/* Recharts Projections Area */}
         <Card className="flex-1 flex flex-col min-h-[360px]">
           <CardHeader className="border-b border-border/20 pb-3">
             <div className="flex items-center justify-between w-full">
@@ -238,11 +238,11 @@ export default function PredictLayer() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-accent-amber/5 border border-accent-amber/20 rounded p-3 text-[10px] font-mono text-text-2 flex items-start gap-2.5 leading-relaxed">
+            <div className="bg-accent-amber/5 border border-accent-amber/20 rounded p-3 text-[10px] font-mono text-text-2 flex items-start gap-2.5 leading-relaxed mt-2">
               <AlertTriangle className="text-accent-amber flex-shrink-0" size={14} />
               <div>
                 <span className="font-bold text-accent-amber block mb-0.5 uppercase">Simulation Warning Code</span>
-                Expected Case projections drop the ARTHAM Index by {Math.abs(parseFloat((74.3 - simulation.overallIndex).toFixed(1)))} points. Mitigating actions should be registered inside the DECISION CENTER to offset index leakage.
+                Expected Case projections drop the ARTHAM Index by {Math.abs(parseFloat((74.3 - simulation.overallIndex).toFixed(1)))} points. Check mitigations inside the **SITUATION ROOM** tab to optimize buffers.
               </div>
             </div>
           </CardBody>
