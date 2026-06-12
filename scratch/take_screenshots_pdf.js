@@ -11,6 +11,18 @@ async function run() {
   const url = 'http://localhost:3000';
   const outputDir = 'C:\\Users\\user\\.gemini\\antigravity-ide\\brain\\74b1b4a8-7771-4287-a1fd-13ad7c09cfe5';
   
+  // Clean up any old PDF files
+  const pdfOutputPath = path.join(outputDir, 'ARTHAM_OS_Demo_Book.pdf');
+  if (fs.existsSync(pdfOutputPath)) {
+    fs.unlinkSync(pdfOutputPath);
+    console.log('Removed old brain PDF.');
+  }
+  const workspacePdfPath = 'c:/Users/user/3D Objects/New folder/artham/ARTHAM_OS_Demo_Book.pdf';
+  if (fs.existsSync(workspacePdfPath)) {
+    fs.unlinkSync(workspacePdfPath);
+    console.log('Removed old workspace PDF.');
+  }
+
   console.log('Launching Playwright Chromium browser...');
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
@@ -181,34 +193,50 @@ async function run() {
     });
 
     // Target Audience Description
-    pageNode.drawText('Built for governments,', {
+    pageNode.drawText('Built to help governments,', {
       x: 50,
-      y: height - 410,
-      size: 12,
+      y: height - 400,
+      size: 11,
       font: helvetica,
       color: rgb(150 / 255, 150 / 255, 170 / 255)
     });
 
     pageNode.drawText('regulators,', {
       x: 50,
-      y: height - 435,
-      size: 12,
+      y: height - 420,
+      size: 11,
       font: helvetica,
       color: rgb(150 / 255, 150 / 255, 170 / 255)
     });
 
     pageNode.drawText('infrastructure operators,', {
       x: 50,
-      y: height - 460,
-      size: 12,
+      y: height - 440,
+      size: 11,
       font: helvetica,
       color: rgb(150 / 255, 150 / 255, 170 / 255)
     });
 
-    pageNode.drawText('and economic decision-makers.', {
+    pageNode.drawText('and economic decision-makers', {
       x: 50,
-      y: height - 485,
-      size: 12,
+      y: height - 460,
+      size: 11,
+      font: helvetica,
+      color: rgb(150 / 255, 150 / 255, 170 / 255)
+    });
+
+    pageNode.drawText('understand disruptions', {
+      x: 50,
+      y: height - 480,
+      size: 11,
+      font: helvetica,
+      color: rgb(150 / 255, 150 / 255, 170 / 255)
+    });
+
+    pageNode.drawText('before economic damage spreads.', {
+      x: 50,
+      y: height - 500,
+      size: 11,
       font: helvetica,
       color: rgb(150 / 255, 150 / 255, 170 / 255)
     });
@@ -227,6 +255,10 @@ async function run() {
     const pdfOutputPath = path.join(outputDir, 'ARTHAM_OS_Demo_Book.pdf');
     fs.writeFileSync(pdfOutputPath, pdfBytes);
     console.log(`Success: Unified PDF compiled successfully at ${pdfOutputPath}`);
+
+    const workspacePdfPath = 'c:/Users/user/3D Objects/New folder/artham/ARTHAM_OS_Demo_Book.pdf';
+    fs.writeFileSync(workspacePdfPath, pdfBytes);
+    console.log(`Success: Unified PDF copied to workspace at ${workspacePdfPath}`);
   } catch (pdfError) {
     console.error('Failed to compile PDF:', pdfError.message);
   }

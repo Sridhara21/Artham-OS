@@ -18,6 +18,7 @@ import ForecastLayer from '@/components/ForecastLayer'
 import ReplayLayer from '@/components/ReplayLayer'
 import SituationRoomLayer from '@/components/SituationRoomLayer'
 import IntelligenceFeedLayer from '@/components/IntelligenceFeedLayer'
+import ConnectorsLayer from '@/components/ConnectorsLayer'
 
 import { HISTORICAL_CHART_DATA, WHAT_CHANGED_TODAY, AGENTS_LIST, PROPRIETARY_INDICES_DETAILS } from '@/lib/mock-data'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -30,7 +31,10 @@ export default function Home() {
     overallConfidence, cmdKOpen, setCmdKOpen,
     demoActive, demoStage, demoProgress, startDemo, stopDemo,
     oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage,
-    activePresetShock, setActivePresetShock
+    activePresetShock, setActivePresetShock,
+    connectorStates, livePrices, liveMacro, liveWeather,
+    pipelineStatus, pipelineStep, lastIngestedHeadline, liveSignalStats,
+    fetchLiveData, updateAISVessels
   } = useARTHAMStore()
 
   const [currentTime, setCurrentTime] = useState('')
@@ -50,6 +54,19 @@ export default function Home() {
     const interval = setInterval(updateTime, 1000)
     return () => clearInterval(interval)
   }, [])
+
+  // Fetch live indicators on mount and periodic refresh
+  useEffect(() => {
+    fetchLiveData()
+    const refreshInterval = setInterval(fetchLiveData, 15000)
+    return () => clearInterval(refreshInterval)
+  }, [fetchLiveData])
+
+  // Update AIS vessel movement vectors
+  useEffect(() => {
+    const aisInterval = setInterval(updateAISVessels, 1000)
+    return () => clearInterval(aisInterval)
+  }, [updateAISVessels])
 
   // Live index random walk drift
   useEffect(() => {
@@ -156,6 +173,41 @@ export default function Home() {
         </div>
       </div>
 
+      {/* TOP GLOBAL ECONOMIC TICKER */}
+      <div className="overflow-hidden w-full h-8 bg-black/60 border-b border-border/40 flex items-center select-none font-mono text-[9px] text-text-2 tracking-wider relative z-30">
+        <div className="flex whitespace-nowrap animate-marquee gap-8">
+          <span className="flex items-center gap-1">BRENT CRUDE <span className={`${livePrices.brentCrudeChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>${livePrices.brentCrude} ({livePrices.brentCrudeChange >= 0 ? '+' : ''}{livePrices.brentCrudeChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">WHEAT FUTURES <span className={`${livePrices.wheatChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>${livePrices.wheat} ({livePrices.wheatChange >= 0 ? '+' : ''}{livePrices.wheatChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">USD/INR <span className={`${livePrices.usdInrChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>{livePrices.usdInr} ({livePrices.usdInrChange >= 0 ? '+' : ''}{livePrices.usdInrChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">BSE SENSEX <span className={`${livePrices.sensexChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>{livePrices.sensex} ({livePrices.sensexChange >= 0 ? '+' : ''}{livePrices.sensexChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">NATURAL GAS <span className={`${livePrices.natGasChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>${livePrices.natGas} ({livePrices.natGasChange >= 0 ? '+' : ''}{livePrices.natGasChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">GDP GROWTH (INDIA) <span className="text-accent-green font-bold">+{liveMacro.gdpGrowth}%</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">INFLATION (CPI) <span className="text-accent-amber font-bold">+{liveMacro.inflation}%</span></span>
+
+          {/* Duplicate for looping */}
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">BRENT CRUDE <span className={`${livePrices.brentCrudeChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>${livePrices.brentCrude} ({livePrices.brentCrudeChange >= 0 ? '+' : ''}{livePrices.brentCrudeChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">WHEAT FUTURES <span className={`${livePrices.wheatChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>${livePrices.wheat} ({livePrices.wheatChange >= 0 ? '+' : ''}{livePrices.wheatChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">USD/INR <span className={`${livePrices.usdInrChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>{livePrices.usdInr} ({livePrices.usdInrChange >= 0 ? '+' : ''}{livePrices.usdInrChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">BSE SENSEX <span className={`${livePrices.sensexChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>{livePrices.sensex} ({livePrices.sensexChange >= 0 ? '+' : ''}{livePrices.sensexChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">NATURAL GAS <span className={`${livePrices.natGasChange >= 0 ? 'text-accent-green' : 'text-accent-red'} font-bold`}>${livePrices.natGas} ({livePrices.natGasChange >= 0 ? '+' : ''}{livePrices.natGasChange}%)</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">GDP GROWTH (INDIA) <span className="text-accent-green font-bold">+{liveMacro.gdpGrowth}%</span></span>
+          <span className="text-text-4">|</span>
+          <span className="flex items-center gap-1">INFLATION (CPI) <span className="text-accent-amber font-bold">+{liveMacro.inflation}%</span></span>
+        </div>
+      </div>
+
       {/* MIDDLE LAYOUT SECTION (Sidebar + Right Content Column) */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* LEFT SIDEBAR NAVIGATION */}
@@ -181,7 +233,8 @@ export default function Home() {
                 { id: 'scenario_lab', label: 'SCENARIO LAB' },
                 { id: 'situation_room', label: 'SITUATION ROOM' },
                 { id: 'replay', label: 'REPLAY' },
-                { id: 'intelligence_feed', label: 'INTEL FEED' }
+                { id: 'intelligence_feed', label: 'INTEL FEED' },
+                { id: 'connector_hub', label: 'CONNECTOR HUB' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -228,33 +281,63 @@ export default function Home() {
             </div>
 
             {/* HUD Status indicators */}
-            <div className="flex items-center gap-6">
-              {activePresetShock ? (
-                <div className="bg-accent-amber/10 border border-accent-amber/35 rounded py-1 px-3 flex items-center gap-1.5 font-mono text-[9px] text-accent-amber animate-pulse">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-amber" />
-                  <span>DEMO MODE: {activePresetShock === 's-oil' ? 'RED SEA CRISIS' : activePresetShock === 's-monsoon' ? 'MONSOON FAILURE' : activePresetShock === 's-strike' ? 'PORT STRIKE' : activePresetShock === 's-boom' ? 'EXPORT BOOM' : 'SCENARIO'} ACTIVE</span>
-                </div>
-              ) : demoActive ? (
-                <div className="bg-accent-purple/10 border border-accent-purple/35 rounded py-1 px-3 flex items-center gap-1.5 font-mono text-[9px] text-accent-purple animate-pulse">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-purple" />
-                  <span>DEMO PLAYBACK ACTIVE ({Math.round(demoProgress)}%)</span>
+            <div className="flex items-center gap-4 text-[9px] font-mono select-none">
+              {/* AI Status */}
+              <div className="bg-accent-purple/5 border border-accent-purple/20 rounded py-1 px-2.5 flex items-center gap-1 text-text-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
+                <span>AI STATUS: <span className="text-text-1 font-bold">ACTIVE</span></span>
+              </div>
+
+              {/* Signals */}
+              <div className="bg-black/20 border border-border/20 rounded py-1 px-2.5 flex items-center gap-1 text-text-3">
+                <span>SIGNALS: <span className="text-text-1 font-bold">{signalsToday} LIVE</span></span>
+              </div>
+
+              {/* System Health */}
+              <div className="bg-black/20 border border-border/20 rounded py-1 px-2.5 flex items-center gap-1 text-text-3">
+                <span>HEALTH: <span className="text-accent-mint font-bold">98%</span></span>
+              </div>
+
+              {/* Data Freshness */}
+              <div className="bg-black/20 border border-border/20 rounded py-1 px-2.5 flex items-center gap-1 text-text-3">
+                <span>FRESHNESS: <span className="text-text-1 font-bold">12s ago</span></span>
+              </div>
+
+              {/* Demo Mode / Active Scenario */}
+              {/* Pipeline Ingestion Overlay Status */}
+              {pipelineStatus !== 'idle' ? (
+                <div className="bg-accent-purple/15 border border-accent-purple/40 rounded py-1 px-3 flex items-center gap-1.5 text-accent-purple animate-pulse font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse" />
+                  <span>PIPELINE: {pipelineStatus.toUpperCase()} ACTIVE</span>
                 </div>
               ) : (
-                <div className="bg-accent-purple/5 border border-border/40 rounded py-1 px-3 flex items-center gap-1.5 font-mono text-[9px] text-text-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-green" />
-                  <span>AI ENGINE: VERIFIED</span>
+                <div className="bg-accent-green/5 border border-accent-green/20 rounded py-1 px-3 flex items-center gap-1.5 text-accent-green/80 font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
+                  <span>SOVEREIGN MESH: SYNCED</span>
                 </div>
               )}
 
-              <div className="text-[10px] font-mono text-text-3 flex items-center gap-1.5">
-                <span>FRESHNESS: 12s ago</span>
-                <span className="w-1 h-1 rounded-full bg-text-4" />
-                <span className="text-text-1 font-semibold">{currentTime}</span>
+              {/* Demo Mode / Active Scenario */}
+              {activePresetShock ? (
+                <div className="bg-accent-amber/10 border border-accent-amber/35 rounded py-1 px-3 flex items-center gap-1.5 text-accent-amber animate-pulse font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-amber" />
+                  <span>DEMO: {activePresetShock === 's-oil' ? 'RED SEA CRISIS' : activePresetShock === 's-monsoon' ? 'MONSOON FAILURE' : activePresetShock === 's-strike' ? 'PORT STRIKE' : activePresetShock === 's-boom' ? 'EXPORT BOOM' : 'SCENARIO'} ACTIVE</span>
+                </div>
+              ) : demoActive ? (
+                <div className="bg-accent-purple/10 border border-accent-purple/35 rounded py-1 px-3 flex items-center gap-1.5 text-accent-purple animate-pulse font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse" />
+                  <span>DEMO PLAYBACK ({Math.round(demoProgress)}%)</span>
+                </div>
+              ) : null}
+
+              {/* Clock */}
+              <div className="text-text-1 font-bold px-2.5 py-1 bg-black/40 border border-border/20 rounded">
+                {currentTime}
               </div>
 
               {/* Notifications bell */}
-              <div className="relative text-text-3 hover:text-text-1 transition-colors cursor-pointer">
-                <Bell size={15} />
+              <div className="relative text-text-3 hover:text-text-1 transition-colors cursor-pointer ml-1">
+                <Bell size={14} />
                 <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-accent-red animate-pulse" />
               </div>
             </div>
@@ -509,6 +592,7 @@ export default function Home() {
               {activeTab === 'replay' && <ReplayLayer />}
               {activeTab === 'situation_room' && <SituationRoomLayer />}
               {activeTab === 'intelligence_feed' && <IntelligenceFeedLayer />}
+              {activeTab === 'connector_hub' && <ConnectorsLayer />}
 
             </div>
           </main>

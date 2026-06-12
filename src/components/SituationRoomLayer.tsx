@@ -6,21 +6,25 @@ import { calculateRiskRadar } from '@/lib/economic-models'
 import { Card, CardHeader, CardBody } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { AlertTriangle, Compass, Clipboard, Sparkles, Award, MapPin } from 'lucide-react'
+import { AlertTriangle, Compass, Clipboard, Sparkles, Award, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function SituationRoomLayer() {
   const {
     oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage,
-    activeBrief, generateExecutiveBrief
+    activeBrief, generateExecutiveBrief, connectorStates, livePrices
   } = useARTHAMStore()
 
   const [hoveredBubbleId, setHoveredBubbleId] = useState<string | null>(null)
   const [briefLoading, setBriefLoading] = useState(false)
 
-  // Calculate dynamic risk radar vectors from current slider state
+  // Dynamic calculations based on live market prices
+  const simulatedOilBase = connectorStates.marketFeed 
+    ? Math.max(0, Math.round((livePrices.brentCrude - 80) / 80 * 100)) 
+    : oilShock
+
   const riskRadarBubbles = calculateRiskRadar(
-    oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage
+    simulatedOilBase, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage
   )
 
   const handleGenerateBrief = () => {
@@ -37,10 +41,10 @@ export default function SituationRoomLayer() {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
       
       {/* 1. Sovereign Scorecard Banner - 12 Cols */}
-      <div className="lg:col-span-12 flex flex-col gap-2">
+      <div className="lg:col-span-12 flex flex-col gap-2 select-none">
         <div className="flex items-center justify-between border-b border-border/10 pb-2">
           <div>
-            <span className="text-[10px] font-mono text-text-3 uppercase tracking-widest block">SOVEREIGN HEALTH Telemetry</span>
+            <span className="text-[9px] font-mono text-text-3 uppercase tracking-widest block">SOVEREIGN HEALTH Telemetry</span>
             <h1 className="text-xl font-extrabold text-text-1">Executive Situation Room</h1>
           </div>
           <Badge variant="purple" dot>Active Briefing Session</Badge>
@@ -49,7 +53,7 @@ export default function SituationRoomLayer() {
         {/* 6 Sovereign Scorecard KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mt-1">
           {SOVEREIGN_KPIS.map((kpi) => {
-            const currentChange = kpi.id === 'kpi-4' ? (monsoonDelay*0.15 + oilShock*0.1) : kpi.change
+            const currentChange = kpi.id === 'kpi-4' ? (monsoonDelay*0.15 + simulatedOilBase*0.1) : kpi.change
             const isNegative = currentChange < 0
             return (
               <Card key={kpi.id} className="border-t-2 border-t-accent-purple/20">
@@ -96,7 +100,6 @@ export default function SituationRoomLayer() {
 
               {/* Dynamic Risk Bubbles */}
               {riskRadarBubbles.map((bubble) => {
-                // Map coordinates from [-100, 100] to SVG space [15, 285]
                 const cx = 150 + (bubble.x / 100) * 130
                 const cy = 150 - (bubble.y / 100) * 130
                 const r = bubble.severity === 'high' ? 10 : bubble.severity === 'medium' ? 7 : 5
@@ -205,41 +208,70 @@ export default function SituationRoomLayer() {
       {/* 3. Recommended Actions & Executive Narrative - 6 Cols */}
       <div className="lg:col-span-6 flex flex-col gap-6">
         
-        {/* Recommended Actions Panel */}
+        {/* Recommended Actions Panel: upgraded to Sovereign Action Briefs */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <Compass className="text-accent-amber" size={14} />
-              <h3 className="text-xs font-bold text-text-1 font-mono uppercase tracking-wide">Recommended Actions (Mitigations)</h3>
+              <h3 className="text-xs font-bold text-text-1 font-mono uppercase tracking-wide">Sovereign Action Briefs (Mitigations)</h3>
             </div>
           </CardHeader>
-          <CardBody className="flex flex-col gap-3 font-mono text-[11px] pb-4 select-none">
+          <CardBody className="flex flex-col gap-4 font-mono text-[11px] pb-4">
             {SOVEREIGN_RECOMMENDATIONS.map((rec) => {
-              // Active status depends on slider shocks
-              const isActive = rec.id === 'rec-1' ? (oilShock > 0 || portDisruption > 0) : rec.id === 'rec-2' ? portDisruption > 40 : monsoonDelay > 20
+              const isActive = rec.id === 'rec-1' 
+                ? (simulatedOilBase > 0 || portDisruption > 0) 
+                : rec.id === 'rec-2' 
+                ? portDisruption > 40 
+                : monsoonDelay > 20
+
               return (
                 <div
                   key={rec.id}
-                  className={`p-3 bg-black/20 border rounded transition-all flex flex-col gap-2 ${
+                  className={`p-4 bg-black/20 border rounded transition-all flex flex-col gap-3 ${
                     isActive
                       ? 'border-accent-amber bg-accent-amber/5'
                       : 'border-border/10 opacity-60'
                   }`}
                 >
-                  <div className="flex justify-between items-center">
-                    <span className="font-extrabold text-text-1 uppercase text-[10px] tracking-wide">{rec.risk}</span>
-                    <Badge variant={isActive ? 'amber' : 'ghost'}>
-                      {isActive ? 'Mitigation Actionable' : 'Standby'}
+                  {/* Priority and Risk Title */}
+                  <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
+                    <span className="font-extrabold text-text-1 uppercase text-[10px] tracking-wide truncate max-w-[65%]">
+                      {rec.risk}
+                    </span>
+                    <Badge variant={isActive ? rec.riskLevel === 'HIGH' ? 'red' : 'amber' : 'ghost'} className="text-[8.5px]">
+                      PRIORITY: {isActive ? rec.riskLevel : 'STANDBY'}
                     </Badge>
                   </div>
-                  <p className="text-text-2 leading-relaxed text-[10px]">
-                    {rec.recommendation}
-                  </p>
-                  <div className="grid grid-cols-4 gap-1 border-t border-border/10 pt-2 text-[9px] text-text-3">
-                    <div>COST: <span className="font-bold text-text-2">₹{(rec.costInr / 100000).toFixed(0)}L</span></div>
-                    <div>CO2 SAVED: <span className="font-bold text-accent-green">-{rec.co2SavedTonnes}t</span></div>
-                    <div>TIME: <span className="font-bold text-accent-cyan">-{rec.timeSavedHours}h</span></div>
-                    <div>CONFIDENCE: <span className="font-bold text-accent-purple">{rec.confidence}%</span></div>
+
+                  {/* Sovereign Action and Expected Outcome Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[10.5px]">
+                    <div className="bg-black/30 p-2.5 rounded border border-border/15">
+                      <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">SOVEREIGN ACTION Interventions</span>
+                      <p className="text-text-1 font-semibold leading-relaxed">{rec.recommendation}</p>
+                    </div>
+
+                    <div className="bg-black/30 p-2.5 rounded border border-border/15 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">EXPECTED OUTCOME Targets</span>
+                        <p className="text-accent-green font-semibold leading-relaxed">
+                          Dampen downstream commodity price pass-through by {rec.id === 'rec-1' ? '0.8' : rec.id === 'rec-2' ? '1.2' : '0.5'}%.
+                        </p>
+                      </div>
+                      <div className="text-[8.5px] text-text-3 font-semibold mt-2">
+                        GDP OFFSET: <span className="text-text-2">₹{rec.gdpOffsetCr} Cr</span> | CO2: <span className="text-accent-green">-{rec.co2SavedTonnes}t</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Metadata: Confidence and Cost */}
+                  <div className="flex justify-between items-center text-[9px] text-text-3 border-t border-border/10 pt-2 font-bold">
+                    <div className="flex items-center gap-1">
+                      <span>CONFIDENCE ASSESSMENT:</span>
+                      <span className="text-accent-purple text-[10px]">{rec.confidence}%</span>
+                    </div>
+                    <div>
+                      BUDGET PROFILE: <span className="text-accent-cyan">₹{(rec.costInr / 100000).toFixed(0)} Lakhs</span>
+                    </div>
                   </div>
                 </div>
               )
