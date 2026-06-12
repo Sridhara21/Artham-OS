@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-const { PDFDocument } = require('pdf-lib');
+const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
 
@@ -20,7 +20,7 @@ async function run() {
 
   console.log(`Navigating to ${url}...`);
   await page.goto(url);
-  await sleep(4000); // Wait for page logic load
+  await sleep(5000); // Wait for page logic load
 
   const tabs = [
     { name: 'INDEX', buttonText: 'INDEX', screenshotName: 'remote_index_tab.png' },
@@ -32,7 +32,7 @@ async function run() {
         console.log('TWIN action failed, capturing default:', e.message);
       }
     }},
-    { name: 'PRIME', buttonText: 'PRIME', screenshotName: 'remote_prime_tab.png', action: async () => {
+    { name: 'PRIME', buttonText: 'INDEX', screenshotName: 'remote_prime_tab.png', action: async () => {
       try {
         await page.click("button:has-text('Red Sea crisis input costs')", { timeout: 3000 });
         await sleep(3000);
@@ -40,6 +40,7 @@ async function run() {
         console.log('PRIME action failed:', e.message);
       }
     }},
+    { name: 'FORECAST', buttonText: 'FORECAST', screenshotName: 'remote_forecast_tab.png' },
     { name: 'SCENARIO LAB', buttonText: 'SCENARIO LAB', screenshotName: 'remote_scenario_lab_tab.png', action: async () => {
       try {
         await page.click("button:has-text('Oil Shock ($150)')", { timeout: 3000 });
@@ -48,8 +49,6 @@ async function run() {
         console.log('SCENARIO LAB action failed:', e.message);
       }
     }},
-    { name: 'FORECAST', buttonText: 'FORECAST', screenshotName: 'remote_forecast_tab.png' },
-    { name: 'REPLAY', buttonText: 'HISTORICAL INTEL', screenshotName: 'remote_replay_tab.png' },
     { name: 'SITUATION ROOM', buttonText: 'SITUATION ROOM', screenshotName: 'remote_situation_room_tab.png', action: async () => {
       try {
         await page.click("button:has-text('Generate Brief')", { timeout: 3000 });
@@ -58,7 +57,8 @@ async function run() {
         console.log('SITUATION ROOM brief generation action failed:', e.message);
       }
     }},
-    { name: 'INTELLIGENCE FEED', buttonText: 'ALERT FEED', screenshotName: 'remote_feed_tab.png' }
+    { name: 'REPLAY', buttonText: 'REPLAY', screenshotName: 'remote_replay_tab.png' },
+    { name: 'INTEL FEED', buttonText: 'INTEL FEED', screenshotName: 'remote_feed_tab.png' }
   ];
 
   const imagesPaths = [];
@@ -67,7 +67,8 @@ async function run() {
     console.log(`Processing Tab: ${tab.name}...`);
     try {
       if (tab.name !== 'INDEX') {
-        await page.click(`button:has-text('${tab.buttonText}')`, { timeout: 5000 });
+        // Find navigation button in the left sidebar and click it
+        await page.click(`aside button:has-text('${tab.buttonText}')`, { timeout: 5000 });
         await sleep(2000);
       }
       if (tab.action) {
@@ -92,6 +93,7 @@ async function run() {
     const img_w = width - 20;
     const img_h = img_w / 1.6; // 1440x900 aspect ratio = 1.6
 
+    // 1-8. Embed screenshots
     for (const imgPath of imagesPaths) {
       if (fs.existsSync(imgPath)) {
         console.log(`Embedding ${path.basename(imgPath)} into PDF...`);
@@ -109,8 +111,120 @@ async function run() {
       }
     }
 
+    // 9. Programmatic closing hero slide
+    console.log('Adding programmatic closing hero slide...');
+    const pageNode = pdfDoc.addPage([width, height]);
+    
+    // Draw deep dark background (#03001C)
+    pageNode.drawRectangle({
+      x: 0,
+      y: 0,
+      width: width,
+      height: height,
+      color: rgb(3 / 255, 0, 28 / 255)
+    });
+
+    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    // Title: ARTHAM OS
+    pageNode.drawText('ARTHAM OS', {
+      x: 50,
+      y: height - 120,
+      size: 40,
+      font: helveticaBold,
+      color: rgb(1, 1, 1)
+    });
+
+    // Tagline: A Sovereign Economic Intelligence Platform
+    pageNode.drawText('A Sovereign Economic Intelligence Platform', {
+      x: 50,
+      y: height - 165,
+      size: 16,
+      font: helvetica,
+      color: rgb(175 / 255, 169 / 255, 236 / 255) // #AFA9EC
+    });
+
+    // Horizontal divider line
+    pageNode.drawRectangle({
+      x: 50,
+      y: height - 190,
+      width: width - 100,
+      height: 1.5,
+      color: rgb(50 / 255, 50 / 255, 80 / 255)
+    });
+
+    // Four core pillars
+    pageNode.drawText('Observe | Reason | Forecast | Recommend', {
+      x: 50,
+      y: height - 240,
+      size: 14,
+      font: helveticaBold,
+      color: rgb(255 / 255, 255 / 255, 255 / 255)
+    });
+
+    // Value Proposition Statement
+    pageNode.drawText('Financial Markets Have Bloomberg.', {
+      x: 50,
+      y: height - 310,
+      size: 20,
+      font: helveticaBold,
+      color: rgb(255 / 255, 255 / 255, 255 / 255)
+    });
+
+    pageNode.drawText('The Physical Economy Has ARTHAM.', {
+      x: 50,
+      y: height - 345,
+      size: 20,
+      font: helveticaBold,
+      color: rgb(175 / 255, 169 / 255, 236 / 255) // #AFA9EC
+    });
+
+    // Target Audience Description
+    pageNode.drawText('Built for governments,', {
+      x: 50,
+      y: height - 410,
+      size: 12,
+      font: helvetica,
+      color: rgb(150 / 255, 150 / 255, 170 / 255)
+    });
+
+    pageNode.drawText('regulators,', {
+      x: 50,
+      y: height - 435,
+      size: 12,
+      font: helvetica,
+      color: rgb(150 / 255, 150 / 255, 170 / 255)
+    });
+
+    pageNode.drawText('infrastructure operators,', {
+      x: 50,
+      y: height - 460,
+      size: 12,
+      font: helvetica,
+      color: rgb(150 / 255, 150 / 255, 170 / 255)
+    });
+
+    pageNode.drawText('and economic decision-makers.', {
+      x: 50,
+      y: height - 485,
+      size: 12,
+      font: helvetica,
+      color: rgb(150 / 255, 150 / 255, 170 / 255)
+    });
+
+    // Version String
+    pageNode.drawText('Version 2026.1', {
+      x: 50,
+      y: 50,
+      size: 10,
+      font: helvetica,
+      color: rgb(100 / 255, 100 / 255, 120 / 255)
+    });
+
+    // Save final document
     const pdfBytes = await pdfDoc.save();
-    const pdfOutputPath = path.join(outputDir, 'artham_os_screenshots.pdf');
+    const pdfOutputPath = path.join(outputDir, 'ARTHAM_OS_Demo_Book.pdf');
     fs.writeFileSync(pdfOutputPath, pdfBytes);
     console.log(`Success: Unified PDF compiled successfully at ${pdfOutputPath}`);
   } catch (pdfError) {
