@@ -34,7 +34,7 @@ export default function Home() {
     activePresetShock, setActivePresetShock,
     connectorStates, livePrices, liveMacro, liveWeather,
     pipelineStatus, pipelineStep, lastIngestedHeadline, liveSignalStats,
-    fetchLiveData, updateAISVessels
+    fetchLiveData, updateAISVessels, feedAlerts
   } = useARTHAMStore()
 
   const [currentTime, setCurrentTime] = useState('')
@@ -42,6 +42,20 @@ export default function Home() {
   const [askInput, setAskInput] = useState('')
   const [loadingSearch, setLoadingSearch] = useState(false)
   const [hoveredIndexId, setHoveredIndexId] = useState<string | null>(null)
+  const [copilotState, setCopilotState] = useState<'listening' | 'reasoning' | 'forecasting'>('listening')
+
+  // Copilot state animation cycle
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCopilotState(prev => {
+        if (prev === 'listening') return 'reasoning'
+        if (prev === 'reasoning') return 'forecasting'
+        return 'listening'
+      })
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
 
   // Clock ticks
   useEffect(() => {
@@ -205,6 +219,65 @@ export default function Home() {
           <span className="flex items-center gap-1">GDP GROWTH (INDIA) <span className="text-accent-green font-bold">+{liveMacro.gdpGrowth}%</span></span>
           <span className="text-text-4">|</span>
           <span className="flex items-center gap-1">INFLATION (CPI) <span className="text-accent-amber font-bold">+{liveMacro.inflation}%</span></span>
+        </div>
+      </div>
+
+      {/* GLOBAL COMMAND & INTELLIGENCE FEED STRIP */}
+      <div className="h-8 border-b border-border/45 bg-black/45 backdrop-blur-md px-6 flex items-center justify-between text-[9px] font-mono select-none z-30">
+        {/* Left Side: Live Intelligence Feed */}
+        <div className="flex items-center gap-3 overflow-hidden flex-1 mr-4">
+          <span className="text-accent-red font-bold flex items-center gap-1.5 flex-shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-red animate-pulse" />
+            INTELLIGENCE WIRE:
+          </span>
+          <div className="overflow-hidden relative flex-1 h-4">
+            <div className="flex items-center gap-8 whitespace-nowrap animate-marquee">
+              {feedAlerts.slice(0, 8).map((alert, idx) => (
+                <span key={alert.id || idx} className="text-text-2">
+                  <span className="text-text-3 font-semibold mr-1.5">[{alert.timestamp || '08:21'}]</span>
+                  <span className="text-text-1 font-bold">{alert.text}</span>
+                  <span className="text-[8px] bg-black/45 border border-border/10 text-accent-cyan ml-1.5 px-1 py-0.5 rounded uppercase">
+                    {alert.sector}
+                  </span>
+                </span>
+              ))}
+              {feedAlerts.length === 0 && (
+                <>
+                  <span className="text-text-2"><span className="text-text-3 font-semibold">[08:21]</span> Freight anomaly detected</span>
+                  <span className="text-text-2"><span className="text-text-3 font-semibold">[08:22]</span> Risk score increased</span>
+                  <span className="text-text-2"><span className="text-text-3 font-semibold">[08:23]</span> Forecast updated</span>
+                  <span className="text-text-2"><span className="text-text-3 font-semibold">[08:24]</span> New signal ingested</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Pulse Engine Status */}
+        <div className="flex items-center gap-4 text-text-3 flex-shrink-0 font-bold">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
+            <span>SIGNAL ENGINE</span>
+            <span className="text-accent-green text-[7.5px]">ACTIVE</span>
+          </div>
+          <div className="w-px h-3 bg-border/40" />
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
+            <span>CAUSAL ENGINE</span>
+            <span className="text-accent-green text-[7.5px]">ACTIVE</span>
+          </div>
+          <div className="w-px h-3 bg-border/40" />
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
+            <span>FORECAST ENGINE</span>
+            <span className="text-accent-green text-[7.5px]">ACTIVE</span>
+          </div>
+          <div className="w-px h-3 bg-border/40" />
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
+            <span>DECISION ENGINE</span>
+            <span className="text-accent-green text-[7.5px]">ACTIVE</span>
+          </div>
         </div>
       </div>
 
@@ -382,122 +455,165 @@ export default function Home() {
               {/* INDEX VIEW */}
               {activeTab === 'index' && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
-                  <div className="lg:col-span-12 flex flex-col gap-1.5">
-                    <span className="text-text-3 font-mono text-xs uppercase tracking-widest leading-none">SYSTEM TELEMETRY SUMMARY</span>
-                    <h1 className="text-2xl font-extrabold text-text-1">Sovereign Command Console</h1>
+                  <div className="lg:col-span-12 flex flex-col gap-1">
+                    <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">INDEX // What is happening?</span>
+                    <h1 className="text-xl font-extrabold text-text-1">Sovereign Command Console</h1>
                   </div>
 
-                  {/* KPI Cards Grid */}
-                  <div className="lg:col-span-12 grid grid-cols-2 lg:grid-cols-5 gap-3">
-                    <Card className="border-l-[3px] border-l-accent-purple shadow-glow-purple">
-                      <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                        <span className="text-[9px] text-text-3 uppercase block leading-none">Live Index</span>
-                        <div>
-                          <span className="text-2xl font-extrabold text-accent-purple leading-none">{arthamIndex}</span>
-                          <span className={`text-[10px] block font-semibold ${indexChange >= 0 ? 'text-accent-green' : 'text-accent-red'} mt-1`}>
-                            {indexChange >= 0 ? '▲' : '▼'} {Math.abs(indexChange)} TODAY
-                          </span>
-                        </div>
-                      </CardBody>
-                    </Card>
-
-                    <Card>
-                      <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                        <span className="text-[9px] text-text-3 uppercase block leading-none">Economic Activity</span>
-                        <div>
-                          <span className="text-2xl font-extrabold text-text-1 leading-none">+4.7%</span>
-                          <span className="text-[9px] text-text-3 block mt-1">vs 12-month baseline</span>
-                        </div>
-                      </CardBody>
-                    </Card>
-
-                    <Card>
-                      <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                        <span className="text-[9px] text-text-3 uppercase block leading-none">Confidence Level</span>
-                        <div>
-                          <span className="text-2xl font-extrabold text-accent-mint leading-none">{overallConfidence}%</span>
-                          <span className="text-[9px] text-text-3 block mt-1">Sovereign stress check optimal</span>
-                        </div>
-                      </CardBody>
-                    </Card>
-
-                    <Card>
-                      <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                        <span className="text-[9px] text-text-3 uppercase block leading-none">Stresses Logged</span>
-                        <div>
-                          <span className="text-2xl font-extrabold text-accent-red leading-none">
-                            {[oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage].filter(v => v > 20).length}
-                          </span>
-                          <span className="text-[9px] text-accent-red block mt-1 font-semibold uppercase">Risk nodes active</span>
-                        </div>
-                      </CardBody>
-                    </Card>
-
-                    <Card>
-                      <CardBody className="p-4 flex flex-col justify-between h-24 font-mono">
-                        <span className="text-[9px] text-text-3 uppercase block leading-none">Action Recommendations</span>
-                        <div>
-                          <span className="text-2xl font-extrabold text-accent-green leading-none">3</span>
-                          <span className="text-[9px] text-accent-green block mt-1 font-semibold uppercase">Mitigations compiled</span>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </div>
-
-                  {/* Ask Artham & Proprietary Indices */}
-                  <div className="lg:col-span-8 flex flex-col gap-6">
-                    <Card className="border-l-[3px] border-l-accent-purple relative">
-                      <CardHeader>
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <Sparkles className="text-accent-purple" size={14} />
-                            <h2 className="text-xs font-bold text-text-1 font-mono uppercase tracking-wider">Ask ARTHAM OS — Copilot</h2>
+                  {/* Top Hero Layout Segment */}
+                  <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* Left: Massive Sovereign Score Card */}
+                    <div className="lg:col-span-5">
+                      <Card className="border-l-[4px] border-l-accent-purple bg-gradient-to-br from-bg-overlay via-bg-base/65 to-black/80 shadow-glow-purple select-none flex flex-col justify-between h-[280px]">
+                        <CardBody className="p-5 flex flex-col justify-between h-full font-mono">
+                          <div>
+                            <div className="flex justify-between items-start">
+                              <span className="text-[9px] text-accent-purple font-extrabold uppercase tracking-widest">NATIONAL ECONOMIC STATUS</span>
+                              <span className="text-[9.5px] text-text-3 font-semibold">REFRESH: 12S AGO</span>
+                            </div>
+                            <div className="flex items-baseline gap-4 mt-3">
+                              <span className="text-5xl font-extrabold tracking-tight text-text-1">{arthamIndex}</span>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-extrabold text-accent-green uppercase tracking-wider">STABLE</span>
+                                <span className="text-[9.5px] font-bold text-accent-green leading-none mt-1">▲ +2.1 (7 Days)</span>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-4 flex items-center gap-6 text-[10px] text-text-2 border-t border-border/20 pt-3">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-text-3">Confidence:</span>
+                                <span className="text-accent-mint font-extrabold">{overallConfidence}%</span>
+                              </div>
+                              <div className="w-px h-3 bg-border/20" />
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-text-3">Status:</span>
+                                <span className="text-accent-purple font-extrabold">SOVEREIGN NOMINAL</span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5 text-[8px] text-text-3 font-mono border border-border/10 py-0.5 px-1 bg-black/20">
-                            <Command size={10} />
-                            <span>+ K</span>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardBody>
-                        <form onSubmit={handleAskSubmit} className="flex gap-2">
-                          <div className="relative flex-1">
-                            <Search className="absolute left-3.5 top-3 text-text-3" size={16} />
-                            <input
-                              type="text"
-                              value={askInput}
-                              onChange={(e) => setAskInput(e.target.value)}
-                              placeholder="e.g. How will delayed monsoons affect food inflation?"
-                              className="w-full bg-black/30 border border-border/40 hover:border-border-bright focus:border-accent-purple focus:outline-none rounded pl-10 pr-4 py-2.5 text-xs text-text-1 font-mono transition-all"
-                            />
-                          </div>
-                          <Button type="submit" variant="primary" size="sm" disabled={loadingSearch} className="px-5 font-mono text-xs">
-                            {loadingSearch ? 'Querying...' : 'Query'}
-                          </Button>
-                        </form>
 
-                        <div className="mt-4 border-t border-border/10 pt-3 flex flex-col gap-1.5">
-                          <span className="text-[9px] font-mono text-text-3 uppercase tracking-wider block mb-1">Recommended Causal Queries:</span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {[
-                              { text: "Red Sea crisis input costs", q: "How will a Red Sea disruption affect fertilizer costs in India?" },
-                              { text: "Monsoon agricultural inflation", q: "How will delayed monsoons affect food inflation?" },
-                              { text: "State freight bottlenecks", q: "Which state is most likely to experience freight bottlenecks?" }
-                            ].map((item, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => triggerPresetSearch(item.q)}
-                                className="py-1 px-2.5 bg-black/20 border border-border/20 hover:border-accent-purple/35 rounded text-[10px] font-mono text-text-3 hover:text-text-1 transition-all"
-                              >
-                                {item.text}
-                              </button>
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-2.5 border-t border-border/20 pt-4 text-[9.5px] text-text-2">
+                            <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
+                              <span className="text-text-3">SIGNALS ACTIVE</span>
+                              <span className="text-text-1 font-bold">847</span>
+                            </div>
+                            <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
+                              <span className="text-text-3">EVENTS TRACKED</span>
+                              <span className="text-text-1 font-bold">14</span>
+                            </div>
+                            <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
+                              <span className="text-text-3">COUNTRIES MONITORED</span>
+                              <span className="text-text-1 font-bold">24</span>
+                            </div>
+                            <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
+                              <span className="text-text-3">DATA SOURCES</span>
+                              <span className="text-text-1 font-bold">63</span>
+                            </div>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    </div>
+
+                    {/* Right: Copilot, Alerts and Ask panel */}
+                    <div className="lg:col-span-7 flex flex-col gap-4 justify-between h-[280px]">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Copilot Status card */}
+                        <Card className="border-l-[3px] border-l-accent-cyan bg-black/30 flex-1 flex flex-col justify-between h-[130px] font-mono">
+                          <CardHeader className="pb-1.5">
+                            <div className="flex items-center justify-between w-full">
+                              <span className="text-[9.5px] text-accent-cyan font-bold tracking-wider">ARTHAM COPILOT STATUS</span>
+                              <span className="w-1.5 h-1.5 bg-accent-cyan rounded-full animate-ping" />
+                            </div>
+                          </CardHeader>
+                          <CardBody className="p-4 flex flex-col justify-center gap-2">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center justify-between text-[10.5px]">
+                                <span className={`${copilotState === 'listening' ? 'text-accent-cyan font-extrabold' : 'text-text-4'}`}>
+                                  Listening...
+                                </span>
+                                <span className={`${copilotState === 'reasoning' ? 'text-accent-purple font-extrabold' : 'text-text-4'}`}>
+                                  Reasoning...
+                                </span>
+                                <span className={`${copilotState === 'forecasting' ? 'text-accent-mint font-extrabold' : 'text-text-4'}`}>
+                                  Forecasting...
+                                </span>
+                              </div>
+                              <div className="w-full h-1 bg-black/40 rounded overflow-hidden mt-1">
+                                <div 
+                                  className="h-full bg-accent-cyan transition-all duration-700"
+                                  style={{ 
+                                    width: copilotState === 'listening' ? '33.3%' : copilotState === 'reasoning' ? '66.6%' : '100%',
+                                    marginLeft: copilotState === 'listening' ? '0%' : copilotState === 'reasoning' ? '33.3%' : '0%'
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <span className="text-[8.5px] text-text-3 text-right block mt-1 uppercase">
+                              {copilotState === 'listening' ? 'Scanning RSS Wires & Ports...' : copilotState === 'reasoning' ? 'Generating causal DAG graphs...' : 'Forecasting CPI rate transmissions...'}
+                            </span>
+                          </CardBody>
+                        </Card>
+
+                        {/* National Alert Feed */}
+                        <Card className="h-[130px] flex flex-col justify-between">
+                          <CardHeader className="pb-1.5">
+                            <span className="text-[9.5px] font-mono font-bold text-text-2 uppercase">National Alert Feed</span>
+                          </CardHeader>
+                          <CardBody className="p-3 overflow-y-auto max-h-[86px] font-mono text-[9px] flex flex-col gap-1.5 pr-1">
+                            {feedAlerts.slice(0, 4).map((alert, idx) => (
+                              <div key={alert.id || idx} className="p-1.5 bg-black/20 rounded border border-border/15 flex items-center justify-between gap-2">
+                                <span className="text-text-3 font-semibold flex-shrink-0">[{alert.timestamp}]</span>
+                                <span className="text-text-2 font-bold truncate flex-1">{alert.text}</span>
+                                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${alert.severity === 'critical' ? 'bg-accent-red animate-pulse' : 'bg-accent-amber'}`} />
+                              </div>
                             ))}
-                          </div>
-                        </div>
-                      </CardBody>
-                    </Card>
+                          </CardBody>
+                        </Card>
+                      </div>
 
-                    {/* Seven Proprietary Indices HUD */}
+                      {/* Ask Input bar */}
+                      <Card className="border-l-[3px] border-l-accent-purple relative h-[134px]">
+                        <CardBody className="p-4 flex flex-col justify-between h-full">
+                          <form onSubmit={handleAskSubmit} className="flex gap-2">
+                            <div className="relative flex-1">
+                              <Search className="absolute left-3 top-2.5 text-text-3" size={14} />
+                              <input
+                                type="text"
+                                value={askInput}
+                                onChange={(e) => setAskInput(e.target.value)}
+                                placeholder="Query economic engines (e.g. How will delayed monsoons affect food inflation?)"
+                                className="w-full bg-black/30 border border-border/45 hover:border-border-bright focus:border-accent-purple focus:outline-none rounded pl-9 pr-4 py-2 text-xs text-text-1 font-mono transition-all"
+                              />
+                            </div>
+                            <Button type="submit" variant="primary" size="sm" disabled={loadingSearch} className="px-4 font-mono text-xs h-9">
+                              {loadingSearch ? 'Querying...' : 'Query'}
+                            </Button>
+                          </form>
+
+                          <div className="mt-2 flex items-center gap-1.5 font-mono text-[10px]">
+                            <span className="text-text-3 uppercase tracking-wider font-semibold">Causal Queries:</span>
+                            <div className="flex gap-1.5">
+                              {[
+                                { text: "Red Sea disruption", q: "How will a Red Sea disruption affect fertilizer costs in India?" },
+                                { text: "Monsoon agricultural", q: "How will delayed monsoons affect food inflation?" }
+                              ].map((item, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => triggerPresetSearch(item.q)}
+                                  className="py-0.5 px-2 bg-black/20 border border-border/20 hover:border-accent-purple/35 rounded text-[9.5px] text-text-3 hover:text-text-1 transition-all"
+                                >
+                                  {item.text}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* Seven Proprietary Indices HUD */}
+                  <div className="lg:col-span-8">
                     <Card>
                       <CardHeader>
                         <h3 className="text-xs font-bold text-text-1 font-mono uppercase">Proprietary Economic Indices HUD</h3>

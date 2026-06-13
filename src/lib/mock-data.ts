@@ -265,10 +265,10 @@ export const REPLAY_EVENTS: ReplayEvent[] = [
 
 // ─── Intelligence Feed alerts ─────────────────────────────
 export const INTELLIGENCE_FEED_SEEDS: IntelligenceAlert[] = [
-  { id: 'a-1', timestamp: '09:14', severity: 'warning', text: 'Western DFC: Utilization 84% — Dadri terminal stacking thresholds stressed.', confidence: 94, region: 'Gujarat-Haryana', sector: 'Logistics' },
-  { id: 'a-2', timestamp: '09:07', severity: 'info', text: 'Lasalgaon Mandi: Onion volume arrivals contract 12% — price anomaly detected.', confidence: 89, region: 'Maharashtra', sector: 'Agriculture' },
-  { id: 'a-3', timestamp: '08:47', severity: 'warning', text: 'Mundra Terminal: Container yard dwell time rises to 32.8 hours.', confidence: 91, region: 'Gujarat Gateway', sector: 'Infrastructure' },
-  { id: 'a-4', timestamp: '08:23', severity: 'critical', text: 'Bab-el-Mandeb: Three westbound container vessels reroute via Cape of Good Hope.', confidence: 98, region: 'Indian Ocean shipping lanes', sector: 'Trade' },
+  { id: 'a-1', timestamp: '08:25', severity: 'critical', text: 'New shipping disruption signal ingested in Bab-el-Mandeb Strait', confidence: 98, region: 'Red Sea Corridor', sector: 'Trade' },
+  { id: 'a-2', timestamp: '08:24', severity: 'warning', text: 'Inflation probability revised +3.2% due to energy pass-through costs', confidence: 94, region: 'National', sector: 'Macro' },
+  { id: 'a-3', timestamp: '08:23', severity: 'warning', text: 'Port congestion index rising across western gateway terminals', confidence: 91, region: 'Gujarat Gateway', sector: 'Infrastructure' },
+  { id: 'a-4', timestamp: '08:21', severity: 'critical', text: 'Freight anomaly detected in Red Sea shipping corridors', confidence: 98, region: 'Indian Ocean shipping lanes', sector: 'Trade' },
   { id: 'a-5', timestamp: '07:55', severity: 'warning', text: 'Visakhapatnam Port: Imported DAP fertilizer dispatch delayed due to rail scheduling.', confidence: 93, region: 'Andhra Pradesh', sector: 'Agriculture' },
   { id: 'a-6', timestamp: '07:31', severity: 'info', text: 'Nashik Mandi: Tomato price differential reaches ₹34/kg vs Lucknow terminal.', confidence: 94, region: 'MH-UP Corridor', sector: 'Market' }
 ]

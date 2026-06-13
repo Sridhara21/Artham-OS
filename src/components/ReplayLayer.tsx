@@ -38,6 +38,9 @@ export default function ReplayLayer() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
+      <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-2 mb-2">
+        <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">REPLAY // What actually happened?</span>
+      </div>
       {/* Left panel: Chronos disruptions list - 4 cols */}
       <div className="lg:col-span-4 flex flex-col gap-5">
         <Card>
@@ -145,17 +148,62 @@ export default function ReplayLayer() {
               </div>
 
               {/* Status summary box */}
-              <div className="w-full lg:w-60 bg-black/25 rounded border border-border/30 p-4 h-fit font-mono text-[11px] flex flex-col gap-4">
+              <div className="w-full lg:w-64 bg-black/25 rounded border border-border/30 p-4 h-fit font-mono text-[11px] flex flex-col gap-3.5">
                 <div className="border-b border-border/10 pb-2">
                   <span className="text-[9px] text-text-3 block uppercase">Active Event</span>
                   <span className="text-xs font-extrabold text-text-1 leading-tight">{selectedEvent.name}</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-text-3 block uppercase mb-1">Empirical Assessment</span>
-                  <p className="text-text-2 leading-relaxed bg-black/40 p-2.5 rounded border border-border/10 text-[10px]">
+                  <p className="text-text-2 leading-relaxed bg-black/40 p-2.5 rounded border border-border/10 text-[9.5px]">
                     {selectedEvent.description}
                   </p>
                 </div>
+
+                {/* Forecast Accuracy Report Section */}
+                <div className="border-t border-border/15 pt-3 flex flex-col gap-2 bg-black/10 p-2.5 rounded border border-border/10">
+                  <span className="text-[9px] text-accent-cyan font-bold block uppercase tracking-wider">Forecast Accuracy Report</span>
+                  <div className="flex flex-col gap-1 text-[9.5px]">
+                    <div className="flex justify-between">
+                      <span className="text-text-3">Predicted:</span>
+                      <span className="font-bold text-accent-purple">
+                        {selectedEvent.id === 'c-suez' ? 'Freight Cost +14%' : 'Freight Cost +9.4%'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-3">Actual:</span>
+                      <span className="font-bold text-accent-green">
+                        {selectedEvent.id === 'c-suez' ? 'Freight Cost +13.2%' : 'Freight Cost +9.1%'}
+                      </span>
+                    </div>
+                    <div className="w-full h-px bg-border/20 my-1" />
+                    <div className="flex justify-between font-bold text-accent-mint">
+                      <span>Accuracy:</span>
+                      <span>{selectedEvent.id === 'c-suez' ? '94%' : '96.8%'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Historical Learning Stats */}
+                <div className="border-t border-border/15 pt-3 flex flex-col gap-1 text-[9px] text-text-2">
+                  <div className="flex justify-between">
+                    <span className="text-text-3">Forecasts Evaluated:</span>
+                    <span className="font-bold text-text-1">126</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-text-3">Average Accuracy:</span>
+                    <span className="font-bold text-accent-green">91%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-text-3">Learning Updates Applied:</span>
+                    <span className="font-bold text-accent-purple">18</span>
+                  </div>
+                </div>
+
+                <div className="text-[8.5px] text-accent-purple/80 bg-accent-purple/5 p-2 rounded border border-accent-purple/20 text-center font-bold tracking-wide italic">
+                  &ldquo;ARTHAM does not merely predict. ARTHAM learns.&rdquo;
+                </div>
+
                 <div className="flex items-center justify-between border-t border-border/10 pt-3">
                   <span className="text-[9px] text-text-3 uppercase">Replay State</span>
                   {replayCurrentDay >= selectedEvent.timeline[selectedEvent.timeline.length - 1].day ? (

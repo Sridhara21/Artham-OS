@@ -1,5 +1,5 @@
 'use client'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useARTHAMStore } from '@/lib/store'
 import { PRESET_SHOCKS } from '@/lib/mock-data'
 import { simulateEconomicShock } from '@/lib/economic-models'
@@ -14,6 +14,37 @@ export default function PredictLayer() {
     oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage,
     activePresetShock, setActivePresetShock, setCustomShockValue, resetShocks
   } = useARTHAMStore()
+
+  const [recalculating, setRecalculating] = useState(false)
+  const [recalcText, setRecalcText] = useState('')
+
+  const handleSliderChange = (key: 'oilShock' | 'portDisruption' | 'monsoonDelay' | 'railStrike' | 'floodImpact' | 'coalShortage', val: number) => {
+    setCustomShockValue(key, val)
+    setRecalculating(true)
+    setRecalcText('SIMULATION ENGINE ACTIVE: Processing 847 Signals...')
+  }
+
+  useEffect(() => {
+    if (!recalculating) return
+
+    const t1 = setTimeout(() => {
+      setRecalcText('SIMULATION ENGINE ACTIVE: Recalculating Dependencies...')
+    }, 300)
+
+    const t2 = setTimeout(() => {
+      setRecalcText('SIMULATION ENGINE ACTIVE: Updating Economic Graph...')
+    }, 600)
+
+    const t3 = setTimeout(() => {
+      setRecalculating(false)
+    }, 900)
+
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+    }
+  }, [recalculating])
 
   // Calculate impacts dynamically based on store slider values
   const simulation = useMemo(() => {
@@ -33,11 +64,19 @@ export default function PredictLayer() {
       setCustomShockValue('coalShortage', shock.coalShortage)
       // Re-assert active preset shock since setCustomShockValue resets it to null
       useARTHAMStore.setState({ activePresetShock: shockId })
+      
+      // Also show computing delay for preset updates
+      setRecalculating(true)
+      setRecalcText('SIMULATION ENGINE ACTIVE: Ingesting Scenario Presets...')
     }
   }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
+      <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-2 mb-2">
+        <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">SCENARIO LAB // What if conditions change?</span>
+      </div>
+
       {/* Left panel: Shock Presets & Sliders - 5 cols */}
       <div className="lg:col-span-5 flex flex-col gap-5">
         {/* Preset Shocks Grid */}
@@ -88,7 +127,7 @@ export default function PredictLayer() {
               <input
                 type="range" min="-50" max="100" step="5"
                 value={oilShock}
-                onChange={(e) => setCustomShockValue('oilShock', parseInt(e.target.value))}
+                onChange={(e) => handleSliderChange('oilShock', parseInt(e.target.value))}
                 className="w-full h-1 bg-black/40 rounded-lg appearance-none cursor-pointer accent-accent-amber"
               />
             </div>
@@ -102,7 +141,7 @@ export default function PredictLayer() {
               <input
                 type="range" min="0" max="100" step="5"
                 value={portDisruption}
-                onChange={(e) => setCustomShockValue('portDisruption', parseInt(e.target.value))}
+                onChange={(e) => handleSliderChange('portDisruption', parseInt(e.target.value))}
                 className="w-full h-1 bg-black/40 rounded-lg appearance-none cursor-pointer accent-accent-amber"
               />
             </div>
@@ -116,7 +155,7 @@ export default function PredictLayer() {
               <input
                 type="range" min="0" max="100" step="5"
                 value={monsoonDelay}
-                onChange={(e) => setCustomShockValue('monsoonDelay', parseInt(e.target.value))}
+                onChange={(e) => handleSliderChange('monsoonDelay', parseInt(e.target.value))}
                 className="w-full h-1 bg-black/40 rounded-lg appearance-none cursor-pointer accent-accent-amber"
               />
             </div>
@@ -130,7 +169,7 @@ export default function PredictLayer() {
               <input
                 type="range" min="0" max="100" step="5"
                 value={railStrike}
-                onChange={(e) => setCustomShockValue('railStrike', parseInt(e.target.value))}
+                onChange={(e) => handleSliderChange('railStrike', parseInt(e.target.value))}
                 className="w-full h-1 bg-black/40 rounded-lg appearance-none cursor-pointer accent-accent-amber"
               />
             </div>
@@ -144,7 +183,7 @@ export default function PredictLayer() {
               <input
                 type="range" min="0" max="100" step="5"
                 value={floodImpact}
-                onChange={(e) => setCustomShockValue('floodImpact', parseInt(e.target.value))}
+                onChange={(e) => handleSliderChange('floodImpact', parseInt(e.target.value))}
                 className="w-full h-1 bg-black/40 rounded-lg appearance-none cursor-pointer accent-accent-amber"
               />
             </div>
@@ -158,7 +197,7 @@ export default function PredictLayer() {
               <input
                 type="range" min="0" max="100" step="5"
                 value={coalShortage}
-                onChange={(e) => setCustomShockValue('coalShortage', parseInt(e.target.value))}
+                onChange={(e) => handleSliderChange('coalShortage', parseInt(e.target.value))}
                 className="w-full h-1 bg-black/40 rounded-lg appearance-none cursor-pointer accent-accent-amber"
               />
             </div>
@@ -197,14 +236,21 @@ export default function PredictLayer() {
         </div>
 
         {/* Recharts Projections Area */}
-        <Card className="flex-1 flex flex-col min-h-[360px]">
+        <Card className="flex-1 flex flex-col min-h-[360px] relative overflow-hidden">
           <CardHeader className="border-b border-border/20 pb-3">
             <div className="flex items-center justify-between w-full">
               <h3 className="text-xs font-bold text-text-1 font-mono uppercase">Scenario Modeling Forecast (ARTHAM INDEX)</h3>
               <Badge variant="purple">Expected Index: {simulation.overallIndex}</Badge>
             </div>
           </CardHeader>
-          <CardBody className="flex-1 p-4 flex flex-col justify-between">
+          <CardBody className="flex-1 p-4 flex flex-col justify-between relative">
+            {recalculating && (
+              <div className="absolute inset-0 bg-bg-base/85 backdrop-blur-md flex flex-col items-center justify-center font-mono text-[9px] text-accent-amber border border-accent-amber/20 rounded z-30 select-none animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-accent-amber animate-ping mb-3" />
+                <span className="font-extrabold tracking-widest uppercase">{recalcText}</span>
+              </div>
+            )}
+
             <div className="h-60 w-full bg-black/10 rounded border border-border/20 p-2">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={simulation.simulationData}>

@@ -39,15 +39,24 @@ export default function SituationRoomLayer() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
+      {/* Narrative Subtitle */}
+      <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-2 mb-2">
+        <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">SITUATION ROOM // What should we do?</span>
+      </div>
       
       {/* 1. Sovereign Scorecard Banner - 12 Cols */}
       <div className="lg:col-span-12 flex flex-col gap-2 select-none">
-        <div className="flex items-center justify-between border-b border-border/10 pb-2">
-          <div>
-            <span className="text-[9px] font-mono text-text-3 uppercase tracking-widest block">SOVEREIGN HEALTH Telemetry</span>
-            <h1 className="text-xl font-extrabold text-text-1">Executive Situation Room</h1>
+        <div className="flex flex-col border-b border-border/20 pb-3 mb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-[9px] font-mono text-accent-purple font-bold tracking-widest uppercase">ARTHAM SITUATION ROOM</span>
+              <span className="text-xl font-extrabold text-text-1 font-mono tracking-wider mt-1">EXECUTIVE DOSSIER</span>
+            </div>
+            <Badge variant="purple" dot>Briefing Session Active</Badge>
           </div>
-          <Badge variant="purple" dot>Active Briefing Session</Badge>
+          <div className="flex justify-between items-center mt-2 text-[8px] font-mono text-accent-red font-bold bg-accent-red/5 border border-accent-red/25 px-2.5 py-1 rounded w-fit uppercase">
+            CLASSIFICATION: STRATEGIC ECONOMIC ASSESSMENT
+          </div>
         </div>
 
         {/* 6 Sovereign Scorecard KPIs */}
@@ -210,13 +219,21 @@ export default function SituationRoomLayer() {
         
         {/* Recommended Actions Panel: upgraded to Sovereign Action Briefs */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <Compass className="text-accent-amber" size={14} />
               <h3 className="text-xs font-bold text-text-1 font-mono uppercase tracking-wide">Sovereign Action Briefs (Mitigations)</h3>
             </div>
           </CardHeader>
           <CardBody className="flex flex-col gap-4 font-mono text-[11px] pb-4">
+            {/* Action brief provenance statement */}
+            <div className="p-2.5 bg-black/45 border border-border/25 rounded text-[9.5px] text-text-2 flex flex-col gap-0.5 leading-snug">
+              <span className="text-[8px] text-text-3 block uppercase font-bold">Traceable Recommendation Protocol</span>
+              <p className="text-accent-purple font-extrabold">
+                RECOMMENDED COURSE OF ACTION: Generated from 847 Signals, 126 Causal Relationships, and 3 Scenario Simulations.
+              </p>
+            </div>
+
             {SOVEREIGN_RECOMMENDATIONS.map((rec) => {
               const isActive = rec.id === 'rec-1' 
                 ? (simulatedOilBase > 0 || portDisruption > 0) 
@@ -229,35 +246,38 @@ export default function SituationRoomLayer() {
                   key={rec.id}
                   className={`p-4 bg-black/20 border rounded transition-all flex flex-col gap-3 ${
                     isActive
-                      ? 'border-accent-amber bg-accent-amber/5'
+                      ? 'border-accent-amber bg-accent-amber/5 shadow-inner'
                       : 'border-border/10 opacity-60'
                   }`}
                 >
                   {/* Priority and Risk Title */}
-                  <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
-                    <span className="font-extrabold text-text-1 uppercase text-[10px] tracking-wide truncate max-w-[65%]">
+                  <div className="flex justify-between items-center border-b border-border/10 pb-1.5 text-[9px] font-bold">
+                    <span className="font-extrabold text-text-1 uppercase tracking-wide truncate max-w-[65%]">
                       {rec.risk}
                     </span>
-                    <Badge variant={isActive ? rec.riskLevel === 'HIGH' ? 'red' : 'amber' : 'ghost'} className="text-[8.5px]">
-                      PRIORITY: {isActive ? rec.riskLevel : 'STANDBY'}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      <span className="text-text-3 font-semibold uppercase">PRIORITY:</span>
+                      <Badge variant={isActive ? rec.riskLevel === 'HIGH' ? 'red' : 'amber' : 'ghost'} className="text-[8px] h-4.5">
+                        {isActive ? rec.riskLevel : 'STANDBY'}
+                      </Badge>
+                    </div>
                   </div>
 
                   {/* Sovereign Action and Expected Outcome Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[10.5px]">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[10px]">
                     <div className="bg-black/30 p-2.5 rounded border border-border/15">
-                      <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">SOVEREIGN ACTION Interventions</span>
+                      <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">ACTION</span>
                       <p className="text-text-1 font-semibold leading-relaxed">{rec.recommendation}</p>
                     </div>
 
                     <div className="bg-black/30 p-2.5 rounded border border-border/15 flex flex-col justify-between">
                       <div>
-                        <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">EXPECTED OUTCOME Targets</span>
+                        <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">EXPECTED OUTCOME</span>
                         <p className="text-accent-green font-semibold leading-relaxed">
-                          Dampen downstream commodity price pass-through by {rec.id === 'rec-1' ? '0.8' : rec.id === 'rec-2' ? '1.2' : '0.5'}%.
+                          Reduce Freight Exposure 18% (dampens pricing pass-through by {rec.id === 'rec-1' ? '0.8' : rec.id === 'rec-2' ? '1.2' : '0.5'}%).
                         </p>
                       </div>
-                      <div className="text-[8.5px] text-text-3 font-semibold mt-2">
+                      <div className="text-[8px] text-text-3 font-semibold mt-2 uppercase">
                         GDP OFFSET: <span className="text-text-2">₹{rec.gdpOffsetCr} Cr</span> | CO2: <span className="text-accent-green">-{rec.co2SavedTonnes}t</span>
                       </div>
                     </div>
@@ -266,12 +286,18 @@ export default function SituationRoomLayer() {
                   {/* Metadata: Confidence and Cost */}
                   <div className="flex justify-between items-center text-[9px] text-text-3 border-t border-border/10 pt-2 font-bold">
                     <div className="flex items-center gap-1">
-                      <span>CONFIDENCE ASSESSMENT:</span>
+                      <span className="text-text-3 font-semibold uppercase">CONFIDENCE:</span>
                       <span className="text-accent-purple text-[10px]">{rec.confidence}%</span>
                     </div>
                     <div>
                       BUDGET PROFILE: <span className="text-accent-cyan">₹{(rec.costInr / 100000).toFixed(0)} Lakhs</span>
                     </div>
+                  </div>
+
+                  {/* Recommendation Provenance Line */}
+                  <div className="border-t border-border/10 pt-2 text-[8px] font-mono text-text-3/90">
+                    <span className="text-accent-purple font-extrabold uppercase mr-1">Generated From:</span>
+                    847 Signals | 126 Causal Relationships | 3 Scenario Simulations
                   </div>
                 </div>
               )

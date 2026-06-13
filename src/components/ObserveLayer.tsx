@@ -48,6 +48,9 @@ export default function ObserveLayer() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise select-none">
+      <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-2 mb-2">
+        <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">TWIN // Where is it happening?</span>
+      </div>
       {/* Left controls and telemetry metrics - 4 cols */}
       <div className="lg:col-span-4 flex flex-col gap-5">
         <Card>
@@ -200,7 +203,6 @@ export default function ObserveLayer() {
           viewBox="0 0 350 500"
           className="w-full max-w-[420px] aspect-[7/10] relative z-10 transition-all select-none"
         >
-          {/* India Stylized Polygon Base */}
           <path
             d="M 90,40 L 110,35 L 125,65 L 115,80 L 130,95 L 150,90 L 160,110 L 140,120 L 150,150 L 175,150 L 190,165 L 210,150 L 250,150 L 290,120 L 310,130 L 300,165 L 260,175 L 250,210 L 270,230 L 275,255 L 275,265 L 255,275 L 210,300 L 205,330 L 200,360 L 155,440 L 142,475 L 138,475 L 120,410 L 95,360 L 65,335 L 68,310 L 85,280 L 50,270 L 32,238 L 45,215 L 75,200 L 80,180 L 70,150 L 95,140 L 88,110 L 90,40 Z"
             fill="rgba(175, 169, 236, 0.03)"
@@ -208,7 +210,6 @@ export default function ObserveLayer() {
             strokeWidth="1.5"
             strokeLinejoin="round"
           />
-
           {/* DFC Corridors Layer */}
           {activeLayer === 'corridors' && (
             <g className="animate-fade-rise">
@@ -239,6 +240,23 @@ export default function ObserveLayer() {
                       repeatCount="indefinite"
                     />
                   </path>
+                  {/* Moving cargo corridor particle overlay */}
+                  <circle r="2.5" fill={c.status === 'CONGESTED' ? '#FF6B6B' : '#9FD8C5'}>
+                    <animateMotion
+                      dur={c.status === 'CONGESTED' ? '12s' : '6s'}
+                      repeatCount="indefinite"
+                      path={c.pathPoints}
+                    />
+                  </circle>
+                  {/* Second staggered particle overlay */}
+                  <circle r="1.5" fill={c.status === 'CONGESTED' ? '#FF6B6B' : '#9FD8C5'} opacity="0.6">
+                    <animateMotion
+                      dur={c.status === 'CONGESTED' ? '12s' : '6s'}
+                      begin="3s"
+                      repeatCount="indefinite"
+                      path={c.pathPoints}
+                    />
+                  </circle>
                 </g>
               ))}
 
@@ -272,8 +290,12 @@ export default function ObserveLayer() {
                     transform={`rotate(${v.angle || 0}, ${v.x}, ${v.y})`}
                   />
                   {/* Text labels next to vessel */}
-                  <text x={v.x + 6} y={v.y + 2} className="font-mono text-[5px] fill-text-3 font-semibold pointer-events-none select-none">
+                  <text x={v.x + 6} y={v.y + 1} className="font-mono text-[5px] fill-text-3 font-semibold pointer-events-none select-none">
                     {v.name} ({v.cargo})
+                  </text>
+                  {/* Floating load indicators and risk status tags */}
+                  <text x={v.x + 6} y={v.y + 6} className="font-mono text-[4px] fill-accent-cyan font-bold pointer-events-none select-none">
+                    Container Vol: {v.id === 'v-1' ? '+14%' : v.id === 'v-2' ? '+8%' : '+11%'} | Risk: {v.id === 'v-1' ? 'MEDIUM' : 'LOW'}
                   </text>
                 </g>
               ))}

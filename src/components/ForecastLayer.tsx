@@ -52,6 +52,9 @@ export default function ForecastLayer() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise select-none">
+      <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-2 mb-2">
+        <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">FORECAST // What happens next?</span>
+      </div>
       {/* Left panel: Milestone Timeline checklist - 4 cols */}
       <div className="lg:col-span-4 flex flex-col gap-5">
         <Card>
@@ -122,15 +125,22 @@ export default function ForecastLayer() {
         </CardHeader>
         <CardBody className="p-5 flex-1 flex flex-col gap-4">
           
-          {/* Best Case */}
+          {/* Optimistic Scenario */}
           <div className="p-4 bg-accent-green/5 border border-accent-green/20 rounded hover:border-accent-green/45 transition-all flex flex-col gap-2">
             <div className="flex justify-between items-center border-b border-accent-green/10 pb-1.5">
               <div className="flex items-center gap-2 text-xs font-extrabold text-accent-green">
                 <CheckCircle2 size={13} />
-                <span>BEST CASE SCENARIO</span>
+                <span>OPTIMISTIC SCENARIO</span>
               </div>
               <Badge variant="green" className="text-[8.5px]">CONFIDENCE: {scenarios.best.confidence}%</Badge>
             </div>
+            
+            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3 font-semibold">
+              <div>PROBABILITY OF OCCURRENCE: <span className="text-accent-green font-bold">20%</span></div>
+              <div className="text-center font-bold">EXPECTED ECONOMIC IMPACT: <span className="text-accent-green font-bold">MINIMAL</span></div>
+              <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-green font-bold">{scenarios.best.confidence}%</span></div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">
               <div>
                 <span className="text-[8px] text-text-3 block uppercase">Inflation</span>
@@ -151,15 +161,22 @@ export default function ForecastLayer() {
             </div>
           </div>
 
-          {/* Base Case */}
+          {/* Most Likely Scenario */}
           <div className="p-4 bg-accent-purple/5 border border-accent-purple/20 rounded hover:border-accent-purple/45 transition-all flex flex-col gap-2">
             <div className="flex justify-between items-center border-b border-accent-purple/10 pb-1.5">
               <div className="flex items-center gap-2 text-xs font-extrabold text-accent-purple">
                 <Activity size={13} />
-                <span>BASE CASE (EXPECTED OUTLOOK)</span>
+                <span>MOST LIKELY SCENARIO</span>
               </div>
               <Badge variant="purple" className="text-[8.5px]">CONFIDENCE: {scenarios.base.confidence}%</Badge>
             </div>
+
+            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3 font-semibold">
+              <div>PROBABILITY OF OCCURRENCE: <span className="text-accent-purple font-bold">65%</span></div>
+              <div className="text-center font-bold">EXPECTED ECONOMIC IMPACT: <span className="text-accent-purple font-bold">MODERATE</span></div>
+              <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-purple font-bold">{scenarios.base.confidence}%</span></div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">
               <div>
                 <span className="text-[8px] text-text-3 block uppercase">Inflation</span>
@@ -180,15 +197,22 @@ export default function ForecastLayer() {
             </div>
           </div>
 
-          {/* Worst Case */}
+          {/* Stress Scenario */}
           <div className="p-4 bg-accent-red/5 border border-accent-red/20 rounded hover:border-accent-red/45 transition-all flex flex-col gap-2">
             <div className="flex justify-between items-center border-b border-accent-red/10 pb-1.5">
               <div className="flex items-center gap-2 text-xs font-extrabold text-accent-red">
                 <AlertTriangle size={13} className="animate-pulse" />
-                <span>WORST CASE SCENARIO</span>
+                <span>STRESS SCENARIO</span>
               </div>
               <Badge variant="red" className="text-[8.5px]">CONFIDENCE: {scenarios.worst.confidence}%</Badge>
             </div>
+
+            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3 font-semibold">
+              <div>PROBABILITY OF OCCURRENCE: <span className="text-accent-red font-bold">15%</span></div>
+              <div className="text-center font-bold">EXPECTED ECONOMIC IMPACT: <span className="text-accent-red font-bold">SEVERE</span></div>
+              <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-red font-bold">{scenarios.worst.confidence}%</span></div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">
               <div>
                 <span className="text-[8px] text-text-3 block uppercase">Inflation</span>
