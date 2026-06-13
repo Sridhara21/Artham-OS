@@ -35,25 +35,25 @@ async function run() {
   await sleep(5000); // Wait for page logic load
 
   const tabs = [
-    { name: 'INDEX', buttonText: 'INDEX', screenshotName: 'remote_index_tab.png' },
-    { name: 'TWIN', buttonText: 'TWIN', screenshotName: 'remote_twin_tab.png', action: async () => {
+    { name: 'INDEX', buttonText: 'INDEX', screenshotName: 'index.png' },
+    { name: 'TWIN', buttonText: 'TWIN', screenshotName: 'twin.png', action: async () => {
       try {
-        await page.click("button:has-text('SOVEREIGN PORTS TELEMETRY')", { timeout: 3000 });
+        await page.click("button:has-text('MARITIME GATEWAY')", { timeout: 3000 });
         await sleep(1000);
       } catch (e) {
         console.log('TWIN action failed, capturing default:', e.message);
       }
     }},
-    { name: 'PRIME', buttonText: 'INDEX', screenshotName: 'remote_prime_tab.png', action: async () => {
+    { name: 'PRIME', buttonText: 'PRIME', screenshotName: 'prime.png', action: async () => {
       try {
-        await page.click("button:has-text('Red Sea crisis input costs')", { timeout: 3000 });
+        await page.click("button:has-text('Red Sea disruption')", { timeout: 3000 });
         await sleep(3000);
       } catch (e) {
         console.log('PRIME action failed:', e.message);
       }
     }},
-    { name: 'FORECAST', buttonText: 'FORECAST', screenshotName: 'remote_forecast_tab.png' },
-    { name: 'SCENARIO LAB', buttonText: 'SCENARIO LAB', screenshotName: 'remote_scenario_lab_tab.png', action: async () => {
+    { name: 'FORECAST', buttonText: 'FORECAST', screenshotName: 'forecast.png' },
+    { name: 'SCENARIO LAB', buttonText: 'SCENARIO LAB', screenshotName: 'scenario_lab.png', action: async () => {
       try {
         await page.click("button:has-text('Oil Shock ($150)')", { timeout: 3000 });
         await sleep(2500);
@@ -61,7 +61,7 @@ async function run() {
         console.log('SCENARIO LAB action failed:', e.message);
       }
     }},
-    { name: 'SITUATION ROOM', buttonText: 'SITUATION ROOM', screenshotName: 'remote_situation_room_tab.png', action: async () => {
+    { name: 'SITUATION ROOM', buttonText: 'SITUATION ROOM', screenshotName: 'situation_room.png', action: async () => {
       try {
         await page.click("button:has-text('Generate Brief')", { timeout: 3000 });
         await sleep(2000);
@@ -69,8 +69,9 @@ async function run() {
         console.log('SITUATION ROOM brief generation action failed:', e.message);
       }
     }},
-    { name: 'REPLAY', buttonText: 'REPLAY', screenshotName: 'remote_replay_tab.png' },
-    { name: 'INTEL FEED', buttonText: 'INTEL FEED', screenshotName: 'remote_feed_tab.png' }
+    { name: 'REPLAY', buttonText: 'REPLAY', screenshotName: 'replay.png' },
+    { name: 'INTEL FEED', buttonText: 'INTEL FEED', screenshotName: 'intel_feed.png' },
+    { name: 'CONNECTOR HUB', buttonText: 'CONNECTOR HUB', screenshotName: 'connector_hub.png' }
   ];
 
   const imagesPaths = [];
@@ -90,6 +91,14 @@ async function run() {
       await page.screenshot({ path: screenshotPath });
       imagesPaths.push(screenshotPath);
       console.log(`Successfully captured ${tab.screenshotName}`);
+      
+      try {
+        const workspaceScreenshotPath = path.join('c:/Users/user/3D Objects/New folder/artham', tab.screenshotName);
+        fs.copyFileSync(screenshotPath, workspaceScreenshotPath);
+        console.log(`Copied screenshot to workspace at ${workspaceScreenshotPath}`);
+      } catch (copyErr) {
+        console.log(`Non-critical: failed to copy screenshot to workspace:`, copyErr.message);
+      }
     } catch (e) {
       console.error(`Failed to capture tab ${tab.name}:`, e.message);
     }
