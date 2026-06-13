@@ -162,7 +162,10 @@ export default function ReplayLayer() {
 
                 {/* Forecast Accuracy Report Section */}
                 <div className="border-t border-border/15 pt-3 flex flex-col gap-2 bg-black/10 p-2.5 rounded border border-border/10">
-                  <span className="text-[9px] text-accent-cyan font-bold block uppercase tracking-wider">Forecast Accuracy Report</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] text-accent-cyan font-bold block uppercase tracking-wider">Forecast Accuracy Report</span>
+                    <Badge variant="live" className="text-[7.5px] px-1 h-3.5 leading-none animate-pulse bg-accent-green/20 border-accent-green/35 text-accent-green font-bold">LEARNING ACTIVE</Badge>
+                  </div>
                   <div className="flex flex-col gap-1 text-[9.5px]">
                     <div className="flex justify-between">
                       <span className="text-text-3">Predicted:</span>
@@ -195,8 +198,16 @@ export default function ReplayLayer() {
                     <span className="font-bold text-accent-green">91%</span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-text-3">Highest Accuracy:</span>
+                    <span className="font-bold text-accent-green">98%</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-text-3">Learning Updates Applied:</span>
                     <span className="font-bold text-accent-purple">18</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-text-3">Confidence Calibration Error:</span>
+                    <span className="font-bold text-accent-red">4%</span>
                   </div>
                 </div>
 

@@ -17,6 +17,7 @@ export default function SituationRoomLayer() {
 
   const [hoveredBubbleId, setHoveredBubbleId] = useState<string | null>(null)
   const [briefLoading, setBriefLoading] = useState(false)
+  const [showBreakdown, setShowBreakdown] = useState<Record<string, boolean>>({})
 
   // Dynamic calculations based on live market prices
   const simulatedOilBase = connectorStates.marketFeed 
@@ -83,6 +84,40 @@ export default function SituationRoomLayer() {
 
       {/* 2. Risk Radar Quadrant & Roadmap Banner - 6 Cols */}
       <div className="lg:col-span-6 flex flex-col gap-6">
+        {/* Strategic Risk Monitor Card */}
+        <Card className="border-l-[3px] border-l-accent-red">
+          <CardHeader className="pb-1.5">
+            <span className="text-[8.5px] font-mono text-accent-red font-bold uppercase tracking-wider block">Sovereign Threat Level</span>
+            <h3 className="text-xs font-bold text-text-1 font-mono uppercase mt-0.5">Strategic Risk Monitor</h3>
+          </CardHeader>
+          <CardBody className="p-3.5 font-mono text-[10.5px] flex flex-col gap-2.5">
+            <div className="flex justify-between items-center bg-black/25 p-2 rounded border border-border/10">
+              <span className="text-text-2">Supply Chain Risk:</span>
+              <Badge variant={portDisruption > 40 || railStrike > 40 ? 'red' : 'amber'} className="text-[8.5px] font-bold h-4.5">
+                {portDisruption > 40 || railStrike > 40 ? 'CRITICAL' : portDisruption > 20 || railStrike > 20 ? 'HIGH' : 'MEDIUM'}
+              </Badge>
+            </div>
+            <div className="flex justify-between items-center bg-black/25 p-2 rounded border border-border/10">
+              <span className="text-text-2">Inflation Risk:</span>
+              <Badge variant={simulatedOilBase > 40 || monsoonDelay > 40 ? 'red' : 'amber'} className="text-[8.5px] font-bold h-4.5">
+                {simulatedOilBase > 40 || monsoonDelay > 40 ? 'HIGH' : 'MEDIUM'}
+              </Badge>
+            </div>
+            <div className="flex justify-between items-center bg-black/25 p-2 rounded border border-border/10">
+              <span className="text-text-2">Energy Risk:</span>
+              <Badge variant={coalShortage > 50 || simulatedOilBase > 50 ? 'red' : 'amber'} className="text-[8.5px] font-bold h-4.5">
+                {coalShortage > 50 || simulatedOilBase > 50 ? 'CRITICAL' : coalShortage > 20 || simulatedOilBase > 20 ? 'HIGH' : 'MEDIUM'}
+              </Badge>
+            </div>
+            <div className="flex justify-between items-center bg-black/25 p-2 rounded border border-border/10">
+              <span className="text-text-2">Trade Risk:</span>
+              <Badge variant={portDisruption > 40 || activeBrief?.includes('Mundra') ? 'red' : 'amber'} className="text-[8.5px] font-bold h-4.5">
+                {portDisruption > 40 || activeBrief?.includes('Mundra') ? 'HIGH' : 'MEDIUM'}
+              </Badge>
+            </div>
+          </CardBody>
+        </Card>
+
         <Card className="flex-1 flex flex-col min-h-[420px]">
           <CardHeader className="border-b border-border/20 pb-3">
             <div>
@@ -283,21 +318,59 @@ export default function SituationRoomLayer() {
                     </div>
                   </div>
 
+                  {/* Reasoning Transparency Pathway */}
+                  <div className="bg-black/35 p-2.5 rounded border border-border/15 font-mono text-[9px] flex flex-col gap-1.5">
+                    <span className="text-[8px] text-text-3 block uppercase font-bold leading-none">Reasoning Pathway (Why This Action?)</span>
+                    <div className="flex items-center gap-1 text-text-2 flex-wrap leading-relaxed">
+                      <span className="bg-accent-purple/10 border border-accent-purple/35 text-accent-purple px-1.5 py-0.5 rounded text-[8px] font-bold">
+                        SIGNAL: {rec.id === 'rec-1' ? 'Red Sea Disruption' : rec.id === 'rec-2' ? 'JNPT Stack Congestion' : 'Monsoon Delay Deficit'}
+                      </span>
+                      <span className="text-text-4 font-bold">→</span>
+                      <span className="bg-accent-cyan/10 border border-accent-cyan/35 text-accent-cyan px-1.5 py-0.5 rounded text-[8px] font-bold">
+                        EVENT: {rec.id === 'rec-1' ? 'Cape route redirects' : rec.id === 'rec-2' ? 'Empty wagon reallocations' : 'Kharif sowing contractions'}
+                      </span>
+                      <span className="text-text-4 font-bold">→</span>
+                      <span className="bg-accent-amber/10 border border-accent-amber/35 text-accent-amber px-1.5 py-0.5 rounded text-[8px] font-bold">
+                        CONSEQUENCE: {rec.id === 'rec-1' ? 'Ocean Freight Rate Spike' : rec.id === 'rec-2' ? 'NH-48 Diverted Road Traffic' : 'Mandi Arrival Deficits'}
+                      </span>
+                      <span className="text-text-4 font-bold">→</span>
+                      <span className="bg-accent-red/10 border border-accent-red/35 text-accent-red px-1.5 py-0.5 rounded text-[8px] font-bold">
+                        OUTCOME: {rec.id === 'rec-1' ? 'Import Cost Inflation' : rec.id === 'rec-2' ? 'Gurugram Factory Delays' : 'Food Pricing Volatility'}
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Metadata: Confidence and Cost */}
-                  <div className="flex justify-between items-center text-[9px] text-text-3 border-t border-border/10 pt-2 font-bold">
-                    <div className="flex items-center gap-1">
+                  <div className="flex justify-between items-center text-[9.5px] text-text-3 border-t border-border/10 pt-2 font-bold font-mono">
+                    <div className="flex items-center gap-2">
                       <span className="text-text-3 font-semibold uppercase">CONFIDENCE:</span>
                       <span className="text-accent-purple text-[10px]">{rec.confidence}%</span>
+                      <button 
+                        onClick={() => setShowBreakdown(prev => ({ ...prev, [rec.id]: !prev[rec.id] }))}
+                        className="text-accent-cyan underline hover:text-accent-cyan/80 text-[8px] ml-1 cursor-pointer focus:outline-none"
+                      >
+                        {showBreakdown[rec.id] ? '[Hide Breakdown]' : '[View Breakdown]'}
+                      </button>
                     </div>
                     <div>
                       BUDGET PROFILE: <span className="text-accent-cyan">₹{(rec.costInr / 100000).toFixed(0)} Lakhs</span>
                     </div>
                   </div>
 
+                  {/* Collapsible Confidence Decomposition */}
+                  {showBreakdown[rec.id] && (
+                    <div className="bg-black/45 p-2 rounded border border-border/10 text-[8.5px] font-mono text-text-2 flex flex-wrap justify-between gap-2 animate-fade-rise">
+                      <div>Data Quality: <span className="text-accent-purple font-bold">95%</span></div>
+                      <div>Signal Agreement: <span className="text-accent-purple font-bold">91%</span></div>
+                      <div>Forecast Stability: <span className="text-accent-purple font-bold">89%</span></div>
+                      <div>Model Confidence: <span className="text-accent-purple font-bold">{rec.confidence}%</span></div>
+                    </div>
+                  )}
+
                   {/* Recommendation Provenance Line */}
                   <div className="border-t border-border/10 pt-2 text-[8px] font-mono text-text-3/90">
-                    <span className="text-accent-purple font-extrabold uppercase mr-1">Generated From:</span>
-                    847 Signals | 126 Causal Relationships | 3 Scenario Simulations
+                    <span className="text-accent-purple font-extrabold uppercase mr-1">RATIONALE:</span>
+                    Generated From: 847 Signals | 126 Causal Relationships | 3 Scenario Simulations
                   </div>
                 </div>
               )
@@ -336,6 +409,42 @@ export default function SituationRoomLayer() {
                 <span>No brief compiled. Click &quot;Generate Brief&quot; above to compile current telemetry profiles.</span>
               </div>
             )}
+          </CardBody>
+        </Card>
+
+        {/* Reusable Explainability Panel: Why Artham Believes This */}
+        <Card className="border-l-[3px] border-l-accent-purple shadow-glow-purple mt-4">
+          <CardHeader className="pb-1.5">
+            <span className="text-[8.5px] font-mono text-accent-purple font-bold uppercase tracking-wider block">Explainability Ledger</span>
+            <h3 className="text-xs font-bold text-text-1 font-mono uppercase mt-0.5">Why ARTHAM Believes This</h3>
+          </CardHeader>
+          <CardBody className="p-3.5 font-mono text-[10px] flex flex-col gap-3">
+            <div>
+              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Primary Signals</span>
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="purple" className="text-[8px] px-1 py-0.5">Red Sea Disruption</Badge>
+                <Badge variant="purple" className="text-[8px] px-1 py-0.5">Brent Crude Spike</Badge>
+              </div>
+            </div>
+            <div>
+              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Secondary Signals</span>
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="ghost" className="text-[8px] border border-border/20 px-1 py-0.5">Port Congestion</Badge>
+                <Badge variant="ghost" className="text-[8px] border border-border/20 px-1 py-0.5">Weather Delay</Badge>
+              </div>
+            </div>
+            <div>
+              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Affected Sectors</span>
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Logistics</Badge>
+                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Energy</Badge>
+                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Manufacturing</Badge>
+              </div>
+            </div>
+            <div className="bg-black/35 p-2 rounded border border-border/10 text-[9.5px]">
+              <span className="text-[8px] text-text-3 block uppercase font-bold mb-0.5">Expected Outcome</span>
+              <span className="text-text-2 leading-relaxed">Import Inflation Risk passes through to wholesale supply indexes within 15–30 days.</span>
+            </div>
           </CardBody>
         </Card>
       </div>

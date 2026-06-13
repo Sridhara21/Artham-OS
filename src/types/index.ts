@@ -194,6 +194,11 @@ export interface ARTHAMState {
   economicPulse: 'Expansion' | 'Steady' | 'Contraction' | 'Stressed'
   agentsActive: number
   signalsToday: number
+  eventsTracked: number
+  countriesMonitored: number
+  dataSourcesCount: number
+  scenariosRun: number
+  activeForecasts: number
   carbonCreditsToday: number
   totalArbitrageCr: number
   lastUpdate: Date

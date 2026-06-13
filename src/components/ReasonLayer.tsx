@@ -191,6 +191,36 @@ export default function ReasonLayer() {
             ))}
           </CardBody>
         </Card>
+
+        {/* Top System Drivers Card */}
+        <Card className="border-l-[3px] border-l-accent-purple shadow-glow-purple">
+          <CardHeader className="pb-1.5">
+            <span className="text-[8.5px] font-mono text-accent-purple font-bold uppercase tracking-wider block">Real-time Causal Priorities</span>
+            <h3 className="text-xs font-bold text-text-1 font-mono uppercase mt-0.5">Top System Drivers</h3>
+          </CardHeader>
+          <CardBody className="p-3.5 font-mono text-[10px] flex flex-col gap-2.5">
+            {[
+              { name: 'Red Sea Disruption', impact: 91, confidence: 98, strength: '94%' },
+              { name: 'Brent Crude Spike', impact: 83, confidence: 92, strength: '88%' },
+              { name: 'Port Congestion', impact: 76, confidence: 91, strength: '79%' },
+              { name: 'Weather Risk', impact: 72, confidence: 90, strength: '68%' },
+              { name: 'USD Volatility', impact: 68, confidence: 89, strength: '72%' }
+            ].map((driver, idx) => (
+              <div key={idx} className="flex flex-col gap-1 bg-black/25 p-2 rounded border border-border/10">
+                <div className="flex justify-between items-center text-[10.5px]">
+                  <span className="font-extrabold text-text-2">{idx + 1}. {driver.name}</span>
+                  <Badge variant={driver.impact > 80 ? 'red' : driver.impact > 70 ? 'amber' : 'ghost'} className="text-[8px] h-4.5 font-bold">
+                    IMPACT: {driver.impact}
+                  </Badge>
+                </div>
+                <div className="flex justify-between text-[8px] text-text-3 font-semibold mt-0.5">
+                  <span>CONFIDENCE: <span className="text-accent-mint">{driver.confidence}%</span></span>
+                  <span>TRANSMISSION STRENGTH: <span className="text-accent-cyan">{driver.strength}</span></span>
+                </div>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
       </div>
 
       {/* Right panel: Causal Graph Visualizer - 8 cols */}
@@ -377,6 +407,32 @@ export default function ReasonLayer() {
                       <p className="text-text-2 leading-relaxed bg-black/40 p-2.5 rounded border border-border/10 text-[9.5px]">
                         {selectedNode.evidence}
                       </p>
+                    </div>
+
+                    {/* Confidence Decomposition */}
+                    <div className="bg-black/45 p-2.5 rounded border border-border/10 text-[9.5px] flex flex-col gap-1.5 font-mono">
+                      <span className="text-[8px] text-text-3 block uppercase font-bold">Confidence Decomposition</span>
+                      <div className="flex justify-between">
+                        <span className="text-text-3">Data Quality:</span>
+                        <span className="font-bold text-accent-green">95%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-text-3">Signal Agreement:</span>
+                        <span className="font-bold text-accent-cyan">91%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-text-3">Forecast Stability:</span>
+                        <span className="font-bold text-accent-purple">89%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-text-3">Model Confidence:</span>
+                        <span className="font-bold text-accent-amber">{selectedNode.confidence}%</span>
+                      </div>
+                      <div className="w-full h-px bg-border/25 my-0.5" />
+                      <div className="flex justify-between font-bold text-text-1">
+                        <span>Final Confidence:</span>
+                        <span className="text-accent-mint">{selectedNode.confidence}%</span>
+                      </div>
                     </div>
 
                     {/* Dynamic Source lists - answers "How do you know this?" */}

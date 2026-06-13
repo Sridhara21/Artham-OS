@@ -112,6 +112,42 @@ export default function ForecastLayer() {
             </div>
           </CardBody>
         </Card>
+
+        {/* Reusable Explainability Panel: Why Artham Believes This */}
+        <Card className="border-l-[3px] border-l-accent-purple shadow-glow-purple">
+          <CardHeader className="pb-1.5">
+            <span className="text-[8.5px] font-mono text-accent-purple font-bold uppercase tracking-wider block">Explainability Ledger</span>
+            <h3 className="text-xs font-bold text-text-1 font-mono uppercase mt-0.5">Why ARTHAM Believes This</h3>
+          </CardHeader>
+          <CardBody className="p-3.5 font-mono text-[10px] flex flex-col gap-3">
+            <div>
+              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Primary Signals</span>
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="purple" className="text-[8px] px-1 py-0.5">Red Sea Disruption</Badge>
+                <Badge variant="purple" className="text-[8px] px-1 py-0.5">Brent Crude Spike</Badge>
+              </div>
+            </div>
+            <div>
+              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Secondary Signals</span>
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="ghost" className="text-[8px] border border-border/20 px-1 py-0.5">Port Congestion</Badge>
+                <Badge variant="ghost" className="text-[8px] border border-border/20 px-1 py-0.5">Weather Delay</Badge>
+              </div>
+            </div>
+            <div>
+              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Affected Sectors</span>
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Logistics</Badge>
+                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Energy</Badge>
+                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Manufacturing</Badge>
+              </div>
+            </div>
+            <div className="bg-black/35 p-2 rounded border border-border/10 text-[9.5px]">
+              <span className="text-[8px] text-text-3 block uppercase font-bold mb-0.5">Expected Outcome</span>
+              <span className="text-text-2 leading-relaxed">Import Inflation Risk passes through to wholesale supply indexes within 15–30 days.</span>
+            </div>
+          </CardBody>
+        </Card>
       </div>
 
       {/* Right panel: Predictions Grid Scenarios - 8 cols */}
@@ -139,6 +175,13 @@ export default function ForecastLayer() {
               <div>PROBABILITY OF OCCURRENCE: <span className="text-accent-green font-bold">20%</span></div>
               <div className="text-center font-bold">EXPECTED ECONOMIC IMPACT: <span className="text-accent-green font-bold">MINIMAL</span></div>
               <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-green font-bold">{scenarios.best.confidence}%</span></div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2 mb-2.5 bg-black/20 p-2 rounded border border-border/10 text-[8.5px] font-mono text-text-2">
+              <div className="flex justify-between px-1"><span>Data Quality:</span><span className="text-accent-green font-bold">95%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Signal Agreement:</span><span className="text-accent-green font-bold">91%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Forecast Stability:</span><span className="text-accent-green font-bold">89%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Final Conf:</span><span className="text-accent-green font-bold">{scenarios.best.confidence}%</span></div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">
@@ -177,6 +220,13 @@ export default function ForecastLayer() {
               <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-purple font-bold">{scenarios.base.confidence}%</span></div>
             </div>
 
+            <div className="grid grid-cols-4 gap-2 mb-2.5 bg-black/20 p-2 rounded border border-border/10 text-[8.5px] font-mono text-text-2">
+              <div className="flex justify-between px-1"><span>Data Quality:</span><span className="text-accent-purple font-bold">95%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Signal Agreement:</span><span className="text-accent-purple font-bold">91%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Forecast Stability:</span><span className="text-accent-purple font-bold">89%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Final Conf:</span><span className="text-accent-purple font-bold">{scenarios.base.confidence}%</span></div>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">
               <div>
                 <span className="text-[8px] text-text-3 block uppercase">Inflation</span>
@@ -211,6 +261,13 @@ export default function ForecastLayer() {
               <div>PROBABILITY OF OCCURRENCE: <span className="text-accent-red font-bold">15%</span></div>
               <div className="text-center font-bold">EXPECTED ECONOMIC IMPACT: <span className="text-accent-red font-bold">SEVERE</span></div>
               <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-red font-bold">{scenarios.worst.confidence}%</span></div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2 mb-2.5 bg-black/20 p-2 rounded border border-border/10 text-[8.5px] font-mono text-text-2">
+              <div className="flex justify-between px-1"><span>Data Quality:</span><span className="text-accent-red font-bold">95%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Signal Agreement:</span><span className="text-accent-red font-bold">91%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Forecast Stability:</span><span className="text-accent-red font-bold">89%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15"><span>Final Conf:</span><span className="text-accent-red font-bold">{scenarios.worst.confidence}%</span></div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">

@@ -27,7 +27,8 @@ import toast, { Toaster } from 'react-hot-toast'
 export default function Home() {
   const {
     activeTab, setActiveTab, arthamIndex, indexChange, economicPulse,
-    signalsToday, carbonCreditsToday, activeGraph, executeSearch, driftIndex,
+    signalsToday, eventsTracked, countriesMonitored, dataSourcesCount, scenariosRun, activeForecasts,
+    carbonCreditsToday, activeGraph, executeSearch, driftIndex,
     overallConfidence, cmdKOpen, setCmdKOpen,
     demoActive, demoStage, demoProgress, startDemo, stopDemo,
     oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage,
@@ -492,22 +493,30 @@ export default function Home() {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-x-6 gap-y-2.5 border-t border-border/20 pt-4 text-[9.5px] text-text-2">
-                            <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
-                              <span className="text-text-3">SIGNALS ACTIVE</span>
-                              <span className="text-text-1 font-bold">847</span>
+                          <div className="grid grid-cols-3 gap-x-4 gap-y-2.5 border-t border-border/20 pt-4 text-[8.5px] font-mono text-text-2">
+                            <div className="flex flex-col border-b border-border/10 pb-1.5">
+                              <span className="text-text-3 block text-[7.5px] uppercase">SIGNALS ACTIVE</span>
+                              <span className="text-text-1 font-bold text-xs mt-0.5">{signalsToday}</span>
                             </div>
-                            <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
-                              <span className="text-text-3">EVENTS TRACKED</span>
-                              <span className="text-text-1 font-bold">14</span>
+                            <div className="flex flex-col border-b border-border/10 pb-1.5">
+                              <span className="text-text-3 block text-[7.5px] uppercase">EVENTS TRACKED</span>
+                              <span className="text-text-1 font-bold text-xs mt-0.5">{eventsTracked}</span>
                             </div>
-                            <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
-                              <span className="text-text-3">COUNTRIES MONITORED</span>
-                              <span className="text-text-1 font-bold">24</span>
+                            <div className="flex flex-col border-b border-border/10 pb-1.5">
+                              <span className="text-text-3 block text-[7.5px] uppercase">COUNTRIES</span>
+                              <span className="text-text-1 font-bold text-xs mt-0.5">{countriesMonitored}</span>
                             </div>
-                            <div className="flex justify-between items-center border-b border-border/10 pb-1.5">
-                              <span className="text-text-3">DATA SOURCES</span>
-                              <span className="text-text-1 font-bold">63</span>
+                            <div className="flex flex-col border-b border-border/10 pb-1.5">
+                              <span className="text-text-3 block text-[7.5px] uppercase">DATA SOURCES</span>
+                              <span className="text-text-1 font-bold text-xs mt-0.5">{dataSourcesCount}</span>
+                            </div>
+                            <div className="flex flex-col border-b border-border/10 pb-1.5">
+                              <span className="text-text-3 block text-[7.5px] uppercase">ACTIVE FORECASTS</span>
+                              <span className="text-text-1 font-bold text-xs mt-0.5">{activeForecasts}</span>
+                            </div>
+                            <div className="flex flex-col border-b border-border/10 pb-1.5">
+                              <span className="text-text-3 block text-[7.5px] uppercase">SCENARIOS RUN</span>
+                              <span className="text-text-1 font-bold text-xs mt-0.5">{scenariosRun}</span>
                             </div>
                           </div>
                         </CardBody>
@@ -658,6 +667,40 @@ export default function Home() {
 
                   {/* Sidebar: What Changed Today & Line Chart */}
                   <div className="lg:col-span-4 flex flex-col gap-6">
+                    {/* Strategic Risk Monitor Card */}
+                    <Card className="border-l-[3px] border-l-accent-red">
+                      <CardHeader className="pb-1.5">
+                        <span className="text-[8.5px] font-mono text-accent-red font-bold uppercase tracking-wider block">Sovereign Threat Level</span>
+                        <h3 className="text-xs font-bold text-text-1 font-mono uppercase mt-0.5">Strategic Risk Monitor</h3>
+                      </CardHeader>
+                      <CardBody className="p-3.5 font-mono text-[10.5px] flex flex-col gap-2.5">
+                        <div className="flex justify-between items-center bg-black/25 p-2 rounded border border-border/10">
+                          <span className="text-text-2">Supply Chain Risk:</span>
+                          <Badge variant={portDisruption > 40 || railStrike > 40 ? 'red' : 'amber'} className="text-[8.5px] font-bold h-4.5">
+                            {portDisruption > 40 || railStrike > 40 ? 'CRITICAL' : portDisruption > 20 || railStrike > 20 ? 'HIGH' : 'MEDIUM'}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between items-center bg-black/25 p-2 rounded border border-border/10">
+                          <span className="text-text-2">Inflation Risk:</span>
+                          <Badge variant={activePresetShock === 's-oil' || monsoonDelay > 40 ? 'red' : 'amber'} className="text-[8.5px] font-bold h-4.5">
+                            {activePresetShock === 's-oil' || monsoonDelay > 40 ? 'HIGH' : 'MEDIUM'}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between items-center bg-black/25 p-2 rounded border border-border/10">
+                          <span className="text-text-2">Energy Risk:</span>
+                          <Badge variant={coalShortage > 50 || oilShock > 50 ? 'red' : 'amber'} className="text-[8.5px] font-bold h-4.5">
+                            {coalShortage > 50 || oilShock > 50 ? 'CRITICAL' : coalShortage > 20 || oilShock > 20 ? 'HIGH' : 'MEDIUM'}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between items-center bg-black/25 p-2 rounded border border-border/10">
+                          <span className="text-text-2">Trade Risk:</span>
+                          <Badge variant={portDisruption > 40 || activePresetShock === 's-strike' ? 'red' : 'amber'} className="text-[8.5px] font-bold h-4.5">
+                            {portDisruption > 40 || activePresetShock === 's-strike' ? 'HIGH' : 'MEDIUM'}
+                          </Badge>
+                        </div>
+                      </CardBody>
+                    </Card>
+
                     <Card className="h-fit">
                       <CardHeader>
                         <h3 className="text-xs font-bold text-text-2 font-mono uppercase tracking-wider">What Changed Today</h3>
