@@ -116,14 +116,7 @@ export interface SovereignKPI {
   status: 'optimal' | 'stable' | 'stressed' | 'critical'
 }
 
-export interface RiskRadarPoint {
-  id: string
-  name: string
-  x: number // -100 to 100 on grid
-  y: number // -100 to 100 on grid
-  severity: 'high' | 'medium' | 'low'
-  description: string
-}
+
 
 export interface RecommendedAction {
   id: string

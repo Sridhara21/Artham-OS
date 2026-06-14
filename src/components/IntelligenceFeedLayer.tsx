@@ -24,16 +24,16 @@ export default function IntelligenceFeedLayer() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
       {/* Left panel: Filters & stats - 4 cols */}
-      <div className="lg:col-span-4 flex flex-col gap-5">
+      <div className="lg:col-span-4 flex flex-col gap-5 animate-fade-rise">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <Bell className="text-accent-purple animate-swing" size={14} />
-              <h2 className="text-base font-bold text-text-1">Intelligence Feed</h2>
+              <h2 className="text-base font-bold text-text-1 font-heading">Intelligence Feed</h2>
             </div>
             <Badge variant="live" dot>Alert Wire</Badge>
           </CardHeader>
-          <CardBody className="flex flex-col gap-4 font-mono text-[11px]">
+          <CardBody className="flex flex-col gap-4 font-sans text-[11px]">
             {/* Search Input */}
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 text-text-3" size={14} />
@@ -42,19 +42,19 @@ export default function IntelligenceFeedLayer() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search alerts or regions..."
-                className="w-full bg-black/30 border border-border/40 hover:border-border-bright focus:border-accent-purple focus:outline-none rounded pl-8 pr-3 py-2 text-[10px] text-text-1 placeholder-text-4 transition-all"
+                className="w-full bg-black/30 border border-border/40 hover:border-border-bright focus:border-accent-purple focus:outline-none rounded pl-8 pr-3 py-2 text-[10px] text-text-1 placeholder-text-4 font-sans transition-all"
               />
             </div>
 
             {/* Severity Filter pills */}
             <div className="flex flex-col gap-1.5">
-              <span className="text-[9px] text-text-3 uppercase block mb-1">Filter Severity</span>
-              <div className="flex flex-wrap gap-1.5">
+              <span className="text-[9px] text-text-3 uppercase font-heading font-semibold block mb-1">Filter Severity</span>
+              <div className="flex flex-wrap gap-1.5 font-sans">
                 {['all', 'critical', 'warning', 'info'].map(sev => (
                   <button
                     key={sev}
                     onClick={() => setFilterSeverity(sev as any)}
-                    className={`py-1 px-2.5 rounded text-[9px] font-bold border transition-all ${
+                    className={`py-1 px-2.5 rounded text-[9px] font-semibold border transition-all ${
                       filterSeverity === sev
                         ? sev === 'critical'
                           ? 'bg-accent-red/10 border-accent-red text-accent-red'
@@ -74,15 +74,15 @@ export default function IntelligenceFeedLayer() {
 
             {/* Sector Filter pills */}
             <div className="flex flex-col gap-1.5 mt-2">
-              <span className="text-[9px] text-text-3 uppercase block mb-1">Filter Sector</span>
-              <div className="flex flex-wrap gap-1.5">
+              <span className="text-[9px] text-text-3 uppercase font-heading font-semibold block mb-1">Filter Sector</span>
+              <div className="flex flex-wrap gap-1.5 font-sans">
                 {sectors.map(sec => (
                   <button
                     key={sec}
                     onClick={() => setFilterSector(sec)}
                     className={`py-1 px-2.5 rounded text-[9px] border transition-all ${
                       filterSector === sec
-                        ? 'bg-accent-cyan/10 border-accent-cyan text-accent-cyan font-bold shadow-glow-mint'
+                        ? 'bg-accent-cyan/10 border-accent-cyan text-accent-cyan font-semibold shadow-glow-mint'
                         : 'bg-black/20 border-border/20 text-text-3 hover:text-text-2'
                     }`}
                   >
@@ -103,10 +103,10 @@ export default function IntelligenceFeedLayer() {
       <Card className="lg:col-span-8 flex flex-col min-h-[480px]">
         <CardHeader className="border-b border-border/20 pb-3 flex justify-between items-center w-full">
           <div>
-            <h3 className="text-xs font-bold text-text-1 font-mono uppercase">Live Alert Wire Ticker</h3>
-            <p className="text-[9px] text-text-3 font-mono mt-0.5">Streaming real-time economic telemetry flags</p>
+            <h3 className="text-xs font-bold text-text-1 font-heading uppercase">Live Alert Wire Ticker</h3>
+            <p className="text-[9px] text-text-3 font-sans mt-0.5">Streaming real-time economic telemetry flags</p>
           </div>
-          <Badge variant="purple">{filteredAlerts.length} Active Records</Badge>
+          <Badge variant="purple" className="font-mono font-medium">{filteredAlerts.length} Active Records</Badge>
         </CardHeader>
         <CardBody className="p-4 flex-1 overflow-y-auto max-h-[420px] flex flex-col gap-3 pr-2">
           {filteredAlerts.length > 0 ? (
@@ -127,16 +127,16 @@ export default function IntelligenceFeedLayer() {
                 </div>
 
                 {/* Main body text */}
-                <div className="flex-1 font-mono text-[11px] leading-relaxed">
-                  <p className="text-text-1 mb-1.5">{alert.text}</p>
-                  <div className="flex flex-wrap items-center gap-2.5 text-[9px] text-text-3 font-semibold">
-                    <div>SECTOR: <span className="text-accent-cyan font-bold uppercase">{alert.sector}</span></div>
+                <div className="flex-1 font-sans text-[11px] leading-relaxed">
+                  <p className="text-text-1 mb-1.5 font-medium">{alert.text}</p>
+                  <div className="flex flex-wrap items-center gap-2.5 text-[9px] text-text-3 font-heading font-semibold">
+                    <div>SECTOR: <span className="text-accent-cyan font-semibold uppercase">{alert.sector}</span></div>
                     <span className="w-1 h-1 rounded-full bg-text-4" />
                     <div>REGION: <span className="text-text-2 uppercase">{alert.region}</span></div>
                     <span className="w-1 h-1 rounded-full bg-text-4" />
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 font-heading">
                       CONFIDENCE:
-                      <Badge variant={alert.confidence > 90 ? 'green' : 'amber'} className="text-[8px] px-1 py-0 h-4">
+                      <Badge variant={alert.confidence > 90 ? 'green' : 'amber'} className="text-[8px] font-mono font-medium px-1 py-0 h-4">
                         {alert.confidence}%
                       </Badge>
                     </div>
@@ -156,7 +156,7 @@ export default function IntelligenceFeedLayer() {
               </div>
             ))
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-text-3 py-24 gap-2 font-mono text-xs">
+            <div className="h-full flex flex-col items-center justify-center text-text-3 py-24 gap-2 font-sans text-xs">
               <ShieldAlert size={28} className="text-text-3/40 animate-pulse" />
               <span>No alerts found matching current filters.</span>
             </div>

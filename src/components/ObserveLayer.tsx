@@ -6,6 +6,22 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { useARTHAMStore } from '@/lib/store'
 
+const STATE_BOUNDARIES = [
+  { id: 'in-jk', name: 'Jammu & Kashmir & Ladakh', path: 'M 90,40 L 110,35 L 125,65 L 115,80 L 95,95 L 88,110 L 90,40 Z', region: 'North' },
+  { id: 'in-pb', name: 'Punjab & Haryana & Delhi', path: 'M 88,110 L 95,95 L 115,80 L 130,95 L 140,110 L 115,120 L 95,120 L 88,110 Z', region: 'North' },
+  { id: 'in-rj', name: 'Rajasthan', path: 'M 88,110 L 95,120 L 115,120 L 110,180 L 80,180 L 70,150 L 95,140 L 88,110 Z', region: 'West' },
+  { id: 'in-gj', name: 'Gujarat', path: 'M 80,180 L 110,180 L 115,220 L 75,200 L 45,215 L 32,238 L 50,270 L 68,260 L 80,180 Z', region: 'West' },
+  { id: 'in-up', name: 'Uttar Pradesh & Bihar', path: 'M 130,95 L 150,90 L 160,110 L 140,120 L 150,150 L 175,150 L 190,165 L 210,150 L 220,180 L 180,200 L 140,150 L 140,110 L 130,95 Z', region: 'North-Central' },
+  { id: 'in-ne', name: 'Northeast States', path: 'M 210,150 L 250,150 L 290,120 L 310,130 L 300,165 L 260,175 L 250,210 L 245,185 L 210,150 Z', region: 'East' },
+  { id: 'in-mp', name: 'Madhya Pradesh & Chhattisgarh', path: 'M 115,120 L 140,110 L 140,150 L 180,200 L 190,210 L 160,250 L 120,240 L 110,180 L 115,120 Z', region: 'Central' },
+  { id: 'in-mh', name: 'Maharashtra', path: 'M 110,180 L 120,240 L 140,245 L 100,285 L 85,280 L 68,310 L 80,180 Z', region: 'West' },
+  { id: 'in-wb', name: 'West Bengal & Odisha', path: 'M 180,200 L 220,180 L 245,185 L 250,210 L 270,230 L 275,255 L 275,265 L 255,275 L 210,300 L 180,280 L 160,250 L 190,210 L 180,200 Z', region: 'East' },
+  { id: 'in-ka', name: 'Karnataka & Goa', path: 'M 68,310 L 85,280 L 100,285 L 140,245 L 150,290 L 125,350 L 95,360 L 65,335 L 68,310 Z', region: 'South' },
+  { id: 'in-ap', name: 'Andhra Pradesh & Telangana', path: 'M 140,245 L 160,250 L 180,280 L 210,300 L 205,330 L 200,360 L 155,440 L 155,345 L 125,350 L 150,290 L 140,245 Z', region: 'South' },
+  { id: 'in-kl', name: 'Kerala', path: 'M 95,360 L 125,350 L 130,400 L 120,410 L 95,360 Z', region: 'South' },
+  { id: 'in-tn', name: 'Tamil Nadu', path: 'M 125,350 L 155,345 L 155,440 L 142,475 L 138,475 L 120,410 L 130,400 L 125,350 Z', region: 'South' }
+]
+
 export default function ObserveLayer() {
   const { 
     oilShock, portDisruption, monsoonDelay, railStrike, floodImpact, coalShortage,
@@ -14,6 +30,7 @@ export default function ObserveLayer() {
   
   const [activeLayer, setActiveLayer] = useState<'corridors' | 'ports' | 'mandis'>('corridors')
   const [selectedNode, setSelectedNode] = useState<{ type: string; name: string; details: any } | null>(null)
+  const [hoveredStateId, setHoveredStateId] = useState<string | null>(null)
 
   // Recalculate utilization based on slider changes
   const dynamicCorridors = CORRIDOR_DATA.map(c => {
@@ -47,25 +64,25 @@ export default function ObserveLayer() {
   })
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise select-none">
-      <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-2 mb-2">
-        <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">TWIN // Where is it happening?</span>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 animate-fade-rise select-none">
+      <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-1.5 mb-1">
+        <span className="text-accent-purple font-heading text-[9px] uppercase tracking-widest leading-none font-semibold">TWIN // Where is it happening?</span>
       </div>
       {/* Left controls and telemetry metrics - 4 cols */}
-      <div className="lg:col-span-4 flex flex-col gap-5">
+      <div className="lg:col-span-4 flex flex-col gap-4">
         <Card>
-          <CardHeader>
+          <CardHeader className="py-2.5 px-4">
             <div>
-              <h2 className="text-base font-bold text-text-1">ARTHAM TWIN™</h2>
-              <p className="text-[11px] text-text-3 font-mono mt-0.5">National Physical Economy Digital Twin</p>
+              <h2 className="text-sm font-bold text-text-1">ARTHAM TWIN™</h2>
+              <p className="text-[10px] text-text-3 font-sans mt-0.5">National Physical Economy Digital Twin</p>
             </div>
             <Badge variant="live" dot>LIVE FLOWS</Badge>
           </CardHeader>
-          <CardBody className="font-mono">
-            <div className="flex flex-col gap-2 mb-4">
+          <CardBody className="font-sans p-4">
+            <div className="flex flex-col gap-1.5 mb-3">
               <button
                 onClick={() => { setActiveLayer('corridors'); setSelectedNode(null) }}
-                className={`w-full py-2 px-3 rounded text-left text-xs font-semibold border transition-all flex items-center justify-between ${
+                className={`w-full py-2 px-3 rounded text-left text-[11px] font-semibold border transition-all flex items-center justify-between ${
                   activeLayer === 'corridors'
                     ? 'bg-accent-purple/10 border-accent-purple text-accent-purple'
                     : 'bg-black/20 border-border/40 text-text-3 hover:text-text-2 hover:border-border'
@@ -77,7 +94,7 @@ export default function ObserveLayer() {
 
               <button
                 onClick={() => { setActiveLayer('ports'); setSelectedNode(null) }}
-                className={`w-full py-2 px-3 rounded text-left text-xs font-semibold border transition-all flex items-center justify-between ${
+                className={`w-full py-2 px-3 rounded text-left text-[11px] font-semibold border transition-all flex items-center justify-between ${
                   activeLayer === 'ports'
                     ? 'bg-accent-cyan/10 border-accent-cyan text-accent-cyan'
                     : 'bg-black/20 border-border/40 text-text-3 hover:text-text-2 hover:border-border'
@@ -89,7 +106,7 @@ export default function ObserveLayer() {
 
               <button
                 onClick={() => { setActiveLayer('mandis'); setSelectedNode(null) }}
-                className={`w-full py-2 px-3 rounded text-left text-xs font-semibold border transition-all flex items-center justify-between ${
+                className={`w-full py-2 px-3 rounded text-left text-[11px] font-semibold border transition-all flex items-center justify-between ${
                   activeLayer === 'mandis'
                     ? 'bg-accent-mint/10 border-accent-mint text-accent-mint'
                     : 'bg-black/20 border-border/40 text-text-3 hover:text-text-2 hover:border-border'
@@ -100,59 +117,77 @@ export default function ObserveLayer() {
               </button>
             </div>
 
-            <p className="text-[10px] text-text-3 leading-relaxed border-t border-border/20 pt-3">
-              This layout charts physical trade corridor utilization, maritime shipping lanes, and localized mandi prices to represent real-time economic health.
+            <p className="text-[9.5px] text-text-3 leading-relaxed border-t border-border/20 pt-2.5">
+              This layout charts physical trade corridor utilization, maritime shipping lanes, and localized mandi prices to represent real-time economic health. Click states on the map for regional status.
             </p>
           </CardBody>
         </Card>
 
         {/* Selected telemetry data box */}
-        <Card className="flex-1 font-mono">
-          <CardHeader>
-            <h3 className="text-xs font-bold text-text-2 uppercase tracking-widest">
+        <Card className="flex-1">
+          <CardHeader className="py-2.5 px-4">
+            <h3 className="text-[11px] font-semibold text-text-2 uppercase tracking-widest font-heading">
               {selectedNode ? `${selectedNode.type} Details` : 'Telemetry Console'}
             </h3>
           </CardHeader>
-          <CardBody className="flex flex-col justify-center min-h-[220px]">
+          <CardBody className="flex flex-col justify-center min-h-[190px] p-4 font-sans text-xs">
             {selectedNode ? (
-              <div className="animate-fade-rise flex flex-col gap-4">
+              <div className="animate-fade-rise flex flex-col gap-3">
                 <div>
-                  <h4 className="text-sm font-extrabold text-text-1">{selectedNode.name}</h4>
-                  <p className="text-[9px] text-text-3">{selectedNode.type === 'CORRIDOR' ? 'Infrastructure Pipeline' : 'Telemetry Node'}</p>
+                  <h4 className="text-xs font-semibold text-text-1 font-heading">{selectedNode.name}</h4>
+                  <p className="text-[8.5px] text-text-3 font-heading uppercase tracking-wide">{selectedNode.type === 'CORRIDOR' ? 'Infrastructure Pipeline' : selectedNode.type === 'STATE' ? 'Regional Economy' : 'Telemetry Node'}</p>
                 </div>
+
+                {selectedNode.type === 'STATE' && (
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-text-3 text-[8px] mb-1 font-heading uppercase tracking-wider">REGIONAL HEALTH</div>
+                      <div className={`text-sm font-semibold font-mono ${selectedNode.details.status === 'CRITICAL' ? 'text-accent-red animate-pulse' : selectedNode.details.status === 'STRESSED' ? 'text-accent-amber' : 'text-accent-green'}`}>
+                        {selectedNode.details.economicHealth}
+                      </div>
+                    </div>
+                    <div className="bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-text-3 text-[8px] mb-1 font-heading uppercase tracking-wider">REGION ZONE</div>
+                      <div className="text-sm font-semibold text-accent-cyan truncate">{selectedNode.details.region}</div>
+                    </div>
+                    <div className="col-span-2 bg-black/20 p-2 rounded border border-border/20">
+                      <span className="text-[9px] text-text-2 font-heading">Primary Sector: <span className="font-sans font-medium text-text-1">{selectedNode.details.primaryIndustry}</span></span>
+                    </div>
+                  </div>
+                )}
 
                 {selectedNode.type === 'PORT' && (
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-black/20 p-2.5 rounded border border-border/20">
-                      <div className="text-text-3 text-[8px] mb-1">CONGESTION LEVEL</div>
-                      <div className={`text-base font-bold ${selectedNode.details.congestionPct > 70 ? 'text-accent-red' : 'text-accent-green'}`}>
+                    <div className="bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-text-3 text-[8px] mb-1 font-heading uppercase tracking-wider">CONGESTION LEVEL</div>
+                      <div className={`text-sm font-semibold font-mono ${selectedNode.details.congestionPct > 70 ? 'text-accent-red' : 'text-accent-green'}`}>
                         {selectedNode.details.congestionPct}%
                       </div>
                     </div>
-                    <div className="bg-black/20 p-2.5 rounded border border-border/20">
-                      <div className="text-text-3 text-[8px] mb-1">DWELL CAPACITY</div>
-                      <div className="text-base font-bold text-accent-cyan">{selectedNode.details.dwellHours} hrs</div>
+                    <div className="bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-text-3 text-[8px] mb-1 font-heading uppercase tracking-wider">DWELL CAPACITY</div>
+                      <div className="text-sm font-semibold font-mono text-accent-cyan">{selectedNode.details.dwellHours} hrs</div>
                     </div>
-                    <div className="col-span-2 bg-black/20 p-2.5 rounded border border-border/20 flex items-center gap-2">
-                      <AlertTriangle size={14} className={selectedNode.details.status === 'CRITICAL' ? 'text-accent-red animate-pulse' : 'text-accent-amber'} />
-                      <span className="text-[9.5px] text-text-2 font-semibold">Status flagged as: {selectedNode.details.status}</span>
+                    <div className="col-span-2 bg-black/20 p-2 rounded border border-border/20 flex items-center gap-2">
+                      <AlertTriangle size={12} className={selectedNode.details.status === 'CRITICAL' ? 'text-accent-red animate-pulse' : 'text-accent-amber'} />
+                      <span className="text-[9px] text-text-2 font-heading">Status flagged as: <span className={`font-semibold ${selectedNode.details.status === 'CRITICAL' ? 'text-accent-red' : 'text-accent-amber'}`}>{selectedNode.details.status}</span></span>
                     </div>
                   </div>
                 )}
 
                 {selectedNode.type === 'CORRIDOR' && (
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-black/20 p-2.5 rounded border border-border/20">
-                      <div className="text-text-3 text-[8px] mb-1">CAPACITY INDEX</div>
-                      <div className="text-base font-bold text-accent-purple">{selectedNode.details.utilizationPct}%</div>
+                    <div className="bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-text-3 text-[8px] mb-1 font-heading uppercase tracking-wider">CAPACITY INDEX</div>
+                      <div className="text-sm font-semibold font-mono text-accent-purple">{selectedNode.details.utilizationPct}%</div>
                     </div>
-                    <div className="bg-black/20 p-2.5 rounded border border-border/20">
-                      <div className="text-text-3 text-[8px] mb-1">PIPELINE VELOCITY</div>
-                      <div className="text-base font-bold text-accent-green">{selectedNode.details.speedKmph} km/h</div>
+                    <div className="bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-text-3 text-[8px] mb-1 font-heading uppercase tracking-wider">PIPELINE VELOCITY</div>
+                      <div className="text-sm font-semibold font-mono text-accent-green">{selectedNode.details.speedKmph} km/h</div>
                     </div>
-                    <div className="col-span-2 bg-black/20 p-2.5 rounded border border-border/20">
-                      <div className="text-[8px] text-text-3 uppercase font-bold mb-1">Downstream Risk Attribute</div>
-                      <span className={`text-[10px] font-bold ${selectedNode.details.utilizationPct > 80 ? 'text-accent-red' : 'text-accent-green'}`}>
+                    <div className="col-span-2 bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-[8px] text-text-3 uppercase font-semibold font-heading mb-0.5 tracking-wider">Downstream Risk Attribute</div>
+                      <span className={`text-[9.5px] font-semibold font-heading ${selectedNode.details.utilizationPct > 80 ? 'text-accent-red' : 'text-accent-green'}`}>
                         RISK PROFILE: {selectedNode.details.utilizationPct > 80 ? 'ELEVATED' : 'MINIMAL'}
                       </span>
                     </div>
@@ -161,26 +196,26 @@ export default function ObserveLayer() {
 
                 {selectedNode.type === 'MANDI' && (
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-black/20 p-2.5 rounded border border-border/20">
-                      <div className="text-text-3 text-[8px] mb-1">PRICE ANOMALY</div>
-                      <div className={`text-base font-bold ${selectedNode.details.priceAnomalyPct > 0 ? 'text-accent-red' : 'text-accent-green'}`}>
+                    <div className="bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-text-3 text-[8px] mb-1 font-heading uppercase tracking-wider">PRICE ANOMALY</div>
+                      <div className={`text-sm font-semibold font-mono ${selectedNode.details.priceAnomalyPct > 0 ? 'text-accent-red' : 'text-accent-green'}`}>
                         {selectedNode.details.priceAnomalyPct > 0 ? '+' : ''}{selectedNode.details.priceAnomalyPct}%
                       </div>
                     </div>
-                    <div className="bg-black/20 p-2.5 rounded border border-border/20">
-                      <div className="text-text-3 text-[8px] mb-1">DAILY VOLUME</div>
-                      <div className="text-base font-bold text-text-1">{selectedNode.details.volumeTonnes} T</div>
+                    <div className="bg-black/20 p-2 rounded border border-border/20">
+                      <div className="text-text-3 text-[8px] mb-1 font-heading uppercase tracking-wider">DAILY VOLUME</div>
+                      <div className="text-sm font-semibold font-mono text-text-1">{selectedNode.details.volumeTonnes} T</div>
                     </div>
-                    <div className="col-span-2 bg-black/20 p-2.5 rounded border border-border/20">
-                      <span className="text-[10px] text-text-2">Primary Crop: {selectedNode.details.crop} ({selectedNode.details.state})</span>
+                    <div className="col-span-2 bg-black/20 p-2 rounded border border-border/20">
+                      <span className="text-[9.5px] text-text-2 font-heading">Primary Crop: <span className="font-semibold text-text-1">{selectedNode.details.crop} ({selectedNode.details.state})</span></span>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-center py-6 text-text-3 text-[10px] flex flex-col items-center gap-2">
-                <HelpCircle size={18} className="text-text-3" />
-                <span>Select a corridor or node on the map to stream telemetry logs.</span>
+              <div className="text-center py-4 text-text-3 text-[9.5px] flex flex-col items-center gap-1.5 font-sans">
+                <HelpCircle size={16} className="text-text-3" />
+                <span>Select a state, corridor, or node on the map to stream telemetry logs.</span>
               </div>
             )}
           </CardBody>
@@ -188,12 +223,12 @@ export default function ObserveLayer() {
       </div>
 
       {/* Map display panel - 8 cols */}
-      <Card className="lg:col-span-8 flex flex-col items-center justify-center p-6 bg-black/40 overflow-hidden relative min-h-[500px]">
+      <Card className="lg:col-span-8 flex flex-col items-center justify-center p-4 bg-black/40 overflow-hidden relative min-h-[440px]">
         {/* Map Header Status */}
-        <div className="absolute top-4 left-4 z-20 flex flex-col font-mono text-[9px] text-text-3 gap-1">
+        <div className="absolute top-4 left-4 z-20 flex flex-col font-sans text-[9px] text-text-3 gap-0.5">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
-            <span className="font-bold text-text-1">ECONOMIC FLOW LAYER ACTIVE</span>
+            <span className="font-heading font-semibold text-text-1">ECONOMIC FLOW LAYER ACTIVE</span>
           </div>
           <div>PROJECTION: Abstract Cylindrical Twin Map</div>
         </div>
@@ -201,15 +236,65 @@ export default function ObserveLayer() {
         {/* The Map Canvas */}
         <svg
           viewBox="0 0 350 500"
-          className="w-full max-w-[420px] aspect-[7/10] relative z-10 transition-all select-none"
+          className="w-full max-w-[390px] aspect-[7/10] relative z-10 transition-all select-none"
         >
+          {/* India National Boundary Outline */}
           <path
             d="M 90,40 L 110,35 L 125,65 L 115,80 L 130,95 L 150,90 L 160,110 L 140,120 L 150,150 L 175,150 L 190,165 L 210,150 L 250,150 L 290,120 L 310,130 L 300,165 L 260,175 L 250,210 L 270,230 L 275,255 L 275,265 L 255,275 L 210,300 L 205,330 L 200,360 L 155,440 L 142,475 L 138,475 L 120,410 L 95,360 L 65,335 L 68,310 L 85,280 L 50,270 L 32,238 L 45,215 L 75,200 L 80,180 L 70,150 L 95,140 L 88,110 L 90,40 Z"
-            fill="rgba(175, 169, 236, 0.03)"
-            stroke="rgba(175, 169, 236, 0.25)"
+            fill="none"
+            stroke="rgba(175, 169, 236, 0.35)"
             strokeWidth="1.5"
             strokeLinejoin="round"
+            className="pointer-events-none"
           />
+          {/* State Boundaries Overlay */}
+          <g>
+            {STATE_BOUNDARIES.map((state) => {
+              const isHovered = hoveredStateId === state.id
+              // Determine regional economic health based on state/region and active shocks
+              let healthStatus = 'OPTIMAL'
+              let highlightColor = 'rgba(175, 169, 236, 0.18)' // standard default
+              if (state.id === 'in-gj' && portDisruption > 40) {
+                healthStatus = 'CRITICAL'
+                highlightColor = 'rgba(255, 107, 107, 0.35)'
+              } else if (state.id === 'in-mh' && portDisruption > 20) {
+                healthStatus = 'STRESSED'
+                highlightColor = 'rgba(255, 179, 71, 0.28)'
+              } else if (state.id === 'in-up' && monsoonDelay > 40) {
+                healthStatus = 'STRESSED'
+                highlightColor = 'rgba(255, 179, 71, 0.28)'
+              } else if (state.id === 'in-ap' && railStrike > 40) {
+                healthStatus = 'CRITICAL'
+                highlightColor = 'rgba(255, 107, 107, 0.35)'
+              }
+              
+              return (
+                <path
+                  key={state.id}
+                  d={state.path}
+                  fill={isHovered ? 'rgba(175, 169, 236, 0.12)' : 'rgba(175, 169, 236, 0.02)'}
+                  stroke={isHovered ? 'rgba(175, 169, 236, 0.60)' : highlightColor}
+                  strokeWidth={isHovered ? '1.5' : '1'}
+                  strokeLinejoin="round"
+                  className="transition-all duration-300 cursor-pointer"
+                  onMouseEnter={() => setHoveredStateId(state.id)}
+                  onMouseLeave={() => setHoveredStateId(null)}
+                  onClick={() => {
+                    setSelectedNode({
+                      type: 'STATE',
+                      name: state.name,
+                      details: {
+                        region: state.region,
+                        status: healthStatus,
+                        economicHealth: healthStatus === 'OPTIMAL' ? '98%' : healthStatus === 'STRESSED' ? '82%' : '64%',
+                        primaryIndustry: state.region === 'West' ? 'Heavy Manufacturing & Shipping' : state.region === 'South' ? 'Agri-trade & Tech Hubs' : 'Wheat & Pulses Cultivation'
+                      }
+                    })
+                  }}
+                />
+              )
+            })}
+          </g>
           {/* DFC Corridors Layer */}
           {activeLayer === 'corridors' && (
             <g className="animate-fade-rise">
@@ -261,15 +346,15 @@ export default function ObserveLayer() {
               ))}
 
               {/* Economic meaning overlays directly on map */}
-              <g className="font-mono text-[6.5px] fill-text-2 pointer-events-none select-none font-bold">
-                <text x="50" y="150" fill={dynamicCorridors[0].utilizationPct > 80 ? '#FF6B6B' : '#AFA9EC'}>
-                  WESTERN DFC: {dynamicCorridors[0].utilizationPct}% | {dynamicCorridors[0].utilizationPct > 80 ? 'ELEVATED RISK' : 'MINIMAL'}
+              <g className="fill-text-2 pointer-events-none select-none text-[6.5px]">
+                <text x="50" y="150" fill={dynamicCorridors[0].utilizationPct > 80 ? '#FF6B6B' : '#AFA9EC'} className="font-heading font-semibold">
+                  WESTERN DFC: <tspan className="font-mono">{dynamicCorridors[0].utilizationPct}%</tspan> | {dynamicCorridors[0].utilizationPct > 80 ? 'ELEVATED RISK' : 'MINIMAL'}
                 </text>
-                <text x="145" y="110" fill={dynamicCorridors[1].utilizationPct > 70 ? '#FF6B6B' : '#AFA9EC'}>
-                  EASTERN DFC: {dynamicCorridors[1].utilizationPct}% | {dynamicCorridors[1].utilizationPct > 70 ? 'STRESSED' : 'MINIMAL'}
+                <text x="145" y="110" fill={dynamicCorridors[1].utilizationPct > 70 ? '#FF6B6B' : '#AFA9EC'} className="font-heading font-semibold">
+                  EASTERN DFC: <tspan className="font-mono">{dynamicCorridors[1].utilizationPct}%</tspan> | {dynamicCorridors[1].utilizationPct > 70 ? 'STRESSED' : 'MINIMAL'}
                 </text>
-                <text x="100" y="390" fill="#AFA9EC">
-                  SOUTHERN ROAD CORRIDOR: {dynamicCorridors[2].utilizationPct}%
+                <text x="100" y="390" fill="#AFA9EC" className="font-heading font-semibold">
+                  SOUTHERN ROAD CORRIDOR: <tspan className="font-mono">{dynamicCorridors[2].utilizationPct}%</tspan>
                 </text>
               </g>
             </g>
@@ -290,11 +375,11 @@ export default function ObserveLayer() {
                     transform={`rotate(${v.angle || 0}, ${v.x}, ${v.y})`}
                   />
                   {/* Text labels next to vessel */}
-                  <text x={v.x + 6} y={v.y + 1} className="font-mono text-[5px] fill-text-3 font-semibold pointer-events-none select-none">
+                  <text x={v.x + 6} y={v.y + 1} className="font-sans text-[5px] fill-text-3 font-semibold pointer-events-none select-none">
                     {v.name} ({v.cargo})
                   </text>
                   {/* Floating load indicators and risk status tags */}
-                  <text x={v.x + 6} y={v.y + 6} className="font-mono text-[4px] fill-accent-cyan font-bold pointer-events-none select-none">
+                  <text x={v.x + 6} y={v.y + 6} className="font-mono text-[4px] fill-accent-cyan font-semibold pointer-events-none select-none">
                     Container Vol: {v.id === 'v-1' ? '+14%' : v.id === 'v-2' ? '+8%' : '+11%'} | Risk: {v.id === 'v-1' ? 'MEDIUM' : 'LOW'}
                   </text>
                 </g>
@@ -322,8 +407,8 @@ export default function ObserveLayer() {
                       className={isCritical ? 'fill-accent-red animate-pulse' : 'fill-accent-cyan'}
                     />
                     {/* Anchor icon overlay label */}
-                    <text x={p.x + 7} y={p.y + 2.5} className="font-mono text-[5.5px] fill-accent-cyan bg-black/60 font-bold">
-                      {p.id} ({p.congestionPct}%)
+                    <text x={p.x + 7} y={p.y + 2.5} className="font-heading text-[5.5px] fill-accent-cyan font-bold">
+                      {p.id} (<tspan className="font-mono font-semibold">{p.congestionPct}%</tspan>)
                     </text>
                   </g>
                 )
@@ -358,10 +443,10 @@ export default function ObserveLayer() {
                       className={isStressed ? 'fill-accent-red animate-pulse' : 'fill-accent-green'}
                     />
                     {/* Render Mandi Labels and Live Weather badges */}
-                    <text x={m.x + 7} y={m.y - 1} className="font-mono text-[5px] fill-text-2 bg-black/40 pointer-events-none select-none">
+                    <text x={m.x + 7} y={m.y - 1} className="font-sans text-[5.5px] fill-text-2 font-medium pointer-events-none select-none">
                       {m.name.replace(' Mandi', '')}
                     </text>
-                    <text x={m.x + 7} y={m.y + 4.5} className="font-mono text-[4.5px] fill-accent-cyan bg-black/40 font-semibold pointer-events-none select-none">
+                    <text x={m.x + 7} y={m.y + 4.5} className="font-mono text-[4.5px] fill-accent-cyan font-semibold pointer-events-none select-none">
                       {temp}°C
                     </text>
                   </g>
@@ -372,7 +457,7 @@ export default function ObserveLayer() {
         </svg>
 
         {/* Legend */}
-        <div className="absolute bottom-4 left-4 z-20 flex gap-3 text-[9px] font-mono text-text-3">
+        <div className="absolute bottom-4 left-4 z-20 flex gap-3 text-[9px] font-sans font-medium text-text-3">
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-accent-green" />
             <span>Optimal</span>

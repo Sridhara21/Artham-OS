@@ -53,33 +53,33 @@ export default function ForecastLayer() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise select-none">
       <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-2 mb-2">
-        <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">FORECAST // What happens next?</span>
+        <span className="text-accent-purple font-heading text-[9px] uppercase tracking-widest leading-none font-semibold">FORECAST // What happens next?</span>
       </div>
       {/* Left panel: Milestone Timeline checklist - 4 cols */}
-      <div className="lg:col-span-4 flex flex-col gap-5">
+      <div className="lg:col-span-4 flex flex-col gap-5 animate-fade-rise">
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <Clock className="text-accent-purple" size={14} />
-              <h2 className="text-base font-bold text-text-1">Economic Outlook</h2>
+              <h2 className="text-base font-bold text-text-1 font-heading">Economic Outlook</h2>
             </div>
             <Badge variant="purple">FORECAST HORIZON</Badge>
           </CardHeader>
-          <CardBody className="font-mono">
-            <span className="text-[9px] text-text-3 uppercase block tracking-wider mb-2.5">Select Forecast Milestone</span>
+          <CardBody className="font-sans">
+            <span className="text-[9px] text-text-3 uppercase font-heading font-semibold block tracking-wider mb-2.5">Select Forecast Milestone</span>
             <div className="flex flex-col gap-2">
               {FORECAST_DATA.map(d => (
                 <button
                   key={d.period}
                   onClick={() => setSelectedMilestone(d.period)}
-                  className={`w-full py-2.5 px-3 rounded text-left text-xs font-semibold border transition-all flex items-center justify-between ${
+                  className={`w-full py-2.5 px-3 rounded text-left text-xs font-semibold font-heading border transition-all flex items-center justify-between ${
                     selectedMilestone === d.period
                       ? 'bg-accent-purple/10 border-accent-purple text-accent-purple font-bold shadow-glow-purple'
                       : 'bg-black/20 border-border/40 text-text-3 hover:text-text-2 hover:border-border'
                   }`}
                 >
                   <span>{d.period} Outlook</span>
-                  <Badge variant={selectedMilestone === d.period ? 'purple' : 'ghost'}>
+                  <Badge variant={selectedMilestone === d.period ? 'purple' : 'ghost'} className="font-mono font-medium text-[8px]">
                     Conf: {d.confidence}%
                   </Badge>
                 </button>
@@ -94,9 +94,9 @@ export default function ForecastLayer() {
 
         {/* Signal Provenance List */}
         <Card>
-          <CardBody className="p-4 flex flex-col gap-3 font-mono text-[11px]">
+          <CardBody className="p-4 flex flex-col gap-3 font-sans text-[11px]">
             <div className="border-b border-border/15 pb-2">
-              <span className="text-accent-purple font-extrabold uppercase text-[9px] block mb-0.5 flex items-center gap-1">
+              <span className="text-accent-purple font-heading font-semibold uppercase text-[9px] block mb-0.5 flex items-center gap-1">
                 <ShieldCheck size={11} /> Signal Provenance
               </span>
               <span className="text-[8px] text-text-3 block font-semibold">Live variables driving this model:</span>
@@ -116,89 +116,89 @@ export default function ForecastLayer() {
         {/* Reusable Explainability Panel: Why Artham Believes This */}
         <Card className="border-l-[3px] border-l-accent-purple shadow-glow-purple">
           <CardHeader className="pb-1.5">
-            <span className="text-[8.5px] font-mono text-accent-purple font-bold uppercase tracking-wider block">Explainability Ledger</span>
-            <h3 className="text-xs font-bold text-text-1 font-mono uppercase mt-0.5">Why ARTHAM Believes This</h3>
+            <span className="text-[8px] font-heading text-accent-purple font-semibold uppercase tracking-wider block">Explainability Ledger</span>
+            <h3 className="text-xs font-bold text-text-1 font-heading uppercase mt-0.5">Why ARTHAM Believes This</h3>
           </CardHeader>
-          <CardBody className="p-3.5 font-mono text-[10px] flex flex-col gap-3">
+          <CardBody className="p-3.5 font-sans text-[10px] flex flex-col gap-3">
             <div>
-              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Primary Signals</span>
+              <span className="text-[8px] text-text-3 block uppercase font-heading font-semibold mb-1">Primary Signals</span>
               <div className="flex flex-wrap gap-1">
-                <Badge variant="purple" className="text-[8px] px-1 py-0.5">Red Sea Disruption</Badge>
-                <Badge variant="purple" className="text-[8px] px-1 py-0.5">Brent Crude Spike</Badge>
+                <Badge variant="purple" className="text-[8px] font-mono font-medium px-1 py-0.5">Red Sea Disruption</Badge>
+                <Badge variant="purple" className="text-[8px] font-mono font-medium px-1 py-0.5">Brent Crude Spike</Badge>
               </div>
             </div>
             <div>
-              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Secondary Signals</span>
+              <span className="text-[8px] text-text-3 block uppercase font-heading font-semibold mb-1">Secondary Signals</span>
               <div className="flex flex-wrap gap-1">
-                <Badge variant="ghost" className="text-[8px] border border-border/20 px-1 py-0.5">Port Congestion</Badge>
-                <Badge variant="ghost" className="text-[8px] border border-border/20 px-1 py-0.5">Weather Delay</Badge>
+                <Badge variant="ghost" className="text-[8px] font-mono font-medium border border-border/20 px-1 py-0.5">Port Congestion</Badge>
+                <Badge variant="ghost" className="text-[8px] font-mono font-medium border border-border/20 px-1 py-0.5">Weather Delay</Badge>
               </div>
             </div>
             <div>
-              <span className="text-[8px] text-text-3 block uppercase font-bold mb-1">Affected Sectors</span>
+              <span className="text-[8px] text-text-3 block uppercase font-heading font-semibold mb-1">Affected Sectors</span>
               <div className="flex flex-wrap gap-1">
-                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Logistics</Badge>
-                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Energy</Badge>
-                <Badge variant="cyan" className="text-[8px] px-1 py-0.5">Manufacturing</Badge>
+                <Badge variant="cyan" className="text-[8px] font-mono font-medium px-1 py-0.5">Logistics</Badge>
+                <Badge variant="cyan" className="text-[8px] font-mono font-medium px-1 py-0.5">Energy</Badge>
+                <Badge variant="cyan" className="text-[8px] font-mono font-medium px-1 py-0.5">Manufacturing</Badge>
               </div>
             </div>
             <div className="bg-black/35 p-2 rounded border border-border/10 text-[9.5px]">
-              <span className="text-[8px] text-text-3 block uppercase font-bold mb-0.5">Expected Outcome</span>
-              <span className="text-text-2 leading-relaxed">Import Inflation Risk passes through to wholesale supply indexes within 15–30 days.</span>
+              <span className="text-[8px] text-text-3 block uppercase font-heading font-semibold mb-0.5">Expected Outcome</span>
+              <span className="text-text-2 leading-relaxed">Import Inflation Risk passes through to wholesale supply indexes within <span className="font-mono font-medium">15–30</span> days.</span>
             </div>
           </CardBody>
         </Card>
       </div>
 
       {/* Right panel: Predictions Grid Scenarios - 8 cols */}
-      <Card className="lg:col-span-8 flex flex-col min-h-[460px] font-mono">
+      <Card className="lg:col-span-8 flex flex-col min-h-[460px]">
         <CardHeader className="border-b border-border/10 pb-3 flex justify-between items-center w-full">
           <div>
-            <h3 className="text-xs font-bold text-text-1 uppercase">Economic Forecast Case Matrix ({selectedMilestone})</h3>
-            <p className="text-[9px] text-text-3 mt-0.5">Three-tier scenario projection with live calibration</p>
+            <h3 className="text-xs font-semibold text-text-1 uppercase font-heading">Economic Forecast Case Matrix ({selectedMilestone})</h3>
+            <p className="text-[9px] text-text-3 mt-0.5 font-sans">Three-tier scenario projection with live calibration</p>
           </div>
           <Activity className="text-accent-purple animate-pulse" size={14} />
         </CardHeader>
-        <CardBody className="p-5 flex-1 flex flex-col gap-4">
+        <CardBody className="p-5 flex-1 flex flex-col gap-4 font-sans text-xs">
           
           {/* Optimistic Scenario */}
           <div className="p-4 bg-accent-green/5 border border-accent-green/20 rounded hover:border-accent-green/45 transition-all flex flex-col gap-2">
             <div className="flex justify-between items-center border-b border-accent-green/10 pb-1.5">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-accent-green">
+              <div className="flex items-center gap-2 text-xs font-semibold text-accent-green font-heading">
                 <CheckCircle2 size={13} />
                 <span>OPTIMISTIC SCENARIO</span>
               </div>
-              <Badge variant="green" className="text-[8.5px]">CONFIDENCE: {scenarios.best.confidence}%</Badge>
+              <Badge variant="green" className="text-[8.5px] font-mono font-semibold">CONFIDENCE: {scenarios.best.confidence}%</Badge>
             </div>
             
-            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3 font-semibold">
-              <div>PROBABILITY OF OCCURRENCE: <span className="text-accent-green font-bold">20%</span></div>
-              <div className="text-center font-bold">EXPECTED ECONOMIC IMPACT: <span className="text-accent-green font-bold">MINIMAL</span></div>
-              <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-green font-bold">{scenarios.best.confidence}%</span></div>
+            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3">
+              <div className="font-heading">PROBABILITY: <span className="text-accent-green font-semibold font-mono">20%</span></div>
+              <div className="text-center font-heading">IMPACT: <span className="text-accent-green font-semibold">MINIMAL</span></div>
+              <div className="text-right font-heading">MODEL CONFIDENCE: <span className="text-accent-green font-semibold font-mono">{scenarios.best.confidence}%</span></div>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mb-2.5 bg-black/20 p-2 rounded border border-border/10 text-[8.5px] font-mono text-text-2">
-              <div className="flex justify-between px-1"><span>Data Quality:</span><span className="text-accent-green font-bold">95%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Signal Agreement:</span><span className="text-accent-green font-bold">91%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Forecast Stability:</span><span className="text-accent-green font-bold">89%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Final Conf:</span><span className="text-accent-green font-bold">{scenarios.best.confidence}%</span></div>
+            <div className="grid grid-cols-4 gap-2 mb-2 bg-black/25 p-2 rounded border border-border/10 text-[8.5px] text-text-2">
+              <div className="flex justify-between px-1 font-heading"><span>Data Quality:</span><span className="text-accent-green font-semibold font-mono">95%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Signal Match:</span><span className="text-accent-green font-semibold font-mono">91%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Model Stability:</span><span className="text-accent-green font-semibold font-mono">89%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Confidence:</span><span className="text-accent-green font-semibold font-mono">{scenarios.best.confidence}%</span></div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Inflation</span>
-                <span className="font-bold text-text-1">{scenarios.best.inflation}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Inflation</span>
+                <span className="font-semibold font-mono text-text-1">{scenarios.best.inflation}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Port Dwell</span>
-                <span className="font-semibold">{scenarios.best.congestion}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Port Dwell</span>
+                <span className="font-medium text-text-2">{scenarios.best.congestion}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Rail Speed</span>
-                <span className="font-semibold">{scenarios.best.delay}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Rail Speed</span>
+                <span className="font-medium text-text-2">{scenarios.best.delay}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Mandi Index</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Mandi Index</span>
                 <span className="font-semibold text-accent-green">{scenarios.best.mandi}</span>
               </div>
             </div>
@@ -207,41 +207,41 @@ export default function ForecastLayer() {
           {/* Most Likely Scenario */}
           <div className="p-4 bg-accent-purple/5 border border-accent-purple/20 rounded hover:border-accent-purple/45 transition-all flex flex-col gap-2">
             <div className="flex justify-between items-center border-b border-accent-purple/10 pb-1.5">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-accent-purple">
+              <div className="flex items-center gap-2 text-xs font-semibold text-accent-purple font-heading">
                 <Activity size={13} />
                 <span>MOST LIKELY SCENARIO</span>
               </div>
-              <Badge variant="purple" className="text-[8.5px]">CONFIDENCE: {scenarios.base.confidence}%</Badge>
+              <Badge variant="purple" className="text-[8.5px] font-mono font-semibold">CONFIDENCE: {scenarios.base.confidence}%</Badge>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3 font-semibold">
-              <div>PROBABILITY OF OCCURRENCE: <span className="text-accent-purple font-bold">65%</span></div>
-              <div className="text-center font-bold">EXPECTED ECONOMIC IMPACT: <span className="text-accent-purple font-bold">MODERATE</span></div>
-              <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-purple font-bold">{scenarios.base.confidence}%</span></div>
+            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3">
+              <div className="font-heading">PROBABILITY: <span className="text-accent-purple font-semibold font-mono">65%</span></div>
+              <div className="text-center font-heading">IMPACT: <span className="text-accent-purple font-semibold">MODERATE</span></div>
+              <div className="text-right font-heading">MODEL CONFIDENCE: <span className="text-accent-purple font-semibold font-mono">{scenarios.base.confidence}%</span></div>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mb-2.5 bg-black/20 p-2 rounded border border-border/10 text-[8.5px] font-mono text-text-2">
-              <div className="flex justify-between px-1"><span>Data Quality:</span><span className="text-accent-purple font-bold">95%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Signal Agreement:</span><span className="text-accent-purple font-bold">91%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Forecast Stability:</span><span className="text-accent-purple font-bold">89%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Final Conf:</span><span className="text-accent-purple font-bold">{scenarios.base.confidence}%</span></div>
+            <div className="grid grid-cols-4 gap-2 mb-2 bg-black/25 p-2 rounded border border-border/10 text-[8.5px] text-text-2">
+              <div className="flex justify-between px-1 font-heading"><span>Data Quality:</span><span className="text-accent-purple font-semibold font-mono">95%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Signal Match:</span><span className="text-accent-purple font-semibold font-mono">91%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Model Stability:</span><span className="text-accent-purple font-semibold font-mono">89%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Confidence:</span><span className="text-accent-purple font-semibold font-mono">{scenarios.base.confidence}%</span></div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Inflation</span>
-                <span className="font-bold text-accent-purple">{scenarios.base.inflation}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Inflation</span>
+                <span className="font-semibold font-mono text-accent-purple">{scenarios.base.inflation}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Port Dwell</span>
-                <span className="font-semibold">{scenarios.base.congestion}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Port Dwell</span>
+                <span className="font-medium text-text-2">{scenarios.base.congestion}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Rail Speed</span>
-                <span className="font-semibold">{scenarios.base.delay}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Rail Speed</span>
+                <span className="font-medium text-text-2">{scenarios.base.delay}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Mandi Index</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Mandi Index</span>
                 <span className="font-semibold text-text-1">{scenarios.base.mandi}</span>
               </div>
             </div>
@@ -250,41 +250,41 @@ export default function ForecastLayer() {
           {/* Stress Scenario */}
           <div className="p-4 bg-accent-red/5 border border-accent-red/20 rounded hover:border-accent-red/45 transition-all flex flex-col gap-2">
             <div className="flex justify-between items-center border-b border-accent-red/10 pb-1.5">
-              <div className="flex items-center gap-2 text-xs font-extrabold text-accent-red">
+              <div className="flex items-center gap-2 text-xs font-semibold text-accent-red font-heading">
                 <AlertTriangle size={13} className="animate-pulse" />
                 <span>STRESS SCENARIO</span>
               </div>
-              <Badge variant="red" className="text-[8.5px]">CONFIDENCE: {scenarios.worst.confidence}%</Badge>
+              <Badge variant="red" className="text-[8.5px] font-mono font-semibold">CONFIDENCE: {scenarios.worst.confidence}%</Badge>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3 font-semibold">
-              <div>PROBABILITY OF OCCURRENCE: <span className="text-accent-red font-bold">15%</span></div>
-              <div className="text-center font-bold">EXPECTED ECONOMIC IMPACT: <span className="text-accent-red font-bold">SEVERE</span></div>
-              <div className="text-right">MODEL CONFIDENCE: <span className="text-accent-red font-bold">{scenarios.worst.confidence}%</span></div>
+            <div className="grid grid-cols-3 gap-2 border-b border-border/10 pb-2 mb-2 text-[9.5px] text-text-3">
+              <div className="font-heading">PROBABILITY: <span className="text-accent-red font-semibold font-mono">15%</span></div>
+              <div className="text-center font-heading">IMPACT: <span className="text-accent-red font-semibold">SEVERE</span></div>
+              <div className="text-right font-heading">MODEL CONFIDENCE: <span className="text-accent-red font-semibold font-mono">{scenarios.worst.confidence}%</span></div>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mb-2.5 bg-black/20 p-2 rounded border border-border/10 text-[8.5px] font-mono text-text-2">
-              <div className="flex justify-between px-1"><span>Data Quality:</span><span className="text-accent-red font-bold">95%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Signal Agreement:</span><span className="text-accent-red font-bold">91%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Forecast Stability:</span><span className="text-accent-red font-bold">89%</span></div>
-              <div className="flex justify-between px-1 border-l border-border/15"><span>Final Conf:</span><span className="text-accent-red font-bold">{scenarios.worst.confidence}%</span></div>
+            <div className="grid grid-cols-4 gap-2 mb-2 bg-black/25 p-2 rounded border border-border/10 text-[8.5px] text-text-2">
+              <div className="flex justify-between px-1 font-heading"><span>Data Quality:</span><span className="text-accent-red font-semibold font-mono">95%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Signal Match:</span><span className="text-accent-red font-semibold font-mono">91%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Model Stability:</span><span className="text-accent-red font-semibold font-mono">89%</span></div>
+              <div className="flex justify-between px-1 border-l border-border/15 font-heading"><span>Confidence:</span><span className="text-accent-red font-semibold font-mono">{scenarios.worst.confidence}%</span></div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-text-2 leading-relaxed">
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Inflation</span>
-                <span className="font-bold text-accent-red">{scenarios.worst.inflation}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Inflation</span>
+                <span className="font-semibold font-mono text-accent-red">{scenarios.worst.inflation}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Port Dwell</span>
-                <span className="font-semibold">{scenarios.worst.congestion}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Port Dwell</span>
+                <span className="font-medium text-text-2">{scenarios.worst.congestion}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Rail Speed</span>
-                <span className="font-semibold">{scenarios.worst.delay}</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Rail Speed</span>
+                <span className="font-medium text-text-2">{scenarios.worst.delay}</span>
               </div>
               <div>
-                <span className="text-[8px] text-text-3 block uppercase">Mandi Index</span>
+                <span className="text-[8px] text-text-3 block uppercase font-heading tracking-wider">Mandi Index</span>
                 <span className="font-semibold text-accent-red">{scenarios.worst.mandi}</span>
               </div>
             </div>

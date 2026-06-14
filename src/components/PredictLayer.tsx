@@ -74,29 +74,29 @@ export default function PredictLayer() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-rise">
       <div className="lg:col-span-12 flex flex-col gap-1 border-b border-border/20 pb-2 mb-2">
-        <span className="text-accent-purple font-mono text-[9px] uppercase tracking-widest leading-none font-bold">SCENARIO LAB // What if conditions change?</span>
+        <span className="text-accent-purple font-heading text-[9px] uppercase tracking-widest leading-none font-semibold">SCENARIO LAB // What if conditions change?</span>
       </div>
 
       {/* Left panel: Shock Presets & Sliders - 5 cols */}
-      <div className="lg:col-span-5 flex flex-col gap-5">
+      <div className="lg:col-span-5 flex flex-col gap-5 animate-fade-rise">
         {/* Preset Shocks Grid */}
         <Card>
           <CardHeader>
             <div>
-              <h2 className="text-base font-bold text-text-1">SCENARIO LAB™</h2>
-              <p className="text-[11px] text-text-3 font-mono mt-0.5">Macroeconomic Sovereign Stress Simulator</p>
+              <h2 className="text-base font-bold text-text-1 font-heading">SCENARIO LAB™</h2>
+              <p className="text-[11px] text-text-3 font-sans mt-0.5">Macroeconomic Sovereign Stress Simulator</p>
             </div>
             <Badge variant="amber">SIMULATION ENGINE</Badge>
           </CardHeader>
-          <CardBody>
+          <CardBody className="font-sans">
             <div className="grid grid-cols-2 gap-2 mb-4">
               {PRESET_SHOCKS.map(shock => (
                 <button
                   key={shock.id}
                   onClick={() => handlePresetClick(shock.id)}
-                  className={`py-2 px-3 border rounded text-left text-[10px] font-semibold font-mono transition-all flex items-center justify-between ${
+                  className={`py-2 px-3 border rounded text-left text-[10px] font-semibold font-sans transition-all flex items-center justify-between ${
                     activePresetShock === shock.id
-                      ? 'bg-accent-amber/10 border-accent-amber text-accent-amber font-bold shadow-glow-amber'
+                      ? 'bg-accent-amber/10 border-accent-amber text-accent-amber font-semibold shadow-glow-amber'
                       : 'bg-black/20 border-border/40 text-text-3 hover:text-text-2 hover:border-border'
                   }`}
                 >
@@ -107,8 +107,8 @@ export default function PredictLayer() {
             </div>
 
             <div className="border-t border-border/20 pt-3 flex justify-between items-center">
-              <span className="text-[10px] font-mono text-text-3 uppercase">Customize Shock Variables</span>
-              <Button variant="ghost" size="sm" onClick={resetShocks} className="text-[10px] font-mono">
+              <span className="text-[10px] font-heading font-semibold text-text-3 uppercase">Customize Shock Variables</span>
+              <Button variant="ghost" size="sm" onClick={resetShocks} className="text-[10px] font-sans font-semibold">
                 <RefreshCw size={10} /> Reset Values
               </Button>
             </div>
@@ -117,12 +117,12 @@ export default function PredictLayer() {
 
         {/* Sliders Panel */}
         <Card className="flex-1">
-          <CardBody className="flex flex-col gap-4 font-mono text-[11px]">
+          <CardBody className="flex flex-col gap-4 font-sans text-[11px]">
             {/* Slider 1: Brent Crude */}
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center text-text-2">
                 <span>🛢️ BRENT CRUDE OIL SHOCK</span>
-                <span className="text-accent-amber font-bold">+{oilShock}%</span>
+                <span className="text-accent-amber font-mono font-semibold">+{oilShock}%</span>
               </div>
               <input
                 type="range" min="-50" max="100" step="5"
@@ -136,7 +136,7 @@ export default function PredictLayer() {
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center text-text-2">
                 <span>⚓ PORT YARD DISRUPTION</span>
-                <span className="text-accent-amber font-bold">+{portDisruption}%</span>
+                <span className="text-accent-amber font-mono font-semibold">+{portDisruption}%</span>
               </div>
               <input
                 type="range" min="0" max="100" step="5"
@@ -150,7 +150,7 @@ export default function PredictLayer() {
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center text-text-2">
                 <span>🌾 MONSOON DELAY DEFICIT</span>
-                <span className="text-accent-amber font-bold">+{monsoonDelay}%</span>
+                <span className="text-accent-amber font-mono font-semibold">+{monsoonDelay}%</span>
               </div>
               <input
                 type="range" min="0" max="100" step="5"
@@ -164,7 +164,7 @@ export default function PredictLayer() {
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center text-text-2">
                 <span>🚆 RAILROAD HANDLER STRIKE</span>
-                <span className="text-accent-amber font-bold">+{railStrike}%</span>
+                <span className="text-accent-amber font-mono font-semibold">+{railStrike}%</span>
               </div>
               <input
                 type="range" min="0" max="100" step="5"
@@ -178,7 +178,7 @@ export default function PredictLayer() {
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center text-text-2">
                 <span>🌊 CORRIDOR FLOOD SHUT-DOWN</span>
-                <span className="text-accent-amber font-bold">+{floodImpact}%</span>
+                <span className="text-accent-amber font-mono font-semibold">+{floodImpact}%</span>
               </div>
               <input
                 type="range" min="0" max="100" step="5"
@@ -192,7 +192,7 @@ export default function PredictLayer() {
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center text-text-2">
                 <span>🔌 COAL TERMINAL SHORTAGE</span>
-                <span className="text-accent-amber font-bold">+{coalShortage}%</span>
+                <span className="text-accent-amber font-mono font-semibold">+{coalShortage}%</span>
               </div>
               <input
                 type="range" min="0" max="100" step="5"
@@ -210,25 +210,25 @@ export default function PredictLayer() {
         {/* Dynamic Metric Readouts */}
         <div className="grid grid-cols-3 gap-3">
           <Card>
-            <CardBody className="p-3.5 flex flex-col justify-between h-20 font-mono">
+            <CardBody className="p-3.5 flex flex-col justify-between h-20 font-sans">
               <span className="text-[9px] text-text-3 block uppercase leading-none">Est GDP Impact</span>
-              <span className={`text-base font-extrabold leading-none ${simulation.gdpImpactPct < 0 ? 'text-accent-red' : 'text-accent-green'}`}>
+              <span className={`text-base font-semibold font-mono leading-none ${simulation.gdpImpactPct < 0 ? 'text-accent-red' : 'text-accent-green'}`}>
                 {simulation.gdpImpactPct > 0 ? '+' : ''}{simulation.gdpImpactPct}%
               </span>
             </CardBody>
           </Card>
           <Card>
-            <CardBody className="p-3.5 flex flex-col justify-between h-20 font-mono">
+            <CardBody className="p-3.5 flex flex-col justify-between h-20 font-sans">
               <span className="text-[9px] text-text-3 block uppercase leading-none">Inflation Offset</span>
-              <span className={`text-base font-extrabold leading-none ${simulation.inflationChangePct > 1.5 ? 'text-accent-red' : 'text-accent-green'}`}>
+              <span className={`text-base font-semibold font-mono leading-none ${simulation.inflationChangePct > 1.5 ? 'text-accent-red' : 'text-accent-green'}`}>
                 +{simulation.inflationChangePct}%
               </span>
             </CardBody>
           </Card>
           <Card>
-            <CardBody className="p-3.5 flex flex-col justify-between h-20 font-mono">
+            <CardBody className="p-3.5 flex flex-col justify-between h-20 font-sans">
               <span className="text-[9px] text-text-3 block uppercase leading-none">Freight Volume Delta</span>
-              <span className={`text-base font-extrabold leading-none ${simulation.freightVolumeChangePct < 0 ? 'text-accent-red' : 'text-accent-green'}`}>
+              <span className={`text-base font-semibold font-mono leading-none ${simulation.freightVolumeChangePct < 0 ? 'text-accent-red' : 'text-accent-green'}`}>
                 {simulation.freightVolumeChangePct > 0 ? '+' : ''}{simulation.freightVolumeChangePct}%
               </span>
             </CardBody>
@@ -239,15 +239,15 @@ export default function PredictLayer() {
         <Card className="flex-1 flex flex-col min-h-[360px] relative overflow-hidden">
           <CardHeader className="border-b border-border/20 pb-3">
             <div className="flex items-center justify-between w-full">
-              <h3 className="text-xs font-bold text-text-1 font-mono uppercase">Scenario Modeling Forecast (ARTHAM INDEX)</h3>
-              <Badge variant="purple">Expected Index: {simulation.overallIndex}</Badge>
+              <h3 className="text-xs font-bold text-text-1 font-heading uppercase">Scenario Modeling Forecast (ARTHAM INDEX)</h3>
+              <Badge variant="purple" className="font-mono font-medium">Expected Index: {simulation.overallIndex}</Badge>
             </div>
           </CardHeader>
-          <CardBody className="flex-1 p-4 flex flex-col justify-between relative">
+          <CardBody className="flex-1 p-4 flex flex-col justify-between relative font-sans">
             {recalculating && (
               <div className="absolute inset-0 bg-bg-base/85 backdrop-blur-md flex flex-col items-center justify-center font-mono text-[9px] text-accent-amber border border-accent-amber/20 rounded z-30 select-none animate-pulse">
                 <span className="w-2 h-2 rounded-full bg-accent-amber animate-ping mb-3" />
-                <span className="font-extrabold tracking-widest uppercase">{recalcText}</span>
+                <span className="font-semibold tracking-widest uppercase">{recalcText}</span>
               </div>
             )}
 
@@ -284,11 +284,11 @@ export default function PredictLayer() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-accent-amber/5 border border-accent-amber/20 rounded p-3 text-[10px] font-mono text-text-2 flex items-start gap-2.5 leading-relaxed mt-2">
+            <div className="bg-accent-amber/5 border border-accent-amber/20 rounded p-3 text-[10px] text-text-2 flex items-start gap-2.5 leading-relaxed mt-2 font-sans">
               <AlertTriangle className="text-accent-amber flex-shrink-0" size={14} />
               <div>
-                <span className="font-bold text-accent-amber block mb-0.5 uppercase">Simulation Warning Code</span>
-                Expected Case projections drop the ARTHAM Index by {Math.abs(parseFloat((74.3 - simulation.overallIndex).toFixed(1)))} points. Check mitigations inside the **SITUATION ROOM** tab to optimize buffers.
+                <span className="font-heading font-semibold text-accent-amber block mb-0.5 uppercase">Simulation Warning Code</span>
+                Expected Case projections drop the ARTHAM Index by <span className="font-mono font-semibold">{Math.abs(parseFloat((74.3 - simulation.overallIndex).toFixed(1)))}</span> points. Check mitigations inside the **SITUATION ROOM** tab to optimize buffers.
               </div>
             </div>
           </CardBody>

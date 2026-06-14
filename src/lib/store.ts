@@ -8,7 +8,7 @@ import {
   FORECAST_DATA,
   INTELLIGENCE_FEED_SEEDS
 } from './mock-data'
-import { calculateConfidence, calculateRiskRadar, simulateEconomicShock } from './economic-models'
+import { calculateConfidence, simulateEconomicShock } from './economic-models'
 
 interface ARTHAMStore extends ARTHAMState {
   searchQuery: string
